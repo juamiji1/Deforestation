@@ -9,24 +9,23 @@ NOTES:
 
 clear all 
 
-*Global for each user (JM or LM)
-global user "JM"
-
-if "${user}"=="JM"{
-	* JM: Personal computer(C:\Users\USER) and WBG computer(C:\Users\WB548381).
-	global path "C:\Users\WB548381"
+*Paths 
+if c(username) == "BFI User" {
+	gl path "C:\Users/`c(username)'\Dropbox"
+	gl do "C:\Users/`c(username)'\Documents\GitHub\Deforestation\do"
+	gl work "C:\Users/`c(username)'\Documents\GitHub\Deforestation\work"
 }
-else{
-	global path "su path liz"
+else {
+	gl path "C:\Users/`c(username)'\Dropbox\Deforestation"
+	gl do "C:\Users/`c(username)'\Documents\GitHub\Deforestation\do"
+	gl work "C:\Users/`c(username)'\Documents\GitHub\Deforestation\work"
 }
 
-global data ${path}/Dropbox\Deforestacion\data
-global do ${path}/Dropbox\Deforestacion\do
-global logs ${path}/Dropbox\Deforestacion\logs
-global work ${path}/Dropbox\Deforestacion\work
-global maps ${path}/Dropbox\Maps
+global data ${path}/Deforestacion\data
+global logs ${path}/Deforestacion\logs
+global maps ${path}/Maps
 
-cd $data
+cd "${data}"
 
 
 *-------------------------------------------------------------------------------

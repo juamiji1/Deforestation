@@ -7,33 +7,14 @@ Author: JMJR
 
 clear all 
 
-*Global for each user (JM or LM)
-global user "JM"
-
-if "${user}"=="JM"{
-	* JM: Personal computer(C:\Users\USER) and WBG computer(C:\Users\WB548381).
-	*global path "C:\Users\USER"
-	global path "C:\Users\WB548381"
-}
-else{
-	global path "su path liz"
-}
-
-global data ${path}/Dropbox\Deforestacion\data
-global do ${path}/Dropbox\Deforestacion\do
-global logs ${path}/Dropbox\Deforestacion\logs
-global work ${path}/Dropbox\Deforestacion\work
-global maps ${path}/Dropbox\Maps
-
-cd $data
+*Open X data set 
+use forestloss_00_18_races.dta, clear
 
 
 *-------------------------------------------------------------------------------
 * 							Descriptive Statistics  
 *
 *-------------------------------------------------------------------------------
-use forestloss_00_18_races.dta, clear
-
 *Colombian forest loss trend
 tsline col_loss_area00 if codmpio=="05001" & year>2000, graphr(color(white)) title("Colombia") graphr(color(white))
 gr export ${work}/col_deforest.pdf, replace as(pdf)

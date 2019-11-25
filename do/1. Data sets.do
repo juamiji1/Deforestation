@@ -6,28 +6,9 @@ Date: July-1st-2019
 Author: JMJR
 ------------------------------------------------------------------------------*/
 
-clear all 
+clear all
 
-*Global for each user (JM or LM)
-global user "JM"
-
-if "${user}"=="JM"{
-	* JM: Personal computer(C:\Users\USER) and WBG computer(C:\Users\WB548381).
-	global path "C:\Users\USER"
-	*global path "C:\Users\WB548381"
-}
-else{
-	global path "su path liz"
-}
-
-global data ${path}/Dropbox\Deforestacion\data
-global do ${path}/Dropbox\Deforestacion\do
-global logs ${path}/Dropbox\Deforestacion\logs
-global work ${path}/Dropbox\Deforestacion\work
-global maps ${path}/Dropbox\Maps
-
-cd $data
-
+*Log file
 log using "$logs\1_Data_sets_(`c(current_date)').txt", replace text
 
 
