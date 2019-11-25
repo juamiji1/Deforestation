@@ -1,0 +1,566 @@
+/* Topic: This code calculates the yearly forest loss in Colombia between (2000-2018).
+   API: The code is in JS and must be run in https://code.earthengine.google.com/
+
+   Author: Juan Miguel Jimenez Riveros
+   Date: July-1st-2019
+*/
+
+// importamos la tabla dinamica con las geometrias de cada municipio
+  var muni = ee.FeatureCollection('ft:1iPPkfJg95WOnHcdWO0VmiC4nnTG0OkxgzKCrBGHt');
+
+// importamos la imagen de la base de datos hansen
+  var Hansen = ee.Image('UMD/hansen/global_forest_change_2018_v1_6');
+
+
+//--------------------------------2000------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2000 = Hansen.select(['lossyear']).eq(0);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2000 = perdida2000.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2000 = function(feature) {
+
+  var sumaPerdida2000 = areaPerdida2000.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2000: sumaPerdida2000.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2000);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2000',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2001------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2001 = Hansen.select(['lossyear']).eq(1);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2001 = perdida2001.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2001 = function(feature) {
+
+  var sumaPerdida2001 = areaPerdida2001.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2001: sumaPerdida2001.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2001);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2001',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2002------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2002 = Hansen.select(['lossyear']).eq(2);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2002 = perdida2002.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2002 = function(feature) {
+
+  var sumaPerdida2002 = areaPerdida2002.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2002: sumaPerdida2002.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2002);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2002',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2003------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2003 = Hansen.select(['lossyear']).eq(3);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2003 = perdida2003.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2003 = function(feature) {
+
+  var sumaPerdida2003 = areaPerdida2003.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2003: sumaPerdida2003.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2003);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2003',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2004------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2004 = Hansen.select(['lossyear']).eq(4);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2004 = perdida2004.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2004 = function(feature) {
+
+  var sumaPerdida2004 = areaPerdida2004.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2004: sumaPerdida2004.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2004);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2004',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2005------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2005 = Hansen.select(['lossyear']).eq(5);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2005 = perdida2005.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2005 = function(feature) {
+
+  var sumaPerdida2005 = areaPerdida2005.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2005: sumaPerdida2005.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2005);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2005',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2006------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2006 = Hansen.select(['lossyear']).eq(6);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2006 = perdida2006.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2006 = function(feature) {
+
+  var sumaPerdida2006 = areaPerdida2006.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2006: sumaPerdida2006.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2006);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2006',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2007------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2007 = Hansen.select(['lossyear']).eq(7);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2007 = perdida2007.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2007 = function(feature) {
+
+  var sumaPerdida2007 = areaPerdida2007.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2007: sumaPerdida2007.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2007);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2007',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2008------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2008 = Hansen.select(['lossyear']).eq(8);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2008 = perdida2008.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2008 = function(feature) {
+
+  var sumaPerdida2008 = areaPerdida2008.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2008: sumaPerdida2008.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2008);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2008',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2009------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2009 = Hansen.select(['lossyear']).eq(9);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2009 = perdida2009.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2009 = function(feature) {
+
+  var sumaPerdida2009 = areaPerdida2009.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2009: sumaPerdida2009.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2009);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2009',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2010------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2010 = Hansen.select(['lossyear']).eq(10);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2010 = perdida2010.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2010 = function(feature) {
+
+  var sumaPerdida2010 = areaPerdida2010.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2010: sumaPerdida2010.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2010);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2010',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2011------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2011 = Hansen.select(['lossyear']).eq(11);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2011 = perdida2011.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2011 = function(feature) {
+
+  var sumaPerdida2011 = areaPerdida2011.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2011: sumaPerdida2011.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2011);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2011',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2012------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2012 = Hansen.select(['lossyear']).eq(12);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2012 = perdida2012.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2012 = function(feature) {
+
+  var sumaPerdida2012 = areaPerdida2012.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2012: sumaPerdida2012.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2012);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2012',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2013------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2013 = Hansen.select(['lossyear']).eq(13);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2013 = perdida2013.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2013 = function(feature) {
+
+  var sumaPerdida2013 = areaPerdida2013.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2013: sumaPerdida2013.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2013);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2013',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2014------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2014 = Hansen.select(['lossyear']).eq(14);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2014 = perdida2014.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2014 = function(feature) {
+
+  var sumaPerdida2014 = areaPerdida2014.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2014: sumaPerdida2014.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2014);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2014',
+    fileFormat: 'CSV'
+  });
+//--------------------------------2015------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2015 = Hansen.select(['lossyear']).eq(15);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2015 = perdida2015.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2015 = function(feature) {
+
+  var sumaPerdida2015 = areaPerdida2015.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2015: sumaPerdida2015.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2015);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2015',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2016------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2016 = Hansen.select(['lossyear']).eq(16);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2016 = perdida2016.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2016 = function(feature) {
+
+  var sumaPerdida2016 = areaPerdida2016.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2016: sumaPerdida2016.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2016);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2016',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2017------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2017 = Hansen.select(['lossyear']).eq(17);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2017 = perdida2017.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2017 = function(feature) {
+
+  var sumaPerdida2017 = areaPerdida2017.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2017: sumaPerdida2017.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2017);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2017',
+    fileFormat: 'CSV'
+  });
+
+//--------------------------------2018------------------------------------------------------------------
+
+// calculamos una variable compuesta de una coleccion de imagenes relacionadas con la perdida en el 2012
+  var perdida2018 = Hansen.select(['lossyear']).eq(18);
+
+// se calcula una variable en terminos de area o metros cuadrados en vez de pixeles
+  var areaPerdida2018 = perdida2018.multiply(ee.Image.pixelArea());
+
+// se crea una funcion que sume la perdida para una geometria dada como parametro para el periodo 2012
+  var aniadirperdida2018 = function(feature) {
+
+  var sumaPerdida2018 = areaPerdida2018.reduceRegion({
+    reducer: ee.Reducer.sum(),
+    geometry: feature.geometry(),
+    maxPixels : 100000000    // could also be 1e9
+  });
+  return feature.set({loss2018: sumaPerdida2018.get('lossyear')});
+  };
+
+// se calcula para todos los datos de la lista muni la perdida apartir de la funcion aniadirperdida2012
+  var final = muni.map(aniadirperdida2018);
+
+// exportamos la tabla dinamica a drive en el formato deseado
+  Export.table.toDrive({
+    collection: final,
+    description:'deforest2018',
+    fileFormat: 'CSV'
+  });
+
+// imprimimos en la consola los resultados que queremos analizar
+  print(final.limit(4));
