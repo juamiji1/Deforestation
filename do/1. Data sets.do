@@ -9,7 +9,7 @@ Author: JMJR
 clear all
 
 *Log file
-log using "$logs\1_Data_sets_(`c(current_date)').txt", replace text
+*log using "$logs\1_Data_sets_(`c(current_date)').txt", replace text
 
 
 *-------------------------------------------------------------------------------
@@ -113,8 +113,7 @@ save elections_panel.dta, replace
 *-------------------------------------------------------------------------------
 
 *Converting Municipal shape file to dta data
-shp2dta using "$maps\Municipios\Municipios.shp", database(${data}\municipios) ///
-coordinates(${data}\municipcoord) genid(idmap) replace
+shp2dta using ${maps}/Municipios\Municipios.shp, database(${data}\municipios.dta) coordinates(${data}\municipcoord.dta) genid(idmap) replace
 
 use municipios.dta, clear
 duplicates drop IDDANE, force 
@@ -122,8 +121,7 @@ rename IDDANE codmuni
 save, replace 
 
 *Converting Departament shape file to dta data
-shp2dta using "$maps\Departamentos\Departamentos.shp", database(${data}\departamentos) ///
-coordinates(${data}\deptocoord) genid(idmap2) replace
+shp2dta using ${maps}\Departamentos\Departamentos.shp, database(${data}\departamentos.dta) coordinates(${data}\deptocoord.dta) genid(idmap2) replace
 
 use departamentos.dta, clear 
 rename COD_DANE_D codepto 
@@ -246,7 +244,7 @@ save forestloss_00_18.dta, replace
 
 *OLD VERSION: use elections_panel_CLASFPART_16072019.dta, clear 
 
-use elections_panel_CLASFPART_20102019.dta, clear
+use elections_panel_CLASFPART_02122019.dta, clear
 
 *Organizing the data set & renaming variables should be FOR NOW. 
 rename (coddpto votos codigo_partido curules candidato) (codepto votes party_code seats candidate)  
@@ -493,7 +491,7 @@ save forestloss_00_18_races.dta, replace
 
 
 
-log c
+*log c
 
 
 
