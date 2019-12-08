@@ -16,11 +16,11 @@ use forestloss_00_18_races.dta, clear
 *
 *-------------------------------------------------------------------------------
 *Total Colombian forest loss trend
-tsline col_loss if codmpio=="05001" & year>2000, graphr(color(white)) title("Colombia") graphr(color(white))
+tsline col_loss if codmpio=="05001" & year>2000, graphr(color(white)) title("Colombia") graphr(color(white)) xline(2003 2007 2011 2015, lp(dash) lc(maroon)) tlabel(2001 (2) 2018)
 gr export ${plots}/col_deforest_km2.pdf, replace as(pdf)
 
 
-tsline col_loss_area00 if codmpio=="05001" & year>2000, graphr(color(white)) title("Colombia") graphr(color(white))
+tsline col_loss_area00 if codmpio=="05001" & year>2000, graphr(color(white)) title("Colombia") graphr(color(white))  xline(2003 2007 2011 2015, lp(dash) lc(maroon)) tlabel(2001 (2) 2018)
 gr export ${plots}/col_deforest_sh.pdf, replace as(pdf)
 
 *Departamental Forest loss trend 
@@ -62,7 +62,7 @@ preserve
 		(line loss_km2 year if year>2000 & codepto==68),
 		legend(label(1 "Putumayo") label(2 "Norte de Santander") label(3 "Bolivar")
 		label(4 "Antioquia") label(5 "Santander") label(6 "Caqueta"))
-		graphr(color(white));	
+		graphr(color(white)) xline(2003 2007 2011 2015, lp(dash) lc(maroon));	
 	#d cr
 	gr export ${plots}/depto_km2.pdf, replace as(pdf)
 	
@@ -148,26 +148,29 @@ graph export ${plots}/deforest_total.pdf, replace as(pdf)
 *-------------------------------------------------------------------------------
 use forestloss_00_18_races.dta, clear
 
-*Stats about winners and races
-tabstat winner_left, by(year) s(sum) save
-tabstatmat L 
-tabstat winner_right, by(year) s(sum) save
-tabstatmat R
-
+*Stats about left winners and left races
+tabstat winner_left if (year==2001 | year==2004 | year==2008 | year==2012 | year==2016), by(year) s(sum) save
+cap tabstatmat L 
+tabstat winner_right if (year==2001 | year==2004 | year==2008 | year==2012 | year==2016), by(year) s(sum) save
+cap tabstatmat R
 mat A=L,R
 
-tabstat race_left, by(year) s(sum) save
-tabstatmat L 
-tabstat race_right, by(year) s(sum) save
-tabstatmat R
-
+*Stats about right winners and right races
+tabstat race_left if (year==2001 | year==2004 | year==2008 | year==2012 | year==2016), by(year) s(sum) save
+cap tabstatmat L 
+tabstat race_right if (year==2001 | year==2004 | year==2008 | year==2012 | year==2016), by(year) s(sum) save
+cap tabstatmat R
 mat A=A,L,R
-mat coln A= "Left winner" "Right winner" "Left in race" "Right in race"
-mat l A
 
+*Reseting the names since tabstat command is in MATA
+local rowname : roweq A
+mata: st_matrixrowstripe("A", J(rows(st_matrix("A")),2," "))
+mat rown A=2000 2003 2007 2011 2015 Total
+
+*Clean output
 tempfile X
-frmttable using `X', s(A) sdec(0) title("Statistics on elections (2001-2015)") tex fragment nocenter replace
-filefilter `X' ${tables}\elections.tex, from("r}\BS\BS") to("r}") replace 
+frmttable using `X', s(A) sdec(0) ctitle("Elections", "Left winner", "Right winner", "Left in race", "Right in race") tex fragment nocenter replace
+filefilter `X' ${tables}\elections.tex, from("r}\BS\BS") to("r}") replace 		// Deleting the "\\" in the TeX file
 
 *Difference of means program 
 do ${do}/my_ttest.do
