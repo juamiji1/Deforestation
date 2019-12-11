@@ -47,14 +47,22 @@ cap nois erase ${tables}/rd_left_km2.tex
 cap nois erase ${tables}/rd_left_km2.doc
 cap nois erase ${tables}/rd_left_km2.txt
 
+mat A= e(beta_p_r) 
+mat l A
+mat B= e(beta_p_l) 
+mat l B
 
 *-------------------------------------------------------------------------------
 *loss_area00:
 *-------------------------------------------------------------------------------
 
 *RDD, P=1, Kernel=triangular
-rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)
-outreg2 using ${tables}/rd_left.tex, append addstat(Bw, e(h_l), Poly, e(p)) addtext(Covs, No) tex(fragment)
+eststo est1: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+esttab est1, se keep(Robust) stats(N h_l p Covs, labels(N Bw Poly )) 
+
+
+outreg2 using ${tables}/rd_left.tex, append addstat(Bw, e(h_l), Poly, e(p)) addtext(Covs, No) tex(fragment) keep(Robust)
 gl h=e(h_l) 
 rdplot loss_area00 sh_votes_left if abs(sh_votes_left)<=$h, h($h) p(1) nbins(50 50) graph_options(graphregion(color(white)) subtitle("No covariates") xtitle("Share of votes for the left") legend(off) name(rd1, replace)) 
 
