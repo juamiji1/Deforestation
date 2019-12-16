@@ -48,28 +48,26 @@ rdbwselect loss_area00 sh_votes_left, p(1) kernel(tri)
 gl h=e(h_mserd)
 gl b= e(b_mserd) 
 
-*Difference of means program 
+*Difference of means program (ttest)
 my_ttest $vars if abs(sh_votes_left)<=$h, by(winner_left)
 mat T=e(est)
 mat S=e(stars)
 
-*Nice results
+*Nice results of ttest
 tempfile X
 frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Control", "Treatment", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(ED)", "(ED)", "(p-value)†") fragment tex nocenter
 filefilter `X' ${tables}\ttest_lc_left.tex, from("r}\BS\BS") to("r}") replace 
 
-*Erasing files
-cap nois erase ${tables}/rd_left.tex
-cap nois erase ${tables}/rd_left.doc
-cap nois erase ${tables}/rd_left.txt
-cap nois erase ${tables}/rd_left_km2.tex
-cap nois erase ${tables}/rd_left_km2.doc
-cap nois erase ${tables}/rd_left_km2.txt
+*Difference of means using rdd
+local k=1
+foreach var of global vars{
+	eststo est`k': rdrobust `var' sh_votes_left, all p(1) kernel(tri)
+	local ++k
+}
 
-mat A= e(beta_p_r) 
-mat l A
-mat B= e(beta_p_l) 
-mat l B
+*Nice Results with rdd 
+esttab est1 est2 est3 est4 est5 est6 est7 est8 using ${tables}/rdd_lc_left.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
 
 *-------------------------------------------------------------------------------
 * 							Regressions for left races
@@ -134,7 +132,7 @@ rdplot loss_km2 sh_votes_left if abs(sh_votes_left)<=$h1, h(${h1}) p(1) nbins(50
 
 rdplot loss_km2 sh_votes_left if abs(sh_votes_left)<=$h2, h($h2) p(1) covs(indrural altura sh_coca disbogota area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the left") legend(off) name(rd2, replace))  
 
-gr combine rd1 rd2, title("Share of forest loss") graphregion(color(white))
+gr combine rd1 rd2, title("Forest loss (Km 2)") graphregion(color(white))
 gr export ${plots}/rdplot_left_km2.pdf, replace as(pdf)
 
 
@@ -223,13 +221,15 @@ tempfile X
 frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Control", "Treatment", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(ED)", "(ED)", "(p-value)†") fragment tex nocenter
 filefilter `X' ${tables}\ttest_lc_right.tex, from("r}\BS\BS") to("r}") replace 
 
-*Erasing files
-cap nois erase ${tables}/rd_right.tex
-cap nois erase ${tables}/rd_right.doc
-cap nois erase ${tables}/rd_right.txt
-cap nois erase ${tables}/rd_right_km2.tex
-cap nois erase ${tables}/rd_right_km2.doc
-cap nois erase ${tables}/rd_right_km2.txt
+*Difference of means using rdd
+local k=1
+foreach var of global vars{
+	eststo est`k': rdrobust `var' sh_votes_right, all p(1) kernel(tri)
+	local ++k
+}
+
+*Nice Results with rdd 
+esttab est1 est2 est3 est4 est5 est6 est7 est8 using ${tables}/rdd_lc_right.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
 
 *-------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ rdplot loss_km2 sh_votes_right if abs(sh_votes_right)<=$h1, h(${h1}) p(1) nbins(
 
 rdplot loss_km2 sh_votes_right if abs(sh_votes_right)<=$h2, h($h2) p(1) covs(indrural altura sh_coca disbogota area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the right") legend(off) name(rd2, replace))  
 
-gr combine rd1 rd2, title("Share of forest loss") graphregion(color(white))
+gr combine rd1 rd2, title("Forest loss (Km 2)") graphregion(color(white))
 gr export ${plots}/rdplot_right_km2.pdf, replace as(pdf)
 
 
