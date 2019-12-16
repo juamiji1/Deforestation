@@ -2,7 +2,7 @@
    API: The code is in JS and must be run in https://code.earthengine.google.com/
 
    Author: Juan Miguel Jimenez Riveros
-   Date: July-1st-2019
+   Date: 06-01-19
 */
 
 // importamos la tabla dinamica con las geometrias de cada municipio

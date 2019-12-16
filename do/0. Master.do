@@ -9,24 +9,29 @@ NOTES:
 
 clear all 
 
-*Paths 
-if c(username) == "BFI User" {
-	gl path "C:\Users/`c(username)'\Dropbox"
+*Setting directories 
+if c(username) == "jmjimenez" {
+	gl path "C:\Users/`c(username)'\Dropbox\My-Research\Deforestation"
 	gl do "C:\Users/`c(username)'\Documents\GitHub\Deforestation\do"
-	gl work "C:\Users/`c(username)'\Documents\GitHub\Deforestation\work"
+	gl maps "C:\Users/`c(username)'\Dropbox\My-Research\Maps"
 }
 else {
 	gl path "C:\Users/`c(username)'\Dropbox\Deforestation"
-	gl do "C:\Users/`c(username)'\Documents\GitHub\Deforestation\do"
-	gl work "C:\Users/`c(username)'\Documents\GitHub\Deforestation\work"
 }
 
-global data ${path}/Deforestacion\data
-global logs ${path}/Deforestacion\logs
-global maps ${path}/Maps
+gl data ${path}/data
+gl logs ${path}/logs
+gl work ${path}/work
+gl plots ${work}/plots
+gl tables ${work}/tables
 
 cd "${data}"
 
+*Setting a pre-scheme for graphs
+grstyle init
+grstyle title color black
+grstyle color background white
+grstyle color major_grid dimgray
 
 *-------------------------------------------------------------------------------
 * 							A. Preparing data sets
@@ -40,7 +45,7 @@ cd "${data}"
 				- forestloss_00_18.dta
 				- elections_forestloss_00_18.dta
 */
-do "${do}\1. Data sets"
+*do "${do}\1. Data sets"
 
 *-------------------------------------------------------------------------------
 * 							B. Descriptive statistics

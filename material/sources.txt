@@ -1,0 +1,6 @@
+Useful material for the deforestation project"
+
+1. Course in R of spatial analysis:
+https://rspatial.org/
+2. Resampling the resolution of the Hansen data set: 
+https://github.com/banco-republica-research/deforestacion/blob/master/extracting/raster_treecover.R
