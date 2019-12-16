@@ -476,6 +476,8 @@ la var km2_coca "Coca (Km2)"
 la var sh_coca "Coca share (2000 base)"
 la var lotes_coca "Number of coca fields"
 la var permits "Evironmental permits (ANLA)"
+la var sh_votes_left "Share of votes for left"
+la var sh_votes_right "Share of votes for right"
 
 *Ordering the data
 sort codmpio year 

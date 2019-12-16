@@ -27,6 +27,11 @@ gl tables ${work}/tables
 
 cd "${data}"
 
+*Setting a pre-scheme for graphs
+grstyle init
+grstyle title color black
+grstyle color background white
+grstyle color major_grid dimgray
 
 *-------------------------------------------------------------------------------
 * 							A. Preparing data sets
