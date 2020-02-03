@@ -39,7 +39,7 @@ preserve
 	line loss_area00 year if year>2000, by(depto) graphr(color(white))
 	gr export ${plots}/depto_box_sh.pdf, replace as(pdf)
 	
-		*Ranking of the 6 departments with the most forest loss in km2
+	*Ranking of the 6 departments with the most forest loss in km2
 	bys codepto: egen mean_loss_km2=mean(loss_km2)
 	egen rank1=rank(mean_loss_km2) if year==2018, f
 	sort rank1
@@ -128,18 +128,27 @@ forval y=2001/2018{
 	graph export ${plots}/deforest_`y'.pdf, replace as(pdf)
 }
 
-sum loss_area00, d
+/*sum loss_area00, d
 foreach y in 2003 2007 2011 2015 2018{
 	sum elec_area00 if elec_area00>0, d
 	
 	grmap elec_area00 using municipcoord if elec_area00>0, t(`y') id(idmap) fcolor(GnBu) clmethod(custom) ndocolor(none) ocolor(none ...) title("Total deforestation at the electoral period (`y')", size(medium)) subtitle ("Shares at the municipal level", size(small)) clb(`r(min)' `r(p5)' `r(p25)' `r(p50)' `r(p75)' `r(p95)' `r(p99)' `r(max)') 
 	graph export ${plots}/deforest_election_`y'.pdf, replace as(pdf)
-}
+}*/
 
+*Total in share
 sum total_area00 if year==2018, d
 grmap total_area00 using municipcoord, t(2018) id(idmap) fcolor(GnBu) title("Total deforestation (2001-2018)", size(medium)) ///
 subtitle ("Shares at the municipal level", size(small)) legtitle("Share (2000 as base year)") legc clmethod(custom) ndocolor(none) ocolor(none ...) clb(`r(min)' `r(p5)' `r(p25)' `r(p50)' `r(p75)' `r(p95)' `r(p99)' `r(max)') 
 graph export ${plots}/deforest_total.pdf, replace as(pdf)
+
+*Total in Km2 
+sum total_loss if year==2018, d
+grmap total_loss using municipcoord, t(2018) id(idmap) fcolor(GnBu) title("Total deforestation (2001-2018)", size(medium)) ///
+subtitle ("Km2 at the municipal level", size(small)) legtitle("Km2 (2000 as base year)") legc clmethod(custom) ndocolor(none) ocolor(none ...) clb(`r(min)' `r(p5)' `r(p25)' `r(p50)' `r(p75)' `r(p95)' `r(p99)' `r(max)') 
+graph export ${plots}/deforest_total_km2.pdf, replace as(pdf)
+
+
 
 
 *-------------------------------------------------------------------------------
