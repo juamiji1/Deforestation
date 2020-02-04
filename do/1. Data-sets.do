@@ -162,6 +162,11 @@ gen x=loss_km2 if year==2000
 bys codmuni: egen area00=mean(x)
 replace loss_km2=. if year==2000
 
+*Outliers: 
+sum loss_km2, d
+replace loss_km2=. if loss_km2<`r(p1)'
+replace loss_km2=. if loss_km2>`r(p99)'
+
 *share of forest loss 
 gen loss_area00=loss_km2/area00
 
@@ -563,39 +568,5 @@ save elections_forestloss_00_18_races.dta, replace
 
 
 *END
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
