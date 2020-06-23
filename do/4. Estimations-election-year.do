@@ -20,6 +20,7 @@ use elections_forestloss_00_18_races.dta, clear
 tab year_election, g(year_)
 
 
+
 *-------------------------------------------------------------------------------
 * 					Proof of assumptions ofr left races 
 *
@@ -100,7 +101,7 @@ esttab est1 est2 est3 est4 using ${tables}/rd_left_elections.tex, se keep(Robust
 *-------------------------------------------------------------------------------
 
 *RDD, P=1, Kernel=triangular
-eststo est1: rdrobust loss_km2 sh_votes_left, all p(1) kernel(tri)
+eststo est1: rdrobust loss_km2 sh_votes_left, all p(1) kernel(tri) h(0.1)
 estadd local Covs "No"
 gl h1=e(h_l) 
 
@@ -224,6 +225,7 @@ esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_elections.tex, se keep(R
 *-------------------------------------------------------------------------------
 
 drop if year_election==2015
+
 
 *-------------------------------------------------------------------------------
 *loss_area00:

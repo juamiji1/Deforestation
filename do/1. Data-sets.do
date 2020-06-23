@@ -162,7 +162,7 @@ gen x=loss_km2 if year==2000
 bys codmuni: egen area00=mean(x)
 replace loss_km2=. if year==2000
 
-*Outliers: 
+/*Outliers: 
 *sum loss_km2, d
 *tab name_muni if loss_km2>`r(p99)' & loss_km2<.
 *tabstat loss_km2 if loss_km2>`r(p99)' & loss_km2<., by(name_muni) s(N mean sd min max)
@@ -170,6 +170,7 @@ replace loss_km2=. if year==2000
 *tab year if loss_km2>`r(p99)' & loss_km2<.
 *replace loss_km2=. if loss_km2<`r(p1)'
 *replace loss_km2=. if loss_km2>`r(p99)'
+*/
 
 *share of forest loss 
 gen loss_area00=loss_km2/area00

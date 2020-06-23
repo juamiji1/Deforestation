@@ -120,7 +120,7 @@ restore
 *NOTE: maps with fixed cutoffs across time
 xtset idmap year
 
-sum loss_area00, d
+/*sum loss_area00, d
 forval y=2001/2018{
 	sum loss_area00 if loss_area00>0, d
 	
@@ -128,7 +128,7 @@ forval y=2001/2018{
 	graph export ${plots}/deforest_`y'.pdf, replace as(pdf)
 }
 
-/*sum loss_area00, d
+*sum loss_area00, d
 foreach y in 2003 2007 2011 2015 2018{
 	sum elec_area00 if elec_area00>0, d
 	
