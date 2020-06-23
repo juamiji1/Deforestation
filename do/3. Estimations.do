@@ -42,7 +42,7 @@ gr export ${plots}/test_kden_left.pdf, replace as(pdf)
 *-------------------------------------------------------------------------------
 *Local continuity
 *-------------------------------------------------------------------------------
-gl vars "indrural altura disbogota discapital sh_coca km2_coca area00 permits dismdo gcaribe gandina gpacifica gorinoquia gamazonia" 
+gl vars "indrural altura disbogota discapital sh_coca km2_coca area00 dismdo gcaribe gandina gpacifica gorinoquia gamazonia" 
 
 rdbwselect loss_area00 sh_votes_left, p(1) kernel(tri)
 gl h=e(h_mserd)
@@ -61,12 +61,13 @@ filefilter `X' ${tables}\ttest_lc_left.tex, from("r}\BS\BS") to("r}") replace
 *Difference of means using rdd
 local k=1
 foreach var of global vars{
+	dis "----------------------`var'----------------------"
 	eststo est`k': rdrobust `var' sh_votes_left, all p(1) kernel(tri)
 	local ++k
 }
 
 *Nice Results with rdd 
-esttab est1 est2 est3 est4 est5 est6 est7 est8 est9 est10 est11 est12 est13 est14 using ${tables}/rdd_lc_left.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+esttab est1 est2 est3 est4 est5 est6 est7 est8 est9 est10 est11 est12 est13 using ${tables}/rdd_lc_left.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
 
 *-------------------------------------------------------------------------------
@@ -203,7 +204,7 @@ gr export ${plots}/test_kden_right.pdf, replace as(pdf)
 *Local continuity
 *-------------------------------------------------------------------------------
 *Ttests to test local continuity
-gl vars "indrural altura disbogota discapital sh_coca km2_coca area00 permits dismdo gcaribe gandina gpacifica gorinoquia gamazonia" 
+gl vars "indrural altura disbogota discapital sh_coca km2_coca area00 dismdo gcaribe gandina gpacifica gorinoquia gamazonia" 
 
 rdbwselect loss_area00 sh_votes_right
 gl h=e(h_mserd)
@@ -228,7 +229,7 @@ foreach var of global vars{
 }
 
 *Nice Results with rdd 
-esttab est1 est2 est3 est4 est5 est6 est7 est8 est9 est10 est11 est12 est13 est14 using ${tables}/rdd_lc_right.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+esttab est1 est2 est3 est4 est5 est6 est7 est8 est9 est10 est11 est12 est13 using ${tables}/rdd_lc_right.tex, se keep(Robust) stats(N N_h_l h_l p kernel, labels(N "N eff." Bw Poly Kernel)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
 
 *-------------------------------------------------------------------------------

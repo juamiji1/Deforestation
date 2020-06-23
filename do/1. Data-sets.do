@@ -163,9 +163,13 @@ bys codmuni: egen area00=mean(x)
 replace loss_km2=. if year==2000
 
 *Outliers: 
-sum loss_km2, d
-replace loss_km2=. if loss_km2<`r(p1)'
-replace loss_km2=. if loss_km2>`r(p99)'
+*sum loss_km2, d
+*tab name_muni if loss_km2>`r(p99)' & loss_km2<.
+*tabstat loss_km2 if loss_km2>`r(p99)' & loss_km2<., by(name_muni) s(N mean sd min max)
+*tabstat loss_km2 if loss_km2>`r(p99)' & loss_km2<., by(codmuni) s(N mean sd min max)
+*tab year if loss_km2>`r(p99)' & loss_km2<.
+*replace loss_km2=. if loss_km2<`r(p1)'
+*replace loss_km2=. if loss_km2>`r(p99)'
 
 *share of forest loss 
 gen loss_area00=loss_km2/area00
@@ -284,6 +288,28 @@ bys codmpio year: egen rank=rank(votes), f
 *Keeping the first two parties in the race (there can be 3)
 keep if rank<3
 
+*Total votes
+bys codmpio year: egen total_votes=sum(votes)
+
+*Winner's ideology data base
+preserve 
+	keep if rank==1
+	
+	gen sh_votes_winner=(votes/total_votes)-.5
+	
+	duplicates drop codmpio year, force
+	
+	sort codmpio year 
+	
+	bys codmpio: gen incumbent=1 if party_code==party_code[_n-1]
+	replace incumbent=0 if incumbent==.
+	
+	isid codmpio year
+	rename year year_elections
+
+	save winner_ideology.dta, replace
+restore 
+
 *Left party in the race
 gen x=1 if ideology==1
 bys codmpio year: egen race_left=mean(x)
@@ -293,9 +319,6 @@ gen y=1 if ideology==2
 bys codmpio year: egen race_right=mean(y)
 
 drop x y 
-
-*Total votes
-bys codmpio year: egen total_votes=sum(votes)
 
 *Share of votes of left party in close race (normalized to 0)
 gen sh_votes_left=(votes/total_votes)-.5 if ideology==1
