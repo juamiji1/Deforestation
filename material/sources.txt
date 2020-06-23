@@ -2,5 +2,13 @@ Useful material for the deforestation project"
 
 1. Course in R of spatial analysis:
 https://rspatial.org/
-2. Resampling the resolution of the Hansen data set: 
+2. Resampling the resolution of the Hansen data set:
 https://github.com/banco-republica-research/deforestacion/blob/master/extracting/raster_treecover.R
+
+R COMMANDS:
+
+get_map "Download a map"
+ggmap "Displays the map"
+geom_point "add point layer"
+base_layer "option to set base data in ggmap"
+facet_wrap "specifying a map per variable of the data"

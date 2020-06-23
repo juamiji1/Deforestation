@@ -83,7 +83,7 @@ eststo est1: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)
 estadd local Covs "No"
 gl h1=e(h_l) 
 
-eststo est2: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+eststo est2: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
 estadd local Covs "Yes"
 gl h2=e(h_l) 
 
@@ -236,14 +236,14 @@ eststo est1: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)
 estadd local Covs "No"
 gl h1=e(h_l) 
 
-eststo est2: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+eststo est2: rdrobust loss_area00 sh_votes_left, all p(1) kernel(tri)covs(altura discapital dismdo gandina gpacifica gamazonia sh_coca indrural area00)
 estadd local Covs "Yes"
 gl h2=e(h_l) 
 
 *RDD, P=2, Kernel=triangular
 eststo est3: rdrobust loss_area00 sh_votes_left, all p(2) kernel(tri)
 estadd local Covs "No"
-eststo est4: rdrobust loss_area00 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+eststo est4: rdrobust loss_area00 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gamazonia sh_coca indrural area00)
 estadd local Covs "Yes"
 
 *Results 
