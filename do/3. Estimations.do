@@ -136,6 +136,65 @@ gr combine rd1 rd2, title("Forest loss (Km 2)") graphregion(color(white))
 gr export ${plots}/rdplot_left_km2.pdf, replace as(pdf)
 
 
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*Plots
+rdplot ln_loss_area00 sh_votes_left if abs(sh_votes_left)<=$h1, h(${h1}) p(1) nbins(50 50) graph_options(graphregion(color(white)) subtitle("No covariates") xtitle("Share of votes for the left") legend(off) name(rd1, replace)) 
+
+rdplot ln_loss_area00 sh_votes_left if abs(sh_votes_left)<=$h2, h($h2) p(1) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the left") legend(off) name(rd2, replace))  
+
+gr combine rd1 rd2, title("Log(Share of forest loss)") graphregion(color(white))
+gr export ${plots}/rdplot_left_ln.pdf, replace as(pdf)
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*PLots 
+rdplot ln_loss_km2 sh_votes_left if abs(sh_votes_left)<=$h1, h(${h1}) p(1) nbins(50 50) graph_options(graphregion(color(white)) subtitle("No covariates") xtitle("Share of votes for the left") legend(off) name(rd1, replace)) 
+
+rdplot ln_loss_km2 sh_votes_left if abs(sh_votes_left)<=$h2, h($h2) p(1) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the left") legend(off) name(rd2, replace))  
+
+gr combine rd1 rd2, title("Log(Forest loss (Km 2) )") graphregion(color(white))
+gr export ${plots}/rdplot_left_km2_ln.pdf, replace as(pdf)
 
 
 
@@ -299,6 +358,66 @@ gr combine rd1 rd2, title("Forest loss (Km 2)") graphregion(color(white))
 gr export ${plots}/rdplot_right_km2.pdf, replace as(pdf)
 
 
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*Plots
+rdplot ln_loss_area00 sh_votes_right if abs(sh_votes_right)<=$h1, h(${h1}) p(1) nbins(50 50) graph_options(graphregion(color(white)) subtitle("No covariates") xtitle("Share of votes for the right") legend(off) name(rd1, replace)) 
+
+rdplot ln_loss_area00 sh_votes_right if abs(sh_votes_right)<=$h2, h($h2) p(1) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the right") legend(off) name(rd2, replace))  
+
+gr combine rd1 rd2, title("Log(Share of forest loss)") graphregion(color(white))
+gr export ${plots}/rdplot_right_ln.pdf, replace as(pdf)
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*PLots 
+rdplot ln_loss_km2 sh_votes_right if abs(sh_votes_right)<=$h1, h(${h1}) p(1) nbins(50 50) graph_options(graphregion(color(white)) subtitle("No covariates") xtitle("Share of votes for the right") legend(off) name(rd1, replace)) 
+
+rdplot ln_loss_km2 sh_votes_right if abs(sh_votes_right)<=$h2, h($h2) p(1) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00) nbins(50 50) graph_options(graphregion(color(white)) subtitle("With covariates") xtitle("Share of votes for the right") legend(off) name(rd2, replace))  
+
+gr combine rd1 rd2, title("Log(Forest loss Km2)") graphregion(color(white))
+gr export ${plots}/rdplot_right_km2_ln.pdf, replace as(pdf)
 
 
 

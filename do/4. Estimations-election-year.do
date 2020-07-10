@@ -116,7 +116,52 @@ eststo est4: rdrobust loss_km2 sh_votes_left, all p(2) kernel(tri) covs(altura d
 estadd local Covs "Yes"
 
 *Results 
-esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replac
+esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_elections_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri) h(0.1)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
 
 *-------------------------------------------------------------------------------
@@ -218,6 +263,52 @@ estadd local Covs "Yes"
 *Results 
 esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_elections.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_elections_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_elections_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
 
 *-------------------------------------------------------------------------------
 * 					Regressions for left races (without 2015)
@@ -269,8 +360,51 @@ eststo est4: rdrobust loss_km2 sh_votes_left, all p(2) kernel(tri) covs(altura d
 estadd local Covs "Yes"
 
 *Results 
-esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections_no2015.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replac
+esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections_no2015.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_left, all p(1) kernel(tri)covs(altura discapital dismdo gandina gpacifica gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_elections_no2015_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_left, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_left, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_left_km2_elections_no2015_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
 
 *-------------------------------------------------------------------------------
 * 					Regressions for right races (without 2015)
@@ -322,6 +456,54 @@ estadd local Covs "Yes"
 
 *Results 
 esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_elections_no2015.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_area00:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_area00 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_area00 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_elections_no2015_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
+
+*-------------------------------------------------------------------------------
+*ln_loss_km2:
+*-------------------------------------------------------------------------------
+
+*RDD, P=1, Kernel=triangular
+eststo est1: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri)
+estadd local Covs "No"
+gl h1=e(h_l) 
+
+eststo est2: rdrobust ln_loss_km2 sh_votes_right, all p(1) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+estadd local Covs "Yes"
+gl h2=e(h_l) 
+
+*RDD, P=2, Kernel=triangular
+eststo est3: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri)
+estadd local Covs "No"
+eststo est4: rdrobust ln_loss_km2 sh_votes_right, all p(2) kernel(tri) covs(altura discapital dismdo gandina gpacifica gorinoquia gamazonia sh_coca indrural area00)
+
+estadd local Covs "Yes"
+
+*Results 
+esttab est1 est2 est3 est4 using ${tables}/rd_right_km2_elections_no2015_ln.tex, se keep(Robust) stats(N N_h_l h_l p kernel Covs, labels(N "N eff." Bw Poly Kernel Covs.)) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
 
 
 *-------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ cd "${data}"
 *Setting a pre-scheme for graphs
 grstyle init
 grstyle title color black
-grstyle color background white
+grstyle color background white
 grstyle color major_grid dimgray
 
 *-------------------------------------------------------------------------------
@@ -72,6 +72,6 @@ do "${do}\3. Estimations.do"
 do "${do}\4. Estimations-election-year.do"
 
 
-do "${do}\scratch.do"
+do "${do}\5. Estimations-election-dynamics.do"
 
 *END

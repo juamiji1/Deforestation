@@ -172,11 +172,15 @@ replace loss_km2=. if year==2000
 *replace loss_km2=. if loss_km2>`r(p99)'
 */
 
-*share of forest loss 
+*Share of forest loss 
 gen loss_area00=loss_km2/area00
 
 bys codmuni: egen total_loss=sum(loss_km2) if year!=2000
 gen total_area00=total_loss/area00
+
+*Logarithm of forest loss 
+gen ln_loss_km2=ln(loss_km2) 
+gen ln_loss_area00=ln(loss_area00) 
 
 *Colombian forest loss in KM2
 gen y=col_loss if year==2000
@@ -246,6 +250,10 @@ drop if year_election==.
 
 *Loss in shares 
 gen loss_area00=loss_km2/area00
+
+*Logarithm of forest loss 
+gen ln_loss_km2=ln(loss_km2) 
+gen ln_loss_area00=ln(loss_area00) 
 
 *Labels 
 la var idmap "ID for mapping"

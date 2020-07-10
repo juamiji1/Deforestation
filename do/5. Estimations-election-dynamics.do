@@ -42,6 +42,7 @@ gsort codmpio -year
 bys codmpio: carryforward forestcover_change_ideam, replace 
 bys codmpio: carryforward change_ideam_m2, replace 
 
+
 *-------------------------------------------------------------------------------
 * Results for the left
 *-------------------------------------------------------------------------------
@@ -106,6 +107,7 @@ estadd local Year "2006"
 
 *Table 
 esttab est1 est2 est3 using ${tables}/rd_change_06_left.tex, se keep(Robust) stats(N N_h_l h_l p kernel Year, labels(N "N eff." Bw Poly Kernel "2003 election year")) star(* 0.1 ** 0.05 *** 0.01) booktabs replace
+
 
 *-------------------------------------------------------------------------------
 * Results for the right
