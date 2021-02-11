@@ -30,7 +30,7 @@ cd "${data}"
 *Setting a pre-scheme for graphs
 grstyle init
 grstyle title color black
-grstyle color background white
+grstyle color background white
 grstyle color major_grid dimgray
 
 *-------------------------------------------------------------------------------
