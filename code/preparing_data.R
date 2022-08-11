@@ -139,6 +139,9 @@ names(flossDf)<- c('floss01','floss02','floss03','floss04','floss05','floss06','
 #---------------------------------------------------------------------------------------
 # Merging info to Shape
 #---------------------------------------------------------------------------------------
+#Calculating municipalities' area
+muniShp$area <- st_area(muniShp)/1000000
+
 #Merging info to municipality shapefile 
 muniShp_info<-muniShp
 muniShp_info<-left_join(muniShp_info, flossDf, by='IDDANE')
@@ -148,7 +151,7 @@ muniShp_info<-left_join(muniShp_info, fcoverDf, by='IDDANE')
 muniShp_info_sp <- as(muniShp_info, Class='Spatial')
 
 #Exporting the all data shapefile
-writeOGR(obj=muniShp_info_sp, dsn="C:/Users/juami/Dropbox/My-Research/Deforestation/data/Gis/workinprogress", layer="muniShp_defoinfo_sp", driver="ESRI Shapefile",  overwrite_layer=TRUE)
+st_write(muniShp_info, dsn = "C:/Users/juami/Dropbox/My-Research/Deforestation/data/Gis/workinprogress/muniShp_defoinfo_sp.shp", layer = "muniShp_defoinfo_sp.shp", driver = "ESRI Shapefile", delete_layer = TRUE)
 
 
 
