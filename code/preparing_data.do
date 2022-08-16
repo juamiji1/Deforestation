@@ -49,8 +49,8 @@ preserve
 
 	keep if type_election==1
 	keep codigo_partido year car type_election coddane
-	keep if year>1999
-	ren (codigo_partido coddane) (codigo_partido_gob codepto)
+	keep if year>1999 & year<2021
+	ren (codigo_partido coddane type_election) (codigo_partido_cargob codepto type_election_cargob)
 
 	tempfile CARGOB
 	save `CARGOB', replace
@@ -59,8 +59,8 @@ restore
 
 keep if type_election==2
 keep codigo_partido year car type_election coddane
-keep if year>1999
-ren codigo_partido codigo_partido_alc
+keep if year>1999 & year<2021
+ren codigo_partido codigo_partido_caralc
 
 tempfile CARALC
 save `CARALC', replace
@@ -90,7 +90,6 @@ append using `2003ALC' `2007ALC' `2011ALC' `2015ALC' `2019ALC'
 tempfile ALC
 save `ALC'
 
-
 *-------------------------------------------------------------------------------
 * Deforestation data
 *-------------------------------------------------------------------------------
@@ -111,6 +110,7 @@ duplicates drop coddane, force
 
 reshape long floss, i(coddane) j(year)
 replace year=2000+year
+keep if year<2021
 
 *Calculating different normalizations of the forest loss
 gen floss_area=floss/area    
@@ -118,7 +118,51 @@ gen floss_prim00p1=floss/fprim00_p1
 gen floss_prim00p50=floss/fprim00_p50
 gen floss_prim01=floss/fprim_01
 
-*Merging all the other information 
+*Fixing departamental code 
+tostring(coddane), gen(codepto)
+replace codepto="0"+codepto if length(codepto)<5
+replace codepto=substr(codepto,1,2)
+destring codepto, replace
+
+*Merging info about mayor elections
+merge 1:1 coddane year using `ALC', keepus(codigo_partido votos) keep(1 3) nogen 
+sort coddane year, stable
+bys coddane: carryforward codigo_partido votos, replace 
+ 
+*Merging info about directors of the board
+merge 1:1 coddane year using `CARALC', keep(1 3) nogen 
+merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
+
+*-------------------------------------------------------------------------------
+* Preparing vars of interest
+*-------------------------------------------------------------------------------
+*FORNOW JUST TRYING WITH CORPOAMAZONIA
+keep if codepto==18 | codepto==86 | codepto==91
+sort coddane year, stable
+
+*Creating variable of mayor in the CAR's board 
+gen mayorinbrd=(codigo_partido_caralc!=.)
+
+*Creating variable of mayor allied with the gobernor in CAR's board
+gen mayorallied=(codigo_partido==codigo_partido_cargob) if codigo_partido_cargob!=.
+
+
+
+
+END
+
+*SOME STATISTICS 
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01{
+	
+	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
+	
+}
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01{
+	
+	reghdfe `var' mayorallied, a(year coddane)  vce(cluster codepto)
+	
+}
 
 
 
@@ -131,9 +175,5 @@ gen floss_prim01=floss/fprim_01
 
 
 
-
-
-
-
-
+*END
 
