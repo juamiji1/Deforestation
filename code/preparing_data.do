@@ -251,7 +251,9 @@ preserve
 	keep codigo_partido year car type_election coddane
 	keep if year>1999 & year<2021
 	ren (codigo_partido coddane type_election) (codigo_partido_cargob codepto type_election_cargob)
-
+	
+	duplicates drop codepto year, force
+	
 	tempfile CARGOB
 	save `CARGOB', replace
 
@@ -261,6 +263,8 @@ keep if type_election==2
 keep codigo_partido year car type_election coddane
 keep if year>1999 & year<2021
 ren codigo_partido codigo_partido_caralc
+
+duplicates drop coddane year, force
 
 tempfile CARALC
 save `CARALC', replace
@@ -339,7 +343,7 @@ merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_
 merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 
 
-
+end
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
 *-------------------------------------------------------------------------------
