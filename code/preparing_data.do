@@ -4,7 +4,7 @@ AUTHOR: JMJR
 TOPIC: Master do-file
 DATE:
 
-NOTES: 
+NOTES: DO META!!!!! high deforestation!!!
 ------------------------------------------------------------------------------*/
 
 clear all 
@@ -69,8 +69,9 @@ replace depto=strlower(depto)
 replace mun=strlower(mun)
 replace mun="leguizamo" if mun=="puerto leguizamo" & depto=="putumayo"
 
-keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo"
-	
+*keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo"
+keep if codepto=="05" | codepto=="15" | codepto=="18" | codepto=="20" | codepto=="25" | codepto=="76" | codepto=="86" | codepto=="91" | codepto=="94" | codepto=="95" | codepto=="97" 
+
 tempfile DIVIPOLA
 save `DIVIPOLA', replace 
 
@@ -126,10 +127,16 @@ replace depto=subinstr(depto,"ü","u",.)
 replace depto=strlower(depto)
 replace mun=strlower(mun)
 
-keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo"
+keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo" | depto=="boyaca" | depto=="cesar" | depto=="cundinamarca" | depto=="guainia" | depto=="guaviare" | depto=="valle del cauca" | depto=="vaupes" | depto=="antioquia"
 keep if year<2021
 
-merge m:1 depto mun using `DIVIPOLA', keep(1 3) nogen 
+merge m:1 depto mun using `DIVIPOLA', 
+
+end
+*IMPROVE THIS MATCH !!!!
+keep(1 3) 
+
+nogen 
 
 *Calculating percentage changes 
 tsset coddane year
@@ -336,11 +343,11 @@ bys coddane: carryforward codigo_partido votos, replace
 *Merging info about directors of the board
 merge 1:1 coddane year using `CARALC', keep(1 3) nogen 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
-merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
-merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
-merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond) keep(1 3) nogen 
+*merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
+*merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
+*merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond) keep(1 3) nogen 
 
-merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
+*merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 
 
 end
@@ -348,7 +355,10 @@ end
 * Preparing vars of interest
 *-------------------------------------------------------------------------------
 *FORNOW JUST TRYING WITH CORPOAMAZONIA
-keep if codepto==18 | codepto==86 | codepto==91
+*keep if codepto==18 | codepto==86 | codepto==91
+
+keep if codepto==5 | codepto==15 | codepto==18 | codepto==20 | codepto==25 | codepto==76 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97 
+
 sort coddane year, stable
 
 *Creating variable of mayor in the CAR's board 
@@ -370,6 +380,35 @@ foreach var in perm_area perm_n_resol perm_volume bovinos crime_environment crim
 END
 
 *SOME STATISTICS 
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
+}
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' mayorinbrd if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane) vce(cluster codepto)
+}
+
+*Mas deforestacion en el sur del pais!!!!!!!
+
+
+codepto==18 | codepto==86 | codepto==91
+
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+reghdfe `var' mayorallied if codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane) vce(cluster codepto)
+
+}
+
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' mayorallied, a(year coddane)  vce(cluster codepto)
+}
+
+
 foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 pc_perm_vol perm_volume pc_perm_resol perm_n_resol pc_perm_area perm_area pc_bovinos bovinos sh_crime_env sh_crime_forest sh_crime_forest_v2 pc_crime_env pc_crime_forest crime_environment crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 pc_crime_forest_cond crime_forest_cond{
 	
 	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
@@ -400,7 +439,7 @@ n_resol perm_area pc_bovinos bovinos sh_crime_env sh_crime_forest sh_crime_fores
 
 
 
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 perm_volume perm_n_resol perm_area bovinos crime_environment crime_forest{
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
 	
 	dis "Dependent variable: `var'"	
 	did_multiplegt `var' coddane year mayorinbrd, breps(100) cluster(codepto)
@@ -408,7 +447,7 @@ foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 perm
 }
 
 
-
+*perm_volume perm_n_resol perm_area bovinos crime_environment crime_forest
 
 
 
