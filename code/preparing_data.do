@@ -130,13 +130,13 @@ replace mun=strlower(mun)
 keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo" | depto=="boyaca" | depto=="cesar" | depto=="cundinamarca" | depto=="guainia" | depto=="guaviare" | depto=="valle del cauca" | depto=="vaupes" | depto=="antioquia"
 keep if year<2021
 
-merge m:1 depto mun using `DIVIPOLA', 
+merge m:1 depto mun using `DIVIPOLA', keep(3) nogen 
 
-end
-*IMPROVE THIS MATCH !!!!
-keep(1 3) 
-
-nogen 
+*end
+*IMPROVE THIS MATCH !!!! <--
+*keep(1 3) 
+*nogen 
+duplicates drop coddane year, force
 
 *Calculating percentage changes 
 tsset coddane year
@@ -266,8 +266,17 @@ preserve
 
 restore 
 
+bys car year: gen politics=(type_election<3)
+bys car year: egen sh_politics=mean(politics)
+
+duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
+gen each=1
+bys car year: egen total_members=sum(each)
+bys car year codigo_partido: gen sh_same_party=n_party/total_members
+drop each total_members
+
 keep if type_election==2
-keep codigo_partido year car type_election coddane
+keep codigo_partido year car type_election coddane sh_politics sh_same_party
 keep if year>1999 & year<2021
 ren codigo_partido codigo_partido_caralc
 
@@ -341,7 +350,7 @@ sort coddane year, stable
 bys coddane: carryforward codigo_partido votos, replace 
  
 *Merging info about directors of the board
-merge 1:1 coddane year using `CARALC', keep(1 3) nogen 
+merge 1:1 coddane year using `CARALC', keep(1 3) gen(merge_caralc) 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
 *merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
 *merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
@@ -349,6 +358,16 @@ merge m:1 codepto year using `CARGOB', keep(1 3) nogen
 
 *merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 
+gen code=codepto if merge_caralc==3
+
+gen deptokeep=.
+levelsof code, local(indeptos)
+foreach x of local indeptos{
+	dis "`x'"
+	replace deptokeep=1 if codepto==`x'
+} 
+
+drop code
 
 end
 *-------------------------------------------------------------------------------
@@ -357,7 +376,9 @@ end
 *FORNOW JUST TRYING WITH CORPOAMAZONIA
 *keep if codepto==18 | codepto==86 | codepto==91
 
-keep if codepto==5 | codepto==15 | codepto==18 | codepto==20 | codepto==25 | codepto==76 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97 
+*keep if codepto==5 | codepto==15 | codepto==18 | codepto==20 | codepto==25 | codepto==76 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97 
+
+keep if deptokeep==1
 
 sort coddane year, stable
 
@@ -367,7 +388,12 @@ gen mayorinbrd=(codigo_partido_caralc!=.)
 *Creating variable of mayor allied with the gobernor in CAR's board
 gen mayorallied=(codigo_partido==codigo_partido_cargob) if codigo_partido_cargob!=.
 
+
+
+*____________________________________________________________________________________________
 *Creating logs of dependent vars
+*____________________________________________________________________________________________
+
 foreach var in perm_area perm_n_resol perm_volume bovinos crime_environment crime_forest crime_forest_cond{
 	
 	gen ln_`var'=ln(`var')
@@ -451,8 +477,106 @@ foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
 
 
 
+*---------------------------------------------------------------------------------
+*NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+*---------------------------------------------------------------------------------
+*sh_politics sh_same_party
+bys codepto year: egen dsh_politics=mean(sh_politics)
+bys codepto year: egen dsh_party=mean(sh_same_party)
 
 
+*SOME STATISTICS 
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' mayorinbrd sh_same_party, a(year coddane) vce(cluster codepto)
+}
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' mayorallied if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
+}
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' i.mayorallied##c.dsh_politics, a(year coddane codepto#year)  vce(cluster codepto)
+}
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' i.mayorinbrd##c.dsh_politics, a(year coddane) vce(cluster codepto)
+}
+
+
+foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
+	
+	reghdfe `var' i.mayorallied##c.dsh_party, a(year coddane)  vce(cluster codepto)
+}
+
+
+
+reghdfe floss i.mayorallied##c.dsh_party if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
+reghdfe floss mayorallied if codepto==18 | codepto==86 | codepto==91, a(year coddane)  vce(cluster coddane)
+
+reghdfe floss mayorinbrd if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
+reghdfe floss mayorinbrd if codepto==18 | codepto==86 | codepto==91, a(year coddane)  vce(cluster coddane)
+
+
+*---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*SHOW THESE RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+*DESCRIPTIVES
+tabstat floss_area, by(codepto)
+tabstat floss_area, by(year)
+
+*SIMPLE DIFFERENCES 
+reg floss mayorallied, r
+reg floss mayorinbrd, r
+
+reg floss_area mayorallied, r
+reg floss_area mayorinbrd, r
+
+reg floss_prim00p1 mayorallied, r
+reg floss_prim00p1 mayorinbrd, r
+
+reg floss_prim00p50 mayorallied, r
+reg floss_prim00p50 mayorinbrd, r
+
+reg floss_prim01 mayorallied, r
+reg floss_prim01 mayorinbrd, r
+
+
+*WITH YEAR FE 
+reghdfe floss_area mayorallied, a(year) vce(robust)
+reghdfe floss_area mayorinbrd, a(year) vce(robust)
+
+*WITH YEAR FE - DEPTO FE 
+reghdfe floss_area mayorallied, a(i.year##i.codepto) vce(robust)
+reghdfe floss_area mayorinbrd, a(i.year##i.codepto) vce(robust)
+
+*WITH YEAR FE - DEPTO FE 
+reghdfe floss_area mayorallied, a(year coddane) vce(robust)
+reghdfe floss_area mayorinbrd, a(year coddane) vce(robust)
+
+*Interacting with how much power politicians have in te comittee 
+reghdfe floss_area i.mayorallied##c.dsh_politics, a(year coddane) vce(robust)
+reghdfe floss_area i.mayorinbrd##c.dsh_politics, a(year coddane) vce(robust)
+
+*With clusters
+reghdfe floss_area mayorallied, a(year coddane) vce(cluster codepto)
+reghdfe floss_area mayorinbrd, a(year coddane) vce(cluster codepto)
+
+reghdfe floss_area i.mayorallied##c.dsh_politics, a(year coddane) vce(cluster codepto)
+reghdfe floss_area i.mayorinbrd##c.dsh_politics, a(year coddane) vce(cluster codepto)
+
+
+
+
+
+
+*NOTE: I HAVE TO CREATE  MEASURE OF ALLIANCE WITH THE MOST POWERFUL PARTY!!!!!!!!
 
 
 
