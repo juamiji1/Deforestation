@@ -251,6 +251,7 @@ save `FIRES', replace
 import excel "${data}\Juntas CAR\juntas_directivas.xlsx", sheet("Sheet1") firstrow clear
 
 rename _all, low
+encode car, g(carcode)
 
 preserve 
 
@@ -276,7 +277,7 @@ bys car year codigo_partido: gen sh_same_party=n_party/total_members
 drop each total_members
 
 keep if type_election==2
-keep codigo_partido year car type_election coddane sh_politics sh_same_party
+keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
 keep if year>1999 & year<2021
 ren codigo_partido codigo_partido_caralc
 
@@ -388,7 +389,10 @@ gen mayorinbrd=(codigo_partido_caralc!=.)
 *Creating variable of mayor allied with the gobernor in CAR's board
 gen mayorallied=(codigo_partido==codigo_partido_cargob) if codigo_partido_cargob!=.
 
-
+*Extending to other municipalities under the same CAR
+bys codepto year: egen dcarcode=mean(carcode)
+bys dcarcode year: egen dsh_politics=mean(sh_politics)
+bys dcarcode year: egen dsh_party=mean(sh_same_party)
 
 *____________________________________________________________________________________________
 *Creating logs of dependent vars
@@ -481,8 +485,7 @@ foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
 *NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 *---------------------------------------------------------------------------------
 *sh_politics sh_same_party
-bys codepto year: egen dsh_politics=mean(sh_politics)
-bys codepto year: egen dsh_party=mean(sh_same_party)
+
 
 
 *SOME STATISTICS 
@@ -556,9 +559,14 @@ reghdfe floss_area mayorinbrd, a(year) vce(robust)
 reghdfe floss_area mayorallied, a(i.year##i.codepto) vce(robust)
 reghdfe floss_area mayorinbrd, a(i.year##i.codepto) vce(robust)
 
-*WITH YEAR FE - DEPTO FE 
+*WITH YEAR FE - MUNI FE 
 reghdfe floss_area mayorallied, a(year coddane) vce(robust)
 reghdfe floss_area mayorinbrd, a(year coddane) vce(robust)
+
+*WITH YEAR FE - MUNI FE - CAR FE
+reghdfe floss_area mayorallied, a(year coddane dcarcode) vce(robust)
+reghdfe floss_area mayorinbrd, a(year coddane dcarcode) vce(robust)
+
 
 *Interacting with how much power politicians have in te comittee 
 reghdfe floss_area i.mayorallied##c.dsh_politics, a(year coddane) vce(robust)
@@ -573,10 +581,40 @@ reghdfe floss_area i.mayorinbrd##c.dsh_politics, a(year coddane) vce(cluster cod
 
 
 
+reghdfe floss_area i.mayorallied##c.dsh_party, a(year coddane) vce(robust)
+reghdfe floss_area i.mayorinbrd##c.dsh_party, a(year coddane) vce(robust)
+
+
 
 
 
 *NOTE: I HAVE TO CREATE  MEASURE OF ALLIANCE WITH THE MOST POWERFUL PARTY!!!!!!!!
+
+
+
+*Difference of deforestation between 
+do ${do}/my_ttest.do
+
+my_ttest floss floss_area floss_prim00p1 floss_prim00p50, by(mayorinbrd)
+mat T=e(est)
+mat S=e(stars)
+
+tempfile X
+frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Mayor not in Committee", "Mayor in Committee", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(SD)", "(SD)", "(p-value)†") fragment tex nocenter sdec(4)
+
+filefilter `X' ${tables}\ttest_mayorinbrd.tex, from("r}\BS\BS") to("r}") replace 
+
+
+
+*Difference of deforestation between left and non-left winners
+my_ttest floss floss_area floss_prim00p1 floss_prim00p50, by(mayorallied)
+mat T=e(est)
+mat S=e(stars)
+
+tempfile X
+frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Mayor not aligned", "Mayor aligned", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(SD)", "(SD)", "(p-value)†") fragment tex nocenter sdec(4)
+
+filefilter `X' ${tables}\ttest_mayorallied.tex, from("r}\BS\BS") to("r}") replace 
 
 
 
