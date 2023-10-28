@@ -12,7 +12,7 @@ clear all
 *Setting directories 
 if c(username) == "juami" {
 	gl localpath "C:\Users/`c(username)'\Dropbox\My-Research\Deforestation"
-	*gl overleafpath "C:\Users/`c(username)'\Dropbox\Overleaf\GD-draft-slv"
+	gl overleafpath "C:\Users/`c(username)'\Dropbox\Overleaf\Politicians_Deforestation"
 	gl do "C:\Github\Deforestation\code"
 	
 }
@@ -21,12 +21,13 @@ else {
 }
 
 gl data "${localpath}\data"
-gl tables "${localpath}\work\tables"
-gl plots "${localpath}\work\plots"
+gl tables "${overleafpath}\tables"
+gl plots "${overleafpath}\plots"
 
 cd "${data}"
 
 *Setting a pre-scheme for plots
+set scheme s2mono
 grstyle init
 grstyle title color black
 grstyle color background white
@@ -246,12 +247,118 @@ tempfile FIRES
 save `FIRES', replace 
 
 *-------------------------------------------------------------------------------
+* CAR to muni codes 
+*-------------------------------------------------------------------------------
+import delimited "${data}\muniCAR\municar.csv", encoding(UTF-8)  clear 
+
+rename (iddane car nombre) (coddane car_master carname_master)
+duplicates drop coddane, force
+
+encode car_master, g(carcode_master)
+
+*gen n=1
+*collapse n, by(car_master carcode_master)
+*label drop carcode_master
+
+tempfile MCAR
+save `MCAR'
+
+import delimited "${data}\muniCAR\municar_v2.csv", encoding(UTF-8)  clear 
+
+keep mpio_cdpmp car
+ren mpio_cdpmp coddane
+
+replace car=trim(car)
+
+gen carcode_master=.
+
+replace 	carcode_master 	=	1		if 	car	==	"AMVA"
+replace 	carcode_master 	=	2		if 	car	==	"AREA EN LITIGIO"
+replace 	carcode_master 	=	3		if 	car	==	"CAM"
+replace 	carcode_master 	=	4		if 	car	==	"CAR"
+replace 	carcode_master 	=	5		if 	car	==	"CARDER"
+replace 	carcode_master 	=	6		if 	car	==	"CARDIQUE"
+replace 	carcode_master 	=	7		if 	car	==	"CARSUCRE"
+replace 	carcode_master 	=	8		if 	car	==	"CAS"
+replace 	carcode_master 	=	9		if 	car	==	"CDA"
+replace 	carcode_master 	=	10		if 	car	==	"CDMB"
+replace 	carcode_master 	=	11		if 	car	==	"CODECHOCO"
+replace 	carcode_master 	=	12		if 	car	==	"CORALINA"
+replace 	carcode_master 	=	13		if 	car	==	"CORANTIOQUIA"
+replace 	carcode_master 	=	14		if 	car	==	"CORMACARENA"
+replace 	carcode_master 	=	15		if 	car	==	"CORNARE"
+replace 	carcode_master 	=	16		if 	car	==	"CORPAMAG"
+replace 	carcode_master 	=	17		if 	car	==	"CORPOAMAZONIA"
+replace 	carcode_master 	=	18		if 	car	==	"CORPOBOYACA"
+replace 	carcode_master 	=	19		if 	car	==	"CORPOCALDAS"
+replace 	carcode_master 	=	20		if 	car	==	"CORPOCESAR"
+replace 	carcode_master 	=	21		if 	car	==	"CORPOCHIVOR"
+replace 	carcode_master 	=	22		if 	car	==	"CORPOGUAJIRA"
+replace 	carcode_master 	=	23		if 	car	==	"CORPOGUAVIO"
+replace 	carcode_master 	=	24		if 	car	==	"CORPOMOJANA"
+replace 	carcode_master 	=	25		if 	car	==	"CORPONARIÑO"
+replace 	carcode_master 	=	26		if 	car	==	"CORPONOR"
+replace 	carcode_master 	=	27		if 	car	==	"CORPORINOQUIA"
+replace 	carcode_master 	=	28		if 	car	==	"CORPOURABA"
+replace 	carcode_master 	=	29		if 	car	==	"CORTOLIMA"
+replace 	carcode_master 	=	30		if 	car	==	"CRA"
+replace 	carcode_master 	=	31		if 	car	==	"CRC"
+replace 	carcode_master 	=	32		if 	car	==	"CRQ"
+replace 	carcode_master 	=	33		if 	car	==	"CSB"
+replace 	carcode_master 	=	34		if 	car	==	"CVC"
+replace 	carcode_master 	=	35		if 	car	==	"CVS"
+
+labmask carcode_master, values(car)
+
+tempfile MCAR2
+save `MCAR2'
+
+*-------------------------------------------------------------------------------
 * Juntas CAR data
 *-------------------------------------------------------------------------------
 import excel "${data}\Juntas CAR\juntas_directivas.xlsx", sheet("Sheet1") firstrow clear
 
 rename _all, low
-encode car, g(carcode)
+
+replace car=trim(car)
+
+gen carcode=.
+
+replace 	carcode 	=	1		if 	car	==	"AMVA"
+replace 	carcode 	=	2		if 	car	==	"AREA EN LITIGIO"
+replace 	carcode 	=	3		if 	car	==	"CAM"
+replace 	carcode 	=	4		if 	car	==	"CAR"
+replace 	carcode 	=	5		if 	car	==	"CARDER"
+replace 	carcode 	=	6		if 	car	==	"CARDIQUE"
+replace 	carcode 	=	7		if 	car	==	"CARSUCRE"
+replace 	carcode 	=	8		if 	car	==	"CAS"
+replace 	carcode 	=	9		if 	car	==	"CDA"
+replace 	carcode 	=	10		if 	car	==	"CDMB"
+replace 	carcode 	=	11		if 	car	==	"CODECHOCO"
+replace 	carcode 	=	12		if 	car	==	"CORALINA"
+replace 	carcode 	=	13		if 	car	==	"CORANTIOQUIA"
+replace 	carcode 	=	14		if 	car	==	"CORMACARENA"
+replace 	carcode 	=	15		if 	car	==	"CORNARE"
+replace 	carcode 	=	16		if 	car	==	"CORPAMAG"
+replace 	carcode 	=	17		if 	car	==	"CORPOAMAZONIA"
+replace 	carcode 	=	18		if 	car	==	"CORPOBOYACA"
+replace 	carcode 	=	19		if 	car	==	"CORPOCALDAS"
+replace 	carcode 	=	20		if 	car	==	"CORPOCESAR"
+replace 	carcode 	=	21		if 	car	==	"CORPOCHIVOR"
+replace 	carcode 	=	22		if 	car	==	"CORPOGUAJIRA"
+replace 	carcode 	=	23		if 	car	==	"CORPOGUAVIO"
+replace 	carcode 	=	24		if 	car	==	"CORPOMOJANA"
+replace 	carcode 	=	25		if 	car	==	"CORPONARIÑO"
+replace 	carcode 	=	26		if 	car	==	"CORPONOR"
+replace 	carcode 	=	27		if 	car	==	"CORPORINOQUIA"
+replace 	carcode 	=	28		if 	car	==	"CORPOURABA"
+replace 	carcode 	=	29		if 	car	==	"CORTOLIMA"
+replace 	carcode 	=	30		if 	car	==	"CRA"
+replace 	carcode 	=	31		if 	car	==	"CRC"
+replace 	carcode 	=	32		if 	car	==	"CRQ"
+replace 	carcode 	=	33		if 	car	==	"CSB"
+replace 	carcode 	=	34		if 	car	==	"CVC"
+replace 	carcode 	=	35		if 	car	==	"CVS"
 
 preserve 
 
@@ -267,8 +374,23 @@ preserve
 
 restore 
 
-bys car year: gen politics=(type_election<3)
-bys car year: egen sh_politics=mean(politics)
+preserve
+	
+	replace type_election=2 if type_election==20
+	gen politics=(type_election<3)
+	collapse (mean) sh_politics=politics, by(carcode year)
+	replace sh_politics=. if sh_politics==0
+	drop if sh_politics==.
+	
+	ren carcode carcode_master
+	
+	tempfile SHPOL
+	save `SHPOL', replace
+	
+restore
+
+*bys car year: gen politics=(type_election<3)
+*bys car year: egen sh_politics=mean(politics)
 
 duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
 gen each=1
@@ -277,7 +399,8 @@ bys car year codigo_partido: gen sh_same_party=n_party/total_members
 drop each total_members
 
 keep if type_election==2
-keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
+*keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
+keep codigo_partido year car carcode type_election coddane sh_same_party
 keep if year>1999 & year<2021
 ren codigo_partido codigo_partido_caralc
 
@@ -315,7 +438,12 @@ save `ALC'
 * Deforestation data
 *-------------------------------------------------------------------------------
 *Coverting shape to dta 
-*shp2dta using "${data}/Gis\workinprogress\muniShp_defoinfo_sp", data("${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta") coord("${data}/Gis\workinprogress\muniShp_defoinfo_sp_coord.dta") genid(ID) genc(coord) replace 
+*shp2dta using "${data}/Gis\workinprogress\muniShp_defoinfo_sp", data("${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta") coordinates("${data}/Gis\workinprogress\muniShp_defoinfo_sp_coord.dta") genid(idmap) genc(coord) replace 
+
+*NEW WAY
+*spshape2dta "${data}/Gis\workinprogress\muniShp_defoinfo_sp", replace
+*copy "muniShp_defoinfo_sp.dta" "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta" , replace
+*copy "muniShp_defoinfo_sp_shp.dta" "${data}/Gis\workinprogress\muniShp_defoinfo_sp_shp.dta" , replace
 
 use "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta", clear
 
@@ -329,21 +457,31 @@ keep muni_name coddane area-fprim_01
 destring coddane, replace
 duplicates drop coddane, force
 
+*Merging muni-CARs keys
+*merge 1:1 coddane using `MCAR', keep(1 3) keepus(carcode_master)
+merge 1:1 coddane using `MCAR2', keep(1 3) keepus(carcode_master) 
+
+*Reshaping to make a panel data set
 reshape long floss, i(coddane) j(year)
 replace year=2000+year
 keep if year<2021
 
 *Calculating different normalizations of the forest loss
-gen floss_area=floss/area    
-gen floss_prim00p1=floss/fprim00_p1
-gen floss_prim00p50=floss/fprim00_p50
-gen floss_prim01=floss/fprim_01
+gen floss_area=floss*100/area    
+gen floss_prim00p1=floss*100/fprim00_p1
+gen floss_prim00p50=floss*100/fprim00_p50
+gen floss_prim01=floss*100/fprim_01
 
 *Fixing departamental code 
 tostring(coddane), gen(codepto)
 replace codepto="0"+codepto if length(codepto)<5
 replace codepto=substr(codepto,1,2)
 destring codepto, replace
+
+*Fixing carcode when missing
+*bys codepto year: egen carmode=mode(carcode_master), minmode
+*replace carcode_master=carmode if carcode_master==.
+*drop carmode
 
 *Merging info about mayor elections
 merge 1:1 coddane year using `ALC', keepus(codigo_partido votos) keep(1 3) nogen 
@@ -361,260 +499,11 @@ merge m:1 codepto year using `CARGOB', keep(1 3) nogen
 
 gen code=codepto if merge_caralc==3
 
-gen deptokeep=.
-levelsof code, local(indeptos)
-foreach x of local indeptos{
-	dis "`x'"
-	replace deptokeep=1 if codepto==`x'
-} 
+*Merging Politic Power in CAR
+merge m:1 carcode_master year using `SHPOL', keepus(sh_politics) gen(merge_carcom)
 
-drop code
 
-end
-*-------------------------------------------------------------------------------
-* Preparing vars of interest
-*-------------------------------------------------------------------------------
-*FORNOW JUST TRYING WITH CORPOAMAZONIA
-*keep if codepto==18 | codepto==86 | codepto==91
-
-*keep if codepto==5 | codepto==15 | codepto==18 | codepto==20 | codepto==25 | codepto==76 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97 
-
-keep if deptokeep==1
-
-sort coddane year, stable
-
-*Creating variable of mayor in the CAR's board 
-gen mayorinbrd=(codigo_partido_caralc!=.)
-
-*Creating variable of mayor allied with the gobernor in CAR's board
-gen mayorallied=(codigo_partido==codigo_partido_cargob) if codigo_partido_cargob!=.
-
-*Extending to other municipalities under the same CAR
-bys codepto year: egen dcarcode=mean(carcode)
-bys dcarcode year: egen dsh_politics=mean(sh_politics)
-bys dcarcode year: egen dsh_party=mean(sh_same_party)
-
-*____________________________________________________________________________________________
-*Creating logs of dependent vars
-*____________________________________________________________________________________________
-
-foreach var in perm_area perm_n_resol perm_volume bovinos crime_environment crime_forest crime_forest_cond{
-	
-	gen ln_`var'=ln(`var')
-	
-}
-
-
-
-
-END
-
-*SOME STATISTICS 
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
-}
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' mayorinbrd if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane) vce(cluster codepto)
-}
-
-*Mas deforestacion en el sur del pais!!!!!!!
-
-
-codepto==18 | codepto==86 | codepto==91
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-reghdfe `var' mayorallied if codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane) vce(cluster codepto)
-
-}
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' mayorallied, a(year coddane)  vce(cluster codepto)
-}
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 pc_perm_vol perm_volume pc_perm_resol perm_n_resol pc_perm_area perm_area pc_bovinos bovinos sh_crime_env sh_crime_forest sh_crime_forest_v2 pc_crime_env pc_crime_forest crime_environment crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 pc_crime_forest_cond crime_forest_cond{
-	
-	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
-	
-}
-
-foreach var in ln_perm_area ln_perm_n_resol ln_perm_volume ln_bovinos ln_crime_environment ln_crime_forest ln_crime_forest_cond{
-	
-	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
-	
-}
-
-foreach var in nfires nfiresbosque nfiresagro pct_areafireagro pct_areafirebosque pct_areafire{
-	
-	reghdfe `var' mayorinbrd, a(year coddane) vce(cluster codepto)
-	
-}
-
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 perm_volume pc_perm_resol perm_
-n_resol perm_area pc_bovinos bovinos sh_crime_env sh_crime_forest sh_crime_forest_v2 pc_crime_env pc_crime_forest crime_environment crime_forest{
-	
-	reghdfe `var' mayorallied, a(year coddane)  vce(cluster codepto)
-	
-}
-
-
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	dis "Dependent variable: `var'"	
-	did_multiplegt `var' coddane year mayorinbrd, breps(100) cluster(codepto)
-	
-}
-
-
-*perm_volume perm_n_resol perm_area bovinos crime_environment crime_forest
-
-
-
-*---------------------------------------------------------------------------------
-*NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-*---------------------------------------------------------------------------------
-*sh_politics sh_same_party
-
-
-
-*SOME STATISTICS 
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' mayorinbrd sh_same_party, a(year coddane) vce(cluster codepto)
-}
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' mayorallied if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
-}
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' i.mayorallied##c.dsh_politics, a(year coddane codepto#year)  vce(cluster codepto)
-}
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' i.mayorinbrd##c.dsh_politics, a(year coddane) vce(cluster codepto)
-}
-
-
-foreach var in floss floss_area floss_prim00p1 floss_prim00p50 floss_prim01 {
-	
-	reghdfe `var' i.mayorallied##c.dsh_party, a(year coddane)  vce(cluster codepto)
-}
-
-
-
-reghdfe floss i.mayorallied##c.dsh_party if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
-reghdfe floss mayorallied if codepto==18 | codepto==86 | codepto==91, a(year coddane)  vce(cluster coddane)
-
-reghdfe floss mayorinbrd if codepto==76 | codepto==18 | codepto==86 | codepto==91 | codepto==94 | codepto==95 | codepto==97, a(year coddane)  vce(cluster coddane)
-reghdfe floss mayorinbrd if codepto==18 | codepto==86 | codepto==91, a(year coddane)  vce(cluster coddane)
-
-
-*---------------------------------------------------------------------------------------------------------------------------------------------------------------
-*---------------------------------------------------------------------------------------------------------------------------------------------------------------
-*---------------------------------------------------------------------------------------------------------------------------------------------------------------
-*---------------------------------------------------------------------------------------------------------------------------------------------------------------
-*SHOW THESE RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-*DESCRIPTIVES
-tabstat floss_area, by(codepto)
-tabstat floss_area, by(year)
-
-*SIMPLE DIFFERENCES 
-reg floss mayorallied, r
-reg floss mayorinbrd, r
-
-reg floss_area mayorallied, r
-reg floss_area mayorinbrd, r
-
-reg floss_prim00p1 mayorallied, r
-reg floss_prim00p1 mayorinbrd, r
-
-reg floss_prim00p50 mayorallied, r
-reg floss_prim00p50 mayorinbrd, r
-
-reg floss_prim01 mayorallied, r
-reg floss_prim01 mayorinbrd, r
-
-
-*WITH YEAR FE 
-reghdfe floss_area mayorallied, a(year) vce(robust)
-reghdfe floss_area mayorinbrd, a(year) vce(robust)
-
-*WITH YEAR FE - DEPTO FE 
-reghdfe floss_area mayorallied, a(i.year##i.codepto) vce(robust)
-reghdfe floss_area mayorinbrd, a(i.year##i.codepto) vce(robust)
-
-*WITH YEAR FE - MUNI FE 
-reghdfe floss_area mayorallied, a(year coddane) vce(robust)
-reghdfe floss_area mayorinbrd, a(year coddane) vce(robust)
-
-*WITH YEAR FE - MUNI FE - CAR FE
-reghdfe floss_area mayorallied, a(year coddane dcarcode) vce(robust)
-reghdfe floss_area mayorinbrd, a(year coddane dcarcode) vce(robust)
-
-
-*Interacting with how much power politicians have in te comittee 
-reghdfe floss_area i.mayorallied##c.dsh_politics, a(year coddane) vce(robust)
-reghdfe floss_area i.mayorinbrd##c.dsh_politics, a(year coddane) vce(robust)
-
-*With clusters
-reghdfe floss_area mayorallied, a(year coddane) vce(cluster codepto)
-reghdfe floss_area mayorinbrd, a(year coddane) vce(cluster codepto)
-
-reghdfe floss_area i.mayorallied##c.dsh_politics, a(year coddane) vce(cluster codepto)
-reghdfe floss_area i.mayorinbrd##c.dsh_politics, a(year coddane) vce(cluster codepto)
-
-
-
-reghdfe floss_area i.mayorallied##c.dsh_party, a(year coddane) vce(robust)
-reghdfe floss_area i.mayorinbrd##c.dsh_party, a(year coddane) vce(robust)
-
-
-
-
-
-*NOTE: I HAVE TO CREATE  MEASURE OF ALLIANCE WITH THE MOST POWERFUL PARTY!!!!!!!!
-
-
-
-*Difference of deforestation between 
-do ${do}/my_ttest.do
-
-my_ttest floss floss_area floss_prim00p1 floss_prim00p50, by(mayorinbrd)
-mat T=e(est)
-mat S=e(stars)
-
-tempfile X
-frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Mayor not in Committee", "Mayor in Committee", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(SD)", "(SD)", "(p-value)†") fragment tex nocenter sdec(4)
-
-filefilter `X' ${tables}\ttest_mayorinbrd.tex, from("r}\BS\BS") to("r}") replace 
-
-
-
-*Difference of deforestation between left and non-left winners
-my_ttest floss floss_area floss_prim00p1 floss_prim00p50, by(mayorallied)
-mat T=e(est)
-mat S=e(stars)
-
-tempfile X
-frmttable using `X', statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ctitle("Variables", "Mayor not aligned", "Mayor aligned", , "Difference" \ "", "Mean", "Mean", "of means" \ " ", "(SD)", "(SD)", "(p-value)†") fragment tex nocenter sdec(4)
-
-filefilter `X' ${tables}\ttest_mayorallied.tex, from("r}\BS\BS") to("r}") replace 
+save "${data}/Interim\defo_caralc.dta", replace
 
 
 

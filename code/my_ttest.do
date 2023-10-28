@@ -14,7 +14,7 @@ program my_ttest, eclass
 	scalar n=wordcount("`varlist'")
 	dis n
 	
-	mat T = J(n,8,.)
+	mat T = J(n,10,.)
 	local final=0
 	foreach var of local varlist{
 		ttest `var' `if', by(`by')
@@ -26,13 +26,14 @@ program my_ttest, eclass
 		mat T[`inicial',5] = r(mu_2) - r(mu_1) 
 		mat T[`inicial',6] = r(p)
 		mat T[`inicial',7] = r(N_1)
-		mat T[`inicial',8] = r(N_2)
+		mat T[`inicial',9] = r(N_2)
+		
 		local final = `inicial'
 	}	
 
 	mata: stars_MATA(st_matrix("T"),st_numscalar("n"))
 
-	mat T=T[.,1..6]
+	mat T=T[.,1..10]
 	mat rown T= `varlist'
 	
 	ereturn mat est=T 
