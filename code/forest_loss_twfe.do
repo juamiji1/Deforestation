@@ -81,8 +81,7 @@ bys dcarcode year: egen dsh_party=mean(sh_same_party)
 *Dummy if politics have the power in the CAR
 gen dsh_politics=sh_politics
 summ dsh_politics, d
-gen dmdn_politics = (dsh_politics>=`r(p50)') 
-*if dsh_politics!=.
+gen dmdn_politics = (dsh_politics>=`r(p50)') if dsh_politics!=.
 
 *-------------------------------------------------------------------------------
 * Regressions of Mayor allied

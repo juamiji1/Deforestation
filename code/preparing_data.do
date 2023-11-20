@@ -313,6 +313,58 @@ labmask carcode_master, values(car)
 tempfile MCAR2
 save `MCAR2'
 
+import delimited "${data}\muniCAR\municar_centroids.csv", encoding(UTF-8)  clear 
+
+keep mgn_anm_mpios_mpio_cdpmp car
+ren mgn_anm_mpios_mpio_cdpmp coddane
+
+replace car=trim(car)
+
+gen carcode_master=.
+
+replace 	carcode_master 	=	1		if 	car	==	"AMVA"
+replace 	carcode_master 	=	2		if 	car	==	"AREA EN LITIGIO"
+replace 	carcode_master 	=	3		if 	car	==	"CAM"
+replace 	carcode_master 	=	4		if 	car	==	"CAR"
+replace 	carcode_master 	=	5		if 	car	==	"CARDER"
+replace 	carcode_master 	=	6		if 	car	==	"CARDIQUE"
+replace 	carcode_master 	=	7		if 	car	==	"CARSUCRE"
+replace 	carcode_master 	=	8		if 	car	==	"CAS"
+replace 	carcode_master 	=	9		if 	car	==	"CDA"
+replace 	carcode_master 	=	10		if 	car	==	"CDMB"
+replace 	carcode_master 	=	11		if 	car	==	"CODECHOCO"
+replace 	carcode_master 	=	12		if 	car	==	"CORALINA"
+replace 	carcode_master 	=	13		if 	car	==	"CORANTIOQUIA"
+replace 	carcode_master 	=	14		if 	car	==	"CORMACARENA"
+replace 	carcode_master 	=	15		if 	car	==	"CORNARE"
+replace 	carcode_master 	=	16		if 	car	==	"CORPAMAG"
+replace 	carcode_master 	=	17		if 	car	==	"CORPOAMAZONIA"
+replace 	carcode_master 	=	18		if 	car	==	"CORPOBOYACA"
+replace 	carcode_master 	=	19		if 	car	==	"CORPOCALDAS"
+replace 	carcode_master 	=	20		if 	car	==	"CORPOCESAR"
+replace 	carcode_master 	=	21		if 	car	==	"CORPOCHIVOR"
+replace 	carcode_master 	=	22		if 	car	==	"CORPOGUAJIRA"
+replace 	carcode_master 	=	23		if 	car	==	"CORPOGUAVIO"
+replace 	carcode_master 	=	24		if 	car	==	"CORPOMOJANA"
+replace 	carcode_master 	=	25		if 	car	==	"CORPONARIÑO"
+replace 	carcode_master 	=	26		if 	car	==	"CORPONOR"
+replace 	carcode_master 	=	27		if 	car	==	"CORPORINOQUIA"
+replace 	carcode_master 	=	28		if 	car	==	"CORPOURABA"
+replace 	carcode_master 	=	29		if 	car	==	"CORTOLIMA"
+replace 	carcode_master 	=	30		if 	car	==	"CRA"
+replace 	carcode_master 	=	31		if 	car	==	"CRC"
+replace 	carcode_master 	=	32		if 	car	==	"CRQ"
+replace 	carcode_master 	=	33		if 	car	==	"CSB"
+replace 	carcode_master 	=	34		if 	car	==	"CVC"
+replace 	carcode_master 	=	35		if 	car	==	"CVS"
+
+*BARRANQUILLA IS WEIRD!!!
+
+labmask carcode_master, values(car)
+
+tempfile MCAR3
+save `MCAR3'
+
 *-------------------------------------------------------------------------------
 * Juntas CAR data
 *-------------------------------------------------------------------------------
@@ -459,7 +511,8 @@ duplicates drop coddane, force
 
 *Merging muni-CARs keys
 *merge 1:1 coddane using `MCAR', keep(1 3) keepus(carcode_master)
-merge 1:1 coddane using `MCAR2', keep(1 3) keepus(carcode_master) 
+*merge 1:1 coddane using `MCAR2', keep(1 3) keepus(carcode_master) 
+merge 1:1 coddane using `MCAR3', keep(1 3) keepus(carcode_master) 
 
 *Reshaping to make a panel data set
 reshape long floss, i(coddane) j(year)
