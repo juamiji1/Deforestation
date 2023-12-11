@@ -184,6 +184,10 @@ gen dsh_politics=sh_politics
 summ dsh_politics, d
 gen dmdn_politics = (dsh_politics>=`r(p50)') if dsh_politics!=.
 
+summ sh_same_party_gob, d
+gen dmdn_sameparty_gob = (sh_same_party_gob>=`r(p50)') if sh_same_party_gob!=.
+
+
 *-------------------------------------------------------------------------------
 * Simple differences in deforestation
 *-------------------------------------------------------------------------------
@@ -239,7 +243,7 @@ drop t_24-t_34
 *Calculating residuals 
 foreach var in floss floss_area floss_prim00p1{
 
-    reg `var' i.year i.coddane, r
+    reghdfe `var', a(i.year#c.fprim00_p1 i.year#c.area i.year i.coddane) vce(robust) resid
 	predict `var'_u, residuals 
 	
 	*t19 is -1  and t20 is the change
@@ -247,54 +251,60 @@ foreach var in floss floss_area floss_prim00p1{
 	mat bf1=e(b)[1,1..4],0,e(b)[1,5..8]
 	mat coln bf1= "-5" "-4" "-3" "-2" "-1" "0" "1" "2" "3"
 
-	reg `var'_u t_15 t_16 t_17 t_18 t_20 t_21 t_22 t_23 if xt==1 & dmdn_politics==0, r
+	*reg `var'_u t_15 t_16 t_17 t_18 t_20 t_21 t_22 t_23 if xt==1 & dmdn_politics==0, r
 
-	reg `var'_u t_15 t_16 t_17 t_18 t_20 t_21 t_22 t_23 if xt==1 & dmdn_politics==1, r
-	mat bf2=e(b)[1,1..4],0,e(b)[1,5..8]
-	mat coln bf2= "-5" "-4" "-3" "-2" "-1" "0" "1" "2" "3"
+	*reg `var'_u t_15 t_16 t_17 t_18 t_20 t_21 t_22 t_23 if xt==1 & dmdn_politics==1, r
+	*mat bf2=e(b)[1,1..4],0,e(b)[1,5..8]
+	*mat coln bf2= "-5" "-4" "-3" "-2" "-1" "0" "1" "2" "3"
 	
 	local label : variable label `var'
 	
-	coefplot (mat(bf1[1]), label("Party alignment")) (mat(bf2[1]), offset(-0.1) m(T) label("Party alignment plus mayority")) , vert yline(0, lp(dash)) noci recast(connected) xline(5, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Relative Time to Treatment", size(small)) 
+	*coefplot (mat(bf1[1]), label("Party alignment")) (mat(bf2[1]), offset(-0.1) m(T) label("Party alignment plus mayority")) , vert yline(0, lp(dash)) noci recast(connected) xline(5, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Relative Time to Treatment", size(small)) 
+	
+	coefplot (mat(bf1[1]), label("Party alignment")), vert yline(0, lp(dash)) noci recast(connected) xline(5, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Relative Time to Treatment", size(small)) 
 	gr export "${plots}/`var'_u_treatedtrends_mayorallied.pdf", as(pdf) replace
 	
 	drop `var'_u
 }
 
+
 *-------------------------------------------------------------------------------
 * Tune trend Heterogeneity by politicians power
 *-------------------------------------------------------------------------------
 foreach var in floss floss_area floss_prim00p1{
-	reg `var' i.coddane, r
+	*reg `var' i.coddane, r
+	reghdfe `var', a(i.year#c.fprim00_p1 i.year#c.area i.year i.coddane) vce(robust) resid
 	predict `var'_u2, residuals 
 }
 
 foreach var in floss floss_area floss_prim00p1{
 	
-	mean `var'_u2 if mayorallied==1 & dmdn_politics==0 & year>2001 & year<2016, over(year)
-	mat b0=e(b)
-	mat coln b0 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
+	*mean `var'_u2 if mayorallied==1 & dmdn_politics==0 & year>2001 & year<2016, over(year)
+	*mat b0=e(b)
+	*mat coln b0 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 
-	mean `var'_u2 if mayorallied==1 & dmdn_politics==1 & year>2001 & year<2016, over(year)
+	mean `var'_u2 if mayorallied==0 & year>2001 & year<2016, over(year)
 	mat b1=e(b)
 	mat coln b1 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 
-	mean `var'_u2 if mayorallied==0 & dmdn_politics==0 & year>2001 & year<2016, over(year)
+	mean `var'_u2 if mayorallied==1 & dmdn_politics==1 & year>2001 & year<2016, over(year)
 	mat b2=e(b)
 	mat coln b2 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 
-	mean `var'_u2 if mayorallied==0 & dmdn_politics==1 & year>2001 & year<2016, over(year)
-	mat b3=e(b)
-	mat coln b3 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
+	*mean `var'_u2 if mayorallied==0 & dmdn_politics==1 & year>2001 & year<2016, over(year)
+	*mat b3=e(b)
+	*mat coln b3 = 02 03 04 05 06 07 08 09 10 11 12 13 14 15
 
 	local label : variable label `var'
 	
-	coefplot (mat(b0[1]), label("Party alignment")) (mat(b1[1]), label("Party alignment plus mayority")) (mat(b2[1]), label("No Party alignment")) (mat(b3[1]), label("No Party alignment plus mayority")), vert noci recast(connected) xline(2, lp(dash)) xline(6, lp(dash)) xline(10, lp(dash)) xline(14, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Years", size(small)) 
+	*coefplot (mat(b0[1]), label("Party alignment")) (mat(b1[1]), label("Party alignment plus mayority")) (mat(b2[1]), label("No Party alignment")) (mat(b3[1]), label("No Party alignment plus mayority")), vert noci recast(connected) xline(2, lp(dash)) xline(6, lp(dash)) xline(10, lp(dash)) xline(14, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Years", size(small)) 
+	
+	coefplot (mat(b1[1]), label("No Party alignment")) (mat(b2[1]), label("Party alignment plus mayority")), vert noci recast(connected) xline(2, lp(dash)) xline(6, lp(dash)) xline(10, lp(dash)) xline(14, lp(dash)) l2title("`label' (residuals)", size(medsmall)) b2title("Years", size(small)) 
 	gr export "${plots}/`var'_u2_yeartrend_het_mayorallied.pdf", as(pdf) replace
 
 }
 
-*-------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------
 * Sorting data set relative to when treatment happened (mayorinbrd)
 *-------------------------------------------------------------------------------
 drop t t_* xt

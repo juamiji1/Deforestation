@@ -85,10 +85,12 @@ import delimited "${data}\Fiscalia\Conteo_de_Procesos.csv", encoding(UTF-8) clea
 destring total_procesos, replace ig(",")
 
 gen crime_environment=total_procesos if grupo_delito=="DELITOS AMBIENTALES"
+gen crime_environment_cond=total_procesos if grupo_delito=="DELITOS AMBIENTALES" & condena=="SI"
+
 gen crime_forest=total_procesos if delito=="ILICITO APROVECHAMIENTO DE LOS RECURSOS NATURALES RENOVABLES ART. 328 C.P."
 gen crime_forest_cond=total_procesos if delito=="ILICITO APROVECHAMIENTO DE LOS RECURSOS NATURALES RENOVABLES ART. 328 C.P." & condena=="SI"
 
-collapse (sum) total_procesos crime_environment crime_forest crime_forest_cond, by(departamento municipio anio_hecho)
+collapse (sum) total_procesos crime_environment crime_forest crime_forest_cond crime_environment_cond, by(departamento municipio anio_hecho)
 
 *Creating shares 
 gen sh_crime_env=crime_environment/total_procesos
@@ -96,6 +98,7 @@ gen sh_crime_forest=crime_forest/crime_environment
 gen sh_crime_forest_v2=crime_forest/total_procesos
 gen sh_crime_forest_cond=crime_forest_cond/crime_environment
 gen sh_crime_forest_cond_v2=crime_forest_cond/crime_forest
+gen sh_crime_env_cond= crime_environment_cond/crime_environment
 
 ren (departamento municipio anio_hecho) (depto mun year)
 
@@ -413,9 +416,15 @@ replace 	carcode 	=	34		if 	car	==	"CVC"
 replace 	carcode 	=	35		if 	car	==	"CVS"
 
 preserve 
+	duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
+	replace n_party=n_party+1
+
+	gen each=1
+	bys car year: egen total_members=sum(each)
+	bys car year codigo_partido: gen sh_same_party_gob=n_party/total_members
 
 	keep if type_election==1
-	keep codigo_partido year car type_election coddane
+	keep codigo_partido year car type_election coddane sh_same_party_gob
 	keep if year>1999 & year<2021
 	ren (codigo_partido coddane type_election) (codigo_partido_cargob codepto type_election_cargob)
 	
@@ -445,6 +454,8 @@ restore
 *bys car year: egen sh_politics=mean(politics)
 
 duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
+replace n_party=n_party+1
+
 gen each=1
 bys car year: egen total_members=sum(each)
 bys car year codigo_partido: gen sh_same_party=n_party/total_members
@@ -544,11 +555,10 @@ bys coddane: carryforward codigo_partido votos, replace
 *Merging info about directors of the board
 merge 1:1 coddane year using `CARALC', keep(1 3) gen(merge_caralc) 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
-*merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
-*merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
-*merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond) keep(1 3) nogen 
-
-*merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
+merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
+merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
+merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond) keep(1 3) nogen 
+merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 
 gen code=codepto if merge_caralc==3
 

@@ -83,17 +83,31 @@ gen dsh_politics=sh_politics
 summ dsh_politics, d
 gen dmdn_politics = (sh_politics>=`r(p50)') if dsh_politics!=.
 
+summ sh_same_party_gob, d
+gen dmdn_sameparty_gob = (sh_same_party_gob>=`r(p50)') if sh_same_party_gob!=.
+
+*Creating linear trends
+tab year, g(dyear) 
+
+forval i=1/20{
+
+	gen fprim00_p1_dyear_`i'=fprim00_p1*dyear`i'
+	gen area_dyear_`i'=area*dyear`i'
+	
+}
+
 *-------------------------------------------------------------------------------
 * Clustering by CAR
 *-------------------------------------------------------------------------------
 global dyn = 3
 global pla = 3
-global nboot = 70
+global nboot = 50
 
-foreach var in floss floss_area floss_prim00p1{
+*floss_area floss_prim00p1
+foreach var in floss {
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) longdiff_placebo covariances seed(12345) cluster(carcode_master)
+	did_multiplegt `var' coddane year mayorallied, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783) cluster(carcode_master)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)
@@ -171,10 +185,10 @@ foreach var in floss floss_area floss_prim00p1{
 
 }
 
-foreach var in floss floss_area floss_prim00p1{
+foreach var in floss {
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied if dmdn_politics==1, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) longdiff_placebo covariances seed(12345) cluster(carcode_master)
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==1, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783) cluster(carcode_master)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)
@@ -253,10 +267,10 @@ foreach var in floss floss_area floss_prim00p1{
 }
 
 
-foreach var in floss floss_area floss_prim00p1{
+foreach var in floss{
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied if dmdn_politics==0, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) longdiff_placebo covariances seed(12345) cluster(carcode_master)
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==0, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783) cluster(carcode_master)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)
@@ -334,16 +348,271 @@ foreach var in floss floss_area floss_prim00p1{
 }
 
 
-
-
-
-
-
-
-
-/*-------------------------------------------------------------------------------
+*-------------------------------------------------------------------------------
 * Regressions of Mayor allied (Chaisemartin and D'Haultfoeuille)
 *-------------------------------------------------------------------------------
+foreach var in floss {
+
+	*Results for all 
+	did_multiplegt `var' coddane year mayorallied, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783)
+
+	*Table for Average Effect
+	mat AE1 = J(6,1,.)
+	mat AE1[1,1]=e(effect_average)
+	mat AE1[2,1]=e(se_effect_average)
+	mat AE1[3,1]=e(effect_average)-1.96*e(se_effect_average)
+	mat AE1[4,1]=e(effect_average)+1.96*e(se_effect_average)
+	mat AE1[5,1]=e(N_effect_average)
+	mat AE1[6,1]=e(N_switchers_effect_average)
+	mat AE1= AE1'
+
+	mat rown AE1 = "`var'"
+	mat coln AE1 =  "ATE" "SE" "LB CI" "UB CI" "N" "Switchers"
+
+	mat SAE1 = J(1,6,0)
+	local p = 2*(1-(normal(abs(AE1[1,1]/AE1[1,2]))))
+	mat SAE1[1,1] =(`p'<=0.15)+ (`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+
+	tempfile X
+	frmttable using `X', statmat(AE1) varlabels replace annotate(SAE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_ate_es.tex", from("r}\BS\BS") to("r}") replace 
+
+	qui{
+		
+		mat E1 = J(6,${dyn}+${pla}+2,0)
+
+		forval l=1/$pla {
+			
+			mat E1[1,`l']=e(placebo_`l')
+			mat E1[2,`l']=e(se_placebo_`l')
+			mat E1[3,`l']=e(placebo_`l')-1.96*e(se_placebo_`l')
+			mat E1[4,`l']=e(placebo_`l')+1.96*e(se_placebo_`l')
+			mat E1[5,`l']=e(N_placebo_`l')
+			mat E1[6,`l']=e(N_switchers_placebo_`l')
+
+		}
+				
+		local s=${pla}+2
+		forval l=0/$dyn {
+			
+			mat E1[1,`s']=e(effect_`l')
+			mat E1[2,`s']=e(se_effect_`l')
+			mat E1[3,`s']=e(effect_`l')-1.96*e(se_effect_`l')
+			mat E1[4,`s']=e(effect_`l')+1.96*e(se_effect_`l')
+			mat E1[5,`s']=e(N_effect_`l')
+			mat E1[6,`s']=e(N_switchers_effect_`l')
+			
+			local ++s
+		}
+
+	}
+
+	mat coln E1 = "-3" "-2" "-1" "0" "1" "2" "3" "4"
+	mat rown E1 =  "Estimate" "SE" "LB CI" "UB CI" "N" "Switchers"
+	mat l E1
+
+	*ES plot
+	local label : variable label `var'
+	coefplot (mat(E1[1]), ci((3 4)) label("Party alignment")), vert yline(0, lp(dash)) recast(connected) xline(4, lp(dash)) l2title("`label'", size(medsmall)) b2title(Relative Time to Treatment, size(small)) ciopts(recast(rcap))
+	gr export "${plots}/`var'_plot_es.pdf", as(pdf) replace
+
+	*Table of leads and lags estimates 
+	mat E1 = E1'
+	mat SE1 = J(${dyn}+${pla}+2,6,0)
+
+	local I=${dyn}+${pla}+2
+	forval i=1/`I' {
+		local p = 2*(1-(normal(abs(E1[`i',1]/E1[`i',2]))))
+		mat SE1[`i',1] =(`p'<=0.15)+(`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+	}
+
+	tempfile X
+	frmttable using `X', statmat(E1) varlabels replace annotate(SE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_leadslags_es.tex", from("r}\BS\BS") to("r}") replace 
+
+}
+
+foreach var in floss {
+
+	*Results for all 
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==1, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783)
+
+	*Table for Average Effect
+	mat AE1 = J(6,1,.)
+	mat AE1[1,1]=e(effect_average)
+	mat AE1[2,1]=e(se_effect_average)
+	mat AE1[3,1]=e(effect_average)-1.96*e(se_effect_average)
+	mat AE1[4,1]=e(effect_average)+1.96*e(se_effect_average)
+	mat AE1[5,1]=e(N_effect_average)
+	mat AE1[6,1]=e(N_switchers_effect_average)
+	mat AE1= AE1'
+
+	mat rown AE1 = "`var'"
+	mat coln AE1 =  "ATE" "SE" "LB CI" "UB CI" "N" "Switchers"
+
+	mat SAE1 = J(1,6,0)
+	local p = 2*(1-(normal(abs(AE1[1,1]/AE1[1,2]))))
+	mat SAE1[1,1] =(`p'<=0.15)+ (`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+
+	tempfile X
+	frmttable using `X', statmat(AE1) varlabels replace annotate(SAE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_ate_es_pol1.tex", from("r}\BS\BS") to("r}") replace 
+
+	qui{
+		
+		mat E1 = J(6,${dyn}+${pla}+2,0)
+
+		forval l=1/$pla {
+			
+			mat E1[1,`l']=e(placebo_`l')
+			mat E1[2,`l']=e(se_placebo_`l')
+			mat E1[3,`l']=e(placebo_`l')-1.96*e(se_placebo_`l')
+			mat E1[4,`l']=e(placebo_`l')+1.96*e(se_placebo_`l')
+			mat E1[5,`l']=e(N_placebo_`l')
+			mat E1[6,`l']=e(N_switchers_placebo_`l')
+
+		}
+				
+		local s=${pla}+2
+		forval l=0/$dyn {
+			
+			mat E1[1,`s']=e(effect_`l')
+			mat E1[2,`s']=e(se_effect_`l')
+			mat E1[3,`s']=e(effect_`l')-1.96*e(se_effect_`l')
+			mat E1[4,`s']=e(effect_`l')+1.96*e(se_effect_`l')
+			mat E1[5,`s']=e(N_effect_`l')
+			mat E1[6,`s']=e(N_switchers_effect_`l')
+			
+			local ++s
+		}
+
+	}
+
+	mat coln E1 = "-3" "-2" "-1" "0" "1" "2" "3" "4"
+	mat rown E1 =  "Estimate" "SE" "LB CI" "UB CI" "N" "Switchers"
+	mat l E1
+
+	*ES plot
+	local label : variable label `var'
+	coefplot (mat(E1[1]), ci((3 4)) label("Party alignment")), vert yline(0, lp(dash)) recast(connected) xline(4, lp(dash)) l2title("`label'", size(medsmall)) b2title(Relative Time to Treatment, size(small)) ciopts(recast(rcap))
+	gr export "${plots}/`var'_plot_es_pol1.pdf", as(pdf) replace
+
+	*Table of leads and lags estimates 
+	mat E1 = E1'
+	mat SE1 = J(${dyn}+${pla}+2,6,0)
+
+	local I=${dyn}+${pla}+2
+	forval i=1/`I' {
+		local p = 2*(1-(normal(abs(E1[`i',1]/E1[`i',2]))))
+		mat SE1[`i',1] =(`p'<=0.15)+(`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+	}
+
+	tempfile X
+	frmttable using `X', statmat(E1) varlabels replace annotate(SE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_leadslags_es_pol1.tex", from("r}\BS\BS") to("r}") replace 
+
+}
+
+
+foreach var in floss{
+
+	*Results for all 
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==0, average_effect robust_dynamic dynamic(${dyn}) placebo(${pla}) breps(${nboot}) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(783)
+
+	*Table for Average Effect
+	mat AE1 = J(6,1,.)
+	mat AE1[1,1]=e(effect_average)
+	mat AE1[2,1]=e(se_effect_average)
+	mat AE1[3,1]=e(effect_average)-1.96*e(se_effect_average)
+	mat AE1[4,1]=e(effect_average)+1.96*e(se_effect_average)
+	mat AE1[5,1]=e(N_effect_average)
+	mat AE1[6,1]=e(N_switchers_effect_average)
+	mat AE1= AE1'
+
+	mat rown AE1 = "`var'"
+	mat coln AE1 =  "ATE" "SE" "LB CI" "UB CI" "N" "Switchers"
+
+	mat SAE1 = J(1,6,0)
+	local p = 2*(1-(normal(abs(AE1[1,1]/AE1[1,2]))))
+	mat SAE1[1,1] =(`p'<=0.15)+ (`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+
+	tempfile X
+	frmttable using `X', statmat(AE1) varlabels replace annotate(SAE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_ate_es_pol0.tex", from("r}\BS\BS") to("r}") replace 
+
+	qui{
+		mat E1 = J(6,${dyn}+${pla}+2,0)
+
+		forval l=1/$pla {
+			
+			mat E1[1,`l']=e(placebo_`l')
+			mat E1[2,`l']=e(se_placebo_`l')
+			mat E1[3,`l']=e(placebo_`l')-1.96*e(se_placebo_`l')
+			mat E1[4,`l']=e(placebo_`l')+1.96*e(se_placebo_`l')
+			mat E1[5,`l']=e(N_placebo_`l')
+			mat E1[6,`l']=e(N_switchers_placebo_`l')
+
+		}
+				
+		local s=${pla}+2
+		forval l=0/$dyn {
+			
+			mat E1[1,`s']=e(effect_`l')
+			mat E1[2,`s']=e(se_effect_`l')
+			mat E1[3,`s']=e(effect_`l')-1.96*e(se_effect_`l')
+			mat E1[4,`s']=e(effect_`l')+1.96*e(se_effect_`l')
+			mat E1[5,`s']=e(N_effect_`l')
+			mat E1[6,`s']=e(N_switchers_effect_`l')
+			
+			local ++s
+		}
+
+	}
+
+	mat coln E1 = "-3" "-2" "-1" "0" "1" "2" "3" "4"
+	mat rown E1 =  "Estimate" "SE" "LB CI" "UB CI" "N" "Switchers"
+	mat l E1
+
+	*ES plot
+	local label : variable label `var'
+	coefplot (mat(E1[1]), ci((3 4)) label("Party alignment")), vert yline(0, lp(dash)) recast(connected) xline(4, lp(dash)) l2title("`label'", size(medsmall)) b2title(Relative Time to Treatment, size(small)) ciopts(recast(rcap))
+	gr export "${plots}/`var'_plot_es_pol0.pdf", as(pdf) replace
+
+	*Table of leads and lags estimates 
+	mat E1 = E1'
+	mat SE1 = J(${dyn}+${pla}+2,6,0)
+
+	local I=${dyn}+${pla}+2
+	forval i=1/`I' {
+		local p = 2*(1-(normal(abs(E1[`i',1]/E1[`i',2]))))
+		mat SE1[`i',1] =(`p'<=0.15)+(`p'<=0.1)+(`p'<=0.05)+(`p'<=0.01)
+	}
+
+	tempfile X
+	frmttable using `X', statmat(E1) varlabels replace annotate(SE1) asymbol(†,*,**,***) fragment tex nocenter sdec(4,4,4,4,0,0) 
+	filefilter `X' "${tables}/`var'_leadslags_es_pol0.tex", from("r}\BS\BS") to("r}") replace 
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 gen myrallied_dsh_politics=mayorallied*dsh_politics
 gen myrallied_dmdn_politics=mayorallied*dmdn_politics
 
@@ -354,7 +623,7 @@ la var myrallied_dmdn_politics "Alignment \times I(Politicians majority)"
 foreach var in floss floss_area floss_prim00p1{
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) longdiff_placebo covariances seed(12345)
+	did_multiplegt `var' coddane year mayorallied, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(12345)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)
@@ -453,7 +722,7 @@ foreach var in floss floss_area floss_prim00p1{
 foreach var in floss floss_area floss_prim00p1{
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied if dmdn_politics==0, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) longdiff_placebo covariances seed(12345)
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==0, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(12345)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)
@@ -549,7 +818,7 @@ foreach var in floss floss_area floss_prim00p1{
 foreach var in floss floss_area floss_prim00p1{
 
 	*Results for all 
-	did_multiplegt `var' coddane year mayorallied if dmdn_politics==1, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) longdiff_placebo covariances seed(12345)
+	did_multiplegt `var' coddane year mayorallied if dmdn_politics==1, average_effect robust_dynamic dynamic(2) placebo(2) breps(70) trends_nonparam(fprim00_p1 area) longdiff_placebo covariances seed(12345)
 
 	*Table for Average Effect
 	mat AE1 = J(6,1,.)

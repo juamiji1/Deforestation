@@ -83,11 +83,17 @@ gen dsh_politics=sh_politics
 summ dsh_politics, d
 gen dmdn_politics = (dsh_politics>=`r(p50)') if dsh_politics!=.
 
+summ sh_same_party_gob, d
+gen dmdn_sameparty_gob = (sh_same_party_gob>=`r(p50)') if sh_same_party_gob!=.
+
 *-------------------------------------------------------------------------------
 * Regressions of Mayor allied
 *-------------------------------------------------------------------------------
 gen myrallied_dsh_politics=mayorallied*dsh_politics
 gen myrallied_dmdn_politics=mayorallied*dmdn_politics
+
+gen myrallied_dsh_sameparty_gob=mayorallied*sh_same_party_gob
+gen myrallied_dmdn_sameparty_gob=mayorallied*dmdn_sameparty_gob
 
 la var dsh_politics "Share of Politicians"
 la var dmdn_politics "I(Politicians majority)"
@@ -103,42 +109,43 @@ cap erase "${tables}\floss_area_mayorallied.txt"
 cap erase "${tables}\floss_prim00p1_mayorallied.tex"
 cap erase "${tables}\floss_prim00p1_mayorallied.txt"
 
+*floss_area floss_prim00p1
 foreach var in floss floss_area floss_prim00p1{
 
 	*Simple Difference
-	reghdfe `var' mayorallied, noabs vce(robust)
+	reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, noabs vce(robust)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) addtext("Year FE", "No", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) keep(mayorallied) addtext("Year FE", "No", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*Year FEs
-	reghdfe `var' mayorallied, a(year) vce(robust)
+	reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, a(year) vce(robust)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) keep(mayorallied) addtext("Year FE", "Yes", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*TWFEs
-	reghdfe `var' mayorallied, a(year coddane) vce(robust)
+	reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, a(year coddane) vce(robust)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) keep(mayorallied) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*TWFE + share of politicians in comitte (continuous)
-	reghdfe `var' mayorallied dsh_politics myrallied_dsh_politics, a(year coddane) vce(robust)
+	reghdfe `var' mayorallied dsh_politics myrallied_dsh_politics c.fprim00_p1#i.year c.area#i.year , a(year coddane) vce(robust)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) keep(mayorallied dsh_politics myrallied_dsh_politics) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 		
 	*TWFE + share of politicians in comitte (dichotomous)
-	reghdfe `var' mayorallied dmdn_politics myrallied_dmdn_politics, a(year coddane) vce(robust)
+	reghdfe `var' mayorallied dmdn_politics myrallied_dmdn_politics c.fprim00_p1#i.year c.area#i.year, a(year coddane) vce(robust)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied.tex", tex(frag) keep(mayorallied dmdn_politics myrallied_dmdn_politics) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 }
 
@@ -158,47 +165,47 @@ foreach var in floss floss_area floss_prim00p1{
 
 	*Simple Difference
 	tsset, clear
-	bootstrap, reps(70) seed(123) cluster(carcode_master): reghdfe `var' mayorallied, noabs vce(cluster carcode_master)
+	bootstrap, reps(50) seed(783) cluster(carcode_master): reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, noabs vce(cluster carcode_master)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) addtext("Year FE", "No", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) keep(mayorallied) addtext("Year FE", "No", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*Year FEs
 	tsset, clear
-	bootstrap, reps(70) seed(123) cluster(carcode_master): reghdfe `var' mayorallied, a(year) vce(cluster carcode_master)
+	bootstrap, reps(50) seed(783) cluster(carcode_master): reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, a(year) vce(cluster carcode_master)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) keep(mayorallied) addtext("Year FE", "Yes", "Muni FE", "No" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*TWFEs
 	tsset, clear
-	bootstrap, reps(70) seed(123) cluster(carcode_master): reghdfe `var' mayorallied, a(year coddane) vce(cluster carcode_master)
+	bootstrap, reps(50) seed(783) cluster(carcode_master): reghdfe `var' mayorallied c.fprim00_p1#i.year c.area#i.year, a(year coddane) vce(cluster carcode_master)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) keep(mayorallied) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 	*TWFE + share of politicians in comitte (continuous)
 	tsset, clear
-	bootstrap, reps(70) seed(123) cluster(carcode_master): reghdfe `var' mayorallied dsh_politics myrallied_dsh_politics, a(year coddane) vce(cluster carcode_master)
+	bootstrap, reps(50) seed(783) cluster(carcode_master): reghdfe `var' mayorallied dsh_politics myrallied_dsh_politics c.fprim00_p1#i.year c.area#i.year, a(year coddane) vce(cluster carcode_master)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) keep(mayorallied dsh_politics myrallied_dsh_politics) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 		
 	*TWFE + share of politicians in comitte (dichotomous)
 	tsset, clear
-	bootstrap, reps(70) seed(123) cluster(carcode_master): reghdfe `var' mayorallied dmdn_politics myrallied_dmdn_politics, a(year coddane) vce(cluster carcode_master)
+	bootstrap, reps(50) seed(783) cluster(carcode_master): reghdfe `var' mayorallied dmdn_politics myrallied_dmdn_politics c.fprim00_p1#i.year c.area#i.year, a(year coddane) vce(cluster carcode_master)
 	summ `var' if e(sample)==1, d
 	gl mean_y=round(r(mean), .01)
 	
-	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
+	outreg2 using "${tables}/`var'_mayorallied_cl.tex", tex(frag) keep(mayorallied dmdn_politics myrallied_dmdn_politics) addtext("Year FE", "Yes", "Muni FE", "Yes" ) addstat("Dependent mean", ${mean_y}) label nonote nocons append 
 	
 }
 
-*-------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------
 * Regressions of Mayor in Board
 *-------------------------------------------------------------------------------
 gen myrinbrd_dsh_politics=mayorinbrd*dsh_politics
