@@ -415,6 +415,12 @@ replace 	carcode 	=	33		if 	car	==	"CSB"
 replace 	carcode 	=	34		if 	car	==	"CVC"
 replace 	carcode 	=	35		if 	car	==	"CVS"
 
+*Drop obs with this in the string 
+drop if strpos(position, "( E )") > 0
+drop if strpos(position, "(E )") > 0
+drop if strpos(position, "( E)") > 0
+drop if strpos(position, "(E)") > 0
+
 preserve 
 	duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
 	replace n_party=n_party+1
@@ -452,25 +458,40 @@ restore
 
 *bys car year: gen politics=(type_election<3)
 *bys car year: egen sh_politics=mean(politics)
+preserve
+	duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
+	replace n_party=n_party+1
 
-duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
-replace n_party=n_party+1
+	gen each=1
+	bys car year: egen total_members=sum(each)
+	bys car year codigo_partido: gen sh_same_party=n_party/total_members
+	drop each total_members
 
+	keep if type_election==2
+	*keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
+	keep codigo_partido year car carcode type_election coddane sh_same_party
+	keep if year>1999 & year<2021
+	ren codigo_partido codigo_partido_caralc
+
+	duplicates drop coddane year, force
+
+	tempfile CARALC
+	save `CARALC', replace
+restore 
+
+keep if type_election!=.
 gen each=1
-bys car year: egen total_members=sum(each)
-bys car year codigo_partido: gen sh_same_party=n_party/total_members
-drop each total_members
+bys car year: egen total_politicians=sum(each) //revise CAM y CAR
+bys car year: gen n_politician=_n
 
-keep if type_election==2
-*keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
-keep codigo_partido year car carcode type_election coddane sh_same_party
+keep year carcode n_politician codigo_partido
 keep if year>1999 & year<2021
-ren codigo_partido codigo_partido_caralc
+ren (carcode codigo_partido) (carcode_master codigo_partido_carpol)
 
-duplicates drop coddane year, force
+reshape wide codigo_partido_carpol, i(year carcode) j(n_politician)
 
-tempfile CARALC
-save `CARALC', replace
+tempfile CARPOL
+save `CARPOL', replace
 
 *-------------------------------------------------------------------------------
 * Alcaldes data
@@ -523,7 +544,7 @@ duplicates drop coddane, force
 *Merging muni-CARs keys
 *merge 1:1 coddane using `MCAR', keep(1 3) keepus(carcode_master)
 *merge 1:1 coddane using `MCAR2', keep(1 3) keepus(carcode_master) 
-merge 1:1 coddane using `MCAR3', keep(1 3) keepus(carcode_master) 
+merge 1:1 coddane using `MCAR3', keep(1 3) keepus(carcode_master) nogen
 
 *Reshaping to make a panel data set
 reshape long floss, i(coddane) j(year)
@@ -564,7 +585,7 @@ gen code=codepto if merge_caralc==3
 
 *Merging Politic Power in CAR
 merge m:1 carcode_master year using `SHPOL', keepus(sh_politics) gen(merge_carcom)
-
+merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
 
 save "${data}/Interim\defo_caralc.dta", replace
 
