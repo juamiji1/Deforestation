@@ -521,6 +521,50 @@ save `ALC'
 *-------------------------------------------------------------------------------
 * Deforestation data
 *-------------------------------------------------------------------------------
+*Hansen deforestation conditioning to pixels with primary forest from Hansen
+forval y=1/20{
+	import delimited "${data}/Deforestation\forestloss_primary_Hansen\ForestLoss_Year`y'.csv", encoding(UTF-8)  clear 
+
+	rename (codmpio lossarea`y') (coddane floss_prim_hansen)
+	gen year=2000+`y'
+	replace floss_prim_hansen=floss_prim_hansen/1000000
+
+	keep coddane year floss_prim_hansen
+
+	tempfile F`y'
+	save `F`y'', replace 
+}
+
+use `F1', clear
+
+append using `F2' `F3' `F4' `F5' `F6' `F7' `F8' `F9' `F10' `F11' `F12' `F13' `F14' `F15' `F16' `F17' `F18' `F19' `F20'
+sort coddane year 
+
+tempfile FLOSS_PRIMARY_HANSEN
+save `FLOSS_PRIMARY_HANSEN', replace 
+
+*Hansen deforestation conditioning to pixels with primary forest from IDEAM
+forval y=1/20{
+	import delimited "${data}/Deforestation\forestloss_primary_IDEAM\ForestLoss_IDEAM_Year`y'.csv", encoding(UTF-8)  clear 
+
+	rename (codmpio lossarea`y') (coddane floss_prim_ideam)
+	gen year=2000+`y'
+	replace floss_prim_ideam=floss_prim_ideam/1000000
+
+	keep coddane year floss_prim_ideam
+
+	tempfile F`y'
+	save `F`y'', replace 
+}
+
+use `F1', clear
+
+append using `F2' `F3' `F4' `F5' `F6' `F7' `F8' `F9' `F10' `F11' `F12' `F13' `F14' `F15' `F16' `F17' `F18' `F19' `F20'
+sort coddane year 
+
+tempfile FLOSS_PRIMARY_IDEAM
+save `FLOSS_PRIMARY_IDEAM', replace 
+
 *Coverting shape to dta 
 *shp2dta using "${data}/Gis\workinprogress\muniShp_defoinfo_sp", data("${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta") coordinates("${data}/Gis\workinprogress\muniShp_defoinfo_sp_coord.dta") genid(idmap) genc(coord) replace 
 
@@ -551,11 +595,16 @@ reshape long floss, i(coddane) j(year)
 replace year=2000+year
 keep if year<2021
 
+*Merging other measures of deforestation
+*merge 1:1 coddane year using `FLOSS_PRIMARY_HANSEN', nogen
+merge 1:1 coddane year using `FLOSS_PRIMARY_IDEAM', nogen // it seems this is the same data
+
 *Calculating different normalizations of the forest loss
 gen floss_area=floss*100/area    
 gen floss_prim00p1=floss*100/fprim00_p1
 gen floss_prim00p50=floss*100/fprim00_p50
 gen floss_prim01=floss*100/fprim_01
+gen floss_prim_ideam_area=floss_prim_ideam*100/area 
 
 *Fixing departamental code 
 tostring(coddane), gen(codepto)
