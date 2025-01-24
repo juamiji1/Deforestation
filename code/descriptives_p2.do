@@ -123,6 +123,45 @@ tab carcode dmdn_politics
 *Mira corpocesar 
 
 
+*-------------------------------------------------------------------------------
+* Looking at new measures of deforestation
+*
+*-------------------------------------------------------------------------------
+use "${data}/Interim\defo_caralc.dta", clear
+
+collapse (sum) floss_prim_ideam area (mean) sh_politics_law, by(carcode_master year)
+
+format %8.0g floss
+
+gen floss_prim_ideam_area=floss_prim_ideam*100/area    
+
+label var floss_prim_ideam "Primary Forest Loss - IDEAM (Km2)"
+label var floss_prim_ideam_area "Share of Primary Forest Loss - IDEAM (%)"
+
+reghdfe sh_politics_law, a(i.year) vce(robust) resid
+predict sh_politics_law_u, residuals 
+
+foreach var in floss_prim_ideam floss_prim_ideam_area {
+	
+	cap drop `var'_u
+	
+	local varlabel : variable label `var'	
+	
+	reghdfe `var', a(i.year) vce(robust) resid
+	predict `var'_u, residuals 
+	
+	two (scatter `var'_u sh_politics_law_u, mcolor(%50) lcolor(black)) (lfit `var'_u  sh_politics_law_u, lcolor(black)), legend(off) ytitle("`varlabel'", size(medsmall)) xtitle("Share of politicians in the board (Law)", size(medsmall))
+	gr export "${plots}/binscatter_`var'_shpoliticslaw_resid.pdf", as(pdf) replace
+	
+}
+
+
+
+
+
+
+
+
 *END
 
 

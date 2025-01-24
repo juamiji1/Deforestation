@@ -493,8 +493,14 @@ reshape wide codigo_partido_carpol, i(year carcode) j(n_politician)
 tempfile CARPOL
 save `CARPOL', replace
 
+*Juntas CAR by Law 
+use "${data}\Juntas CAR\juntas_directivas_Ley.dta", clear
+
+tempfile SHPOLLAW
+save `SHPOLLAW', replace
+
 *-------------------------------------------------------------------------------
-* Alcaldes data
+* Electoral data
 *-------------------------------------------------------------------------------
 foreach y in 2000 2003 2007 2011 2015 2019 {
     
@@ -502,7 +508,7 @@ foreach y in 2000 2003 2007 2011 2015 2019 {
 	keep if curules==1
 	keep ano coddpto departamento codmpio municipio codigo_partido votos curules
 
-	ren (ano coddpto codmpio) (year codepto coddane)
+	ren (ano coddpto codmpio codigo_partido votos) (year codepto coddane codigo_partido_alc votos_alc)
 
 	*Fixing year var
 	replace year=year+1
@@ -517,6 +523,34 @@ append using `2003ALC' `2007ALC' `2011ALC' `2015ALC' `2019ALC'
 
 tempfile ALC
 save `ALC'
+
+foreach y in 2000 2003 2007 2011 2015 2019 {
+    
+	use "${data}/Elections\raw\Gobernaciones/`y'_gobernacion.dta", clear
+	
+	collapse (sum) votos (mean) codigo_partido, by(ano coddpto codigo_lista nombres primer_apellido segundo_apellido)
+	
+	bys coddpto: egen max_v=max(votos)
+	gen curules=(max_v==votos) if votos!=.
+	
+	keep if curules==1
+	drop max_v curules 
+	
+	ren (ano coddpto codigo_partido votos) (year codepto codigo_partido_gob votos_gob)
+
+	*Fixing year var
+	replace year=year+1
+	
+	tempfile `y'GOB
+	save ``y'GOB', replace
+	
+}
+
+use `2000GOB', clear 
+append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
+
+tempfile GOB
+save `GOB'
 
 *-------------------------------------------------------------------------------
 * Deforestation data
@@ -618,10 +652,14 @@ destring codepto, replace
 *drop carmode
 
 *Merging info about mayor elections
-merge 1:1 coddane year using `ALC', keepus(codigo_partido votos) keep(1 3) nogen 
+merge 1:1 coddane year using `ALC', keepus(codigo_partido_alc votos_alc) keep(1 3) nogen 
 sort coddane year, stable
-bys coddane: carryforward codigo_partido votos, replace 
- 
+bys coddane: carryforward codigo_partido_alc votos_alc, replace 
+
+merge m:1 codepto year using `GOB', keepus(codigo_partido_gob votos_gob) keep(1 3) nogen 
+sort coddane year, stable
+bys coddane: carryforward codigo_partido_gob votos_gob, replace 
+
 *Merging info about directors of the board
 merge 1:1 coddane year using `CARALC', keep(1 3) gen(merge_caralc) 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
@@ -634,6 +672,7 @@ gen code=codepto if merge_caralc==3
 
 *Merging Politic Power in CAR
 merge m:1 carcode_master year using `SHPOL', keepus(sh_politics) gen(merge_carcom)
+merge m:1 carcode_master using `SHPOLLAW', keepus(sh_politics_law) gen(merge_carcom_law)
 merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
 
 save "${data}/Interim\defo_caralc.dta", replace
