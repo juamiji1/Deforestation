@@ -64,8 +64,58 @@ reghdfe floss_prim_ideam dmdn_politics_law, a(year) vce(robust)
 
 reghdfe floss_prim_ideam diff_sh_politics, a(year coddane) vce(robust)
 
+*THESE for tommorow Puzzle:
+reghdfe floss_prim_ideam_area mayorallied dmdn_politics myrallied_dmdn_politics, a(year coddane) vce(robust)
+
+mat C=J(3,4,.)
+
+lincom _cons
+mat C[1,1]= r(estimate) 
+mat C[2,1]= r(lb)
+mat C[3,1]= r(ub)
+
+lincom mayorallied +_cons
+mat C[1,2]= r(estimate) 
+mat C[2,2]= r(lb)
+mat C[3,2]= r(ub)
+
+lincom dmdn_politics +_cons
+mat C[1,3]= r(estimate) 
+mat C[2,3]= r(lb)
+mat C[3,3]= r(ub)
+
+lincom mayorallied + dmdn_politics + myrallied_dmdn_politics +_cons
+mat C[1,4]= r(estimate) 
+mat C[2,4]= r(lb)
+mat C[3,4]= r(ub)
+
+mat coln C = "No-Alignment + Minority" "Alignment + Minority" "No-Alignment + Mayority" "Alignment + Mayority"
+
+local varlabel : variable label floss_prim_ideam_area 
+coefplot (mat(C[1]), ci((2 3))), xtitle("Effect on `varlabel'")
+
+	
+reghdfe floss_prim_ideam mayorallied dmdn_politics_law myrallied_dmdn_politics_law, a(year coddane) vce(robust)
+
 reghdfe floss_prim_ideam mayorallied if dmdn_politics==1, a(year coddane) vce(robust)
 reghdfe floss_prim_ideam mayorallied if dmdn_politics==0, a(year coddane) vce(robust)
+
+
+
+reghdfe floss_prim_ideam_area mayorallied dmdn_politics myrallied_dmdn_politics, a(year coddane) vce(robust)
+reghdfe floss_prim_ideam_area mayorallied dmdn_politics_law myrallied_dmdn_politics_law, a(year coddane) vce(robust)
+
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics==1, a(year coddane) vce(robust)
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics==0, a(year coddane) vce(robust)
+
+
+reghdfe floss_prim_ideam mayorinbrd dmdn_politics mayorinbrd_dmdn_politics, a(year coddane) vce(robust)
+reghdfe floss_prim_ideam_area mayorinbrd dmdn_politics mayorinbrd_dmdn_politics, a(year coddane) vce(robust)
+
+reghdfe floss_prim_ideam_area mayorinbrd if dmdn_politics==1, a(year coddane) vce(robust)
+reghdfe floss_prim_ideam_area mayorinbrd if dmdn_politics==0, a(year coddane) vce(robust)
+
+
 
 
 global dyn = 3
@@ -80,8 +130,50 @@ did_multiplegt floss_prim_ideam coddane year mayorallied if dmdn_politics==0, av
 
 
 
+mat C=J(3,4,.)
+mat coln C = "Alignment" "Alignment + Minority" "Alignment + Mayority" "No-Alignment"
 
+reghdfe floss_prim_ideam_area mayorallied , a(year coddane) vce(robust)
+lincom mayorallied +_cons
+mat C[1,1]= r(estimate) 
+mat C[2,1]= r(lb)
+mat C[3,1]= r(ub)
 
+lincom _cons
+mat C[1,4]= r(estimate) 
+mat C[2,4]= r(lb)
+mat C[3,4]= r(ub)
 
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics==0, a(year coddane) vce(robust)
+lincom mayorallied +_cons
+mat C[1,2]= r(estimate) 
+mat C[2,2]= r(lb)
+mat C[3,2]= r(ub)
+
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics==1, a(year coddane) vce(robust)
+lincom mayorallied +_cons
+mat C[1,3]= r(estimate) 
+mat C[2,3]= r(lb)
+mat C[3,3]= r(ub)
+
+mat B=J(3,4,.)
+mat coln B = "Alignment" "Alignment + Minority" "Alignment + Mayority" "No-Alignment"
+
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics_law==0, a(year coddane) vce(robust)
+lincom mayorallied +_cons
+mat B[1,2]= r(estimate) 
+mat B[2,2]= r(lb)
+mat B[3,2]= r(ub)
+
+reghdfe floss_prim_ideam_area mayorallied if dmdn_politics_law==1, a(year coddane) vce(robust)
+lincom mayorallied +_cons
+mat B[1,3]= r(estimate) 
+mat B[2,3]= r(lb)
+mat B[3,3]= r(ub)
+
+local varlabel : variable label floss_prim_ideam_area 
+coefplot (mat(C[1]), ci((2 3))) (mat(B[1]), ci((2 3))), b2title("Share of Primary Forest Loss over Municipality Area", size(medsmall)) ylab(, labsize(small)) title("") plotlabels("Actual seats" "Mandated seats") legend(position(6) rows(1)) xline(0.0223, lp(dash) lc(gray))
+
+gr export "${plots}/coefplot_floss_prim_ideam_area_mayorallied.pdf", as(pdf) replace
 
 
