@@ -371,7 +371,8 @@ save `MCAR3'
 *-------------------------------------------------------------------------------
 * Juntas CAR data
 *-------------------------------------------------------------------------------
-import excel "${data}\Juntas CAR\juntas_directivas.xlsx", sheet("Sheet1") firstrow clear
+*import excel "${data}\Juntas CAR\Bases parciales\juntas_directivas_Sept23.xlsx", sheet("Sheet1") firstrow clear
+use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol_feb.dta", clear
 
 rename _all, low
 
@@ -421,6 +422,9 @@ drop if strpos(position, "(E )") > 0
 drop if strpos(position, "( E)") > 0
 drop if strpos(position, "(E)") > 0
 
+*IMPORTANT CHANGE
+drop if strpos(lower(position), "delegado") > 0 | strpos(lower(position), "delegada") > 0
+	
 preserve 
 	duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
 	replace n_party=n_party+1
@@ -442,10 +446,17 @@ preserve
 restore 
 
 preserve
-	
 	replace type_election=2 if type_election==20
 	gen politics=(type_election<3)
-	collapse (mean) sh_politics=politics, by(carcode year)
+	gen politics2=(type_election<3 | contains_gobloc==1 | contains_gobnac==1)
+	gen academics=(contains_acad==1)
+	gen ethnias=(contains_etn==1)
+	gen private=(contains_priv==1)
+	gen envngo=(contains_amb==1)
+	gen members=1
+		
+	collapse (mean) sh_politics=politics sh_politics2=politics2 sh_academics=academics sh_ethnias=ethnias sh_private=private sh_envngo=envngo (sum) politics politics2 academics ethnias private envngo members, by(carcode year)
+	
 	replace sh_politics=. if sh_politics==0
 	drop if sh_politics==.
 	
@@ -495,6 +506,14 @@ save `CARPOL', replace
 
 *Juntas CAR by Law 
 use "${data}\Juntas CAR\juntas_directivas_Ley.dta", clear
+
+ren _all, low
+
+gen sh_politics2_law=(gobnacional+gobdeptos+alcaldes)/total
+gen sh_private_law=(privados)/total
+gen sh_ethnias_law=(comunidadesetnicas)/total
+gen sh_envngo_law=(ongsambientales)/total
+gen sh_academics_law=(institutosdeinvestigaciónnaci)/total
 
 tempfile SHPOLLAW
 save `SHPOLLAW', replace
@@ -671,9 +690,26 @@ merge 1:1 coddane year using `FIRES', keep(1 3) nogen
 gen code=codepto if merge_caralc==3
 
 *Merging Politic Power in CAR
-merge m:1 carcode_master year using `SHPOL', keepus(sh_politics) gen(merge_carcom)
-merge m:1 carcode_master using `SHPOLLAW', keepus(sh_politics_law) gen(merge_carcom_law)
+merge m:1 carcode_master year using `SHPOL', keepus(sh_* politics politics2 academics ethnias private envngo members) gen(merge_carcom)
+merge m:1 carcode_master using `SHPOLLAW', keepus(sh_*_law) gen(merge_carcom_law)
 merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
+
+*-------------------------------------------------------------------------------
+* Preparing vars of interest
+*-------------------------------------------------------------------------------
+*Creating variable of mayor in the CAR's board 
+gen mayorinbrd=(codigo_partido_caralc!=.) if sh_politics!=.
+
+*Creating variable of mayor allied with the gobernor in CAR's board
+gen mayorallied=(codigo_partido_alc==codigo_partido_gob) if codigo_partido_gob!=.
+
+*Allianza with any politician in the CAR's board
+gen mayorallied_wanypol=.
+forval i=1/19{
+	replace mayorallied_wanypol=1 if codigo_partido_alc==codigo_partido_carpol`i' & codigo_partido_carpol`i'!=.
+}
+
+replace mayorallied_wanypol=0 if mayorallied_wanypol==. & mayorallied_wanypol!=1 & codigo_partido_alc!=.
 
 save "${data}/Interim\defo_caralc.dta", replace
 
