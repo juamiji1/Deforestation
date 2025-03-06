@@ -71,7 +71,7 @@ replace mun=strlower(mun)
 replace mun="leguizamo" if mun=="puerto leguizamo" & depto=="putumayo"
 
 *keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo"
-keep if codepto=="05" | codepto=="15" | codepto=="18" | codepto=="20" | codepto=="25" | codepto=="76" | codepto=="86" | codepto=="91" | codepto=="94" | codepto=="95" | codepto=="97" 
+*keep if codepto=="05" | codepto=="15" | codepto=="18" | codepto=="20" | codepto=="25" | codepto=="76" | codepto=="86" | codepto=="91" | codepto=="94" | codepto=="95" | codepto=="97" 
 
 tempfile DIVIPOLA
 save `DIVIPOLA', replace 
@@ -131,7 +131,7 @@ replace depto=subinstr(depto,"ü","u",.)
 replace depto=strlower(depto)
 replace mun=strlower(mun)
 
-keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo" | depto=="boyaca" | depto=="cesar" | depto=="cundinamarca" | depto=="guainia" | depto=="guaviare" | depto=="valle del cauca" | depto=="vaupes" | depto=="antioquia"
+*keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo" | depto=="boyaca" | depto=="cesar" | depto=="cundinamarca" | depto=="guainia" | depto=="guaviare" | depto=="valle del cauca" | depto=="vaupes" | depto=="antioquia"
 keep if year<2021
 
 merge m:1 depto mun using `DIVIPOLA', keep(3) nogen 
@@ -237,6 +237,19 @@ gen pc_perm_area=D.perm_area/L.perm_area
 
 tempfile PERM
 save `PERM', replace 
+
+*Licencias 
+use "${data}/Licencias\base_car.dta", clear
+
+ren (codigo_dane fecharesolucion_anio) (coddane year)
+
+gen n_licencia=1 
+gen licencia_minero=1 if sector=="MINERO"
+
+collapse (sum) n_licencia licencia_minero, by(coddane year)
+
+tempfile LICEN
+save `LICEN', replace 
 
 *-------------------------------------------------------------------------------
 * Fires and hotspots data
@@ -372,7 +385,7 @@ save `MCAR3'
 * Juntas CAR data
 *-------------------------------------------------------------------------------
 *import excel "${data}\Juntas CAR\Bases parciales\juntas_directivas_Sept23.xlsx", sheet("Sheet1") firstrow clear
-use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol_feb.dta", clear
+use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol-vot_feb.dta", clear
 
 rename _all, low
 
@@ -428,15 +441,19 @@ drop if strpos(lower(position), "delegado") > 0 | strpos(lower(position), "deleg
 preserve 
 	duplicates tag car year codigo_partido if codigo_partido!=., g(n_party)
 	replace n_party=n_party+1
+	
+	duplicates tag carcode year codigo_partido if type_election!=. & codigo_partido!=., gen(sameparty_gov)
+	replace sameparty_gov=sameparty_gov+1
+	replace sameparty_gov=. if type_election!=1
 
 	gen each=1
 	bys car year: egen total_members=sum(each)
-	bys car year codigo_partido: gen sh_same_party_gob=n_party/total_members
+	gen sh_sameparty_gov=sameparty_gov/total_members
 
 	keep if type_election==1
-	keep codigo_partido year car type_election coddane sh_same_party_gob
+	keep codigo_partido year car type_election coddane sh_sameparty_gov porc_vots
 	keep if year>1999 & year<2021
-	ren (codigo_partido coddane type_election) (codigo_partido_cargob codepto type_election_cargob)
+	ren (codigo_partido coddane type_election porc_vots) (codigo_partido_cargob codepto type_election_cargob sh_votes_gov)
 	
 	duplicates drop codepto year, force
 	
@@ -454,12 +471,17 @@ preserve
 	gen private=(contains_priv==1)
 	gen envngo=(contains_amb==1)
 	gen members=1
+	
+	gen female=1 if sexo=="Femenino"
+	replace female=0 if female==.
+	
+	unique codigo_partido, by(carcode year) gen(tag)
 		
-	collapse (mean) sh_politics=politics sh_politics2=politics2 sh_academics=academics sh_ethnias=ethnias sh_private=private sh_envngo=envngo (sum) politics politics2 academics ethnias private envngo members, by(carcode year)
+	collapse (mean) sh_politics=politics sh_politics2=politics2 sh_academics=academics sh_ethnias=ethnias sh_private=private sh_envngo=envngo sh_female=female n_parties=tag (sum) politics politics2 academics ethnias private envngo members female, by(carcode year)
 	
 	replace sh_politics=. if sh_politics==0
 	drop if sh_politics==.
-	
+		
 	ren carcode carcode_master
 	
 	tempfile SHPOL
@@ -524,10 +546,13 @@ save `SHPOLLAW', replace
 foreach y in 2000 2003 2007 2011 2015 2019 {
     
 	use "${data}/Elections\raw\Alcaldias/`y'_alcaldia.dta", clear
+	bys codmpio: egen tot_votes=total(votos)
 	keep if curules==1
-	keep ano coddpto departamento codmpio municipio codigo_partido votos curules
+	keep ano coddpto departamento codmpio municipio codigo_partido votos curules tot_votes
 
-	ren (ano coddpto codmpio codigo_partido votos) (year codepto coddane codigo_partido_alc votos_alc)
+	ren (ano coddpto codmpio codigo_partido votos tot_votes) (year codepto coddane codigo_partido_alc votos_alc tot_votes_alc)
+	
+	gen sh_votes_alc=votos_alc/tot_votes_alc
 
 	*Fixing year var
 	replace year=year+1
@@ -626,6 +651,160 @@ save `FLOSS_PRIMARY_IDEAM', replace
 *copy "muniShp_defoinfo_sp.dta" "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta" , replace
 *copy "muniShp_defoinfo_sp_shp.dta" "${data}/Gis\workinprogress\muniShp_defoinfo_sp_shp.dta" , replace
 
+*-------------------------------------------------------------------------------
+* Lobbying data 
+*-------------------------------------------------------------------------------
+use "${data}/Cuentas Claras\financed_munis.dta", clear
+
+ren codmpio coddane
+
+tempfile LOBBY1
+save `LOBBY1', replace
+
+import delimited "${data}/Cuentas Claras\INGRESOS_TERRITORIALES_2015.csv", clear
+
+keep if corporaciónocargo=="Gobernación"
+keep if elegido=="Si"
+
+gen private=1 if código==102 | código==106 
+replace privat=0 if private==.
+
+destring valor, replace force 
+format %12.0g valor  
+
+ren (departamento código) (depto codigo)
+
+gen n_cod=1 
+
+collapse (sum) n_cod private valor, by(depto codigo)
+
+bys depto: egen tot_valor=sum(valor)
+format %12.0g tot_valor
+
+gen sh_priv_valor_gob=valor/tot_valor if private>0
+
+collapse (sum) n_cod private (mean) sh_priv_valor_gob, by(depto)
+
+gen sh_priv_gob=private/n_cod
+replace sh_priv_valor_gob=0 if sh_priv_valor_gob==.
+gen year=2016
+
+replace depto=subinstr(depto,"Ñ","N",.)
+replace depto=subinstr(depto,"Á","A",.)
+replace depto=subinstr(depto,"É","E",.)
+replace depto=subinstr(depto,"Í","I",.)
+replace depto=subinstr(depto,"Ó","O",.)
+replace depto=subinstr(depto,"Ú","U",.)
+replace depto=subinstr(depto,"Ü","U",.)
+replace depto=strlower(depto)
+replace depto=subinstr(depto,"ñ","n",.)
+replace depto=subinstr(depto,"á","a",.)
+replace depto=subinstr(depto,"é","e",.)
+replace depto=subinstr(depto,"í","i",.)
+replace depto=subinstr(depto,"ó","o",.)
+replace depto=subinstr(depto,"ú","u",.)
+replace depto=subinstr(depto,"ü","u",.)
+
+gen codepto = 91 if depto == "amazonas"
+replace codepto = 05 if depto == "antioquia"
+replace codepto = 81 if depto == "arauca"
+replace codepto = 08 if depto == "atlantico"
+replace codepto = 13 if depto == "bolivar"
+replace codepto = 15 if depto == "boyaca"
+replace codepto = 17 if depto == "caldas"
+replace codepto = 18 if depto == "caqueta"
+replace codepto = 85 if depto == "casanare"
+replace codepto = 19 if depto == "cauca"
+replace codepto = 20 if depto == "cesar"
+replace codepto = 27 if depto == "choco"
+replace codepto = 23 if depto == "cordoba"
+replace codepto = 25 if depto == "cundinamarca"
+replace codepto = 94 if depto == "guainia"
+replace codepto = 95 if depto == "guaviare"
+replace codepto = 41 if depto == "huila"
+replace codepto = 44 if depto == "la guajira"
+replace codepto = 47 if depto == "magdalena"
+replace codepto = 50 if depto == "meta"
+replace codepto = 52 if depto == "narino"
+replace codepto = 54 if depto == "norte de santander"
+replace codepto = 86 if depto == "putumayo"
+replace codepto = 63 if depto == "quindio"
+replace codepto = 66 if depto == "risaralda"
+replace codepto = 88 if depto == "san andres"
+replace codepto = 68 if depto == "santander"
+replace codepto = 70 if depto == "sucre"
+replace codepto = 73 if depto == "tolima"
+replace codepto = 97 if depto == "vaupes"
+replace codepto = 99 if depto == "vichada"
+
+tempfile LOBBY2
+save `LOBBY2', replace
+
+import delimited "${data}/Cuentas Claras\INGRESOS_TERRITORIALES_2015.csv", clear
+
+keep if corporaciónocargo=="Alcaldía"
+keep if elegido=="Si"
+
+gen private=1 if código==102 | código==106 
+replace privat=0 if private==.
+
+destring valor, replace force 
+format %12.0g valor  
+
+ren (departamento municipio código) (depto mun codigo)
+
+gen n_cod=1 
+
+collapse (sum) n_cod private valor, by(depto mun codigo)
+
+bys depto mun: egen tot_valor=sum(valor)
+format %12.0g tot_valor
+
+gen sh_priv_valor_alc=valor/tot_valor if private>0
+
+collapse (sum) n_cod private (mean) sh_priv_valor_alc, by(depto mun)
+
+gen sh_priv_alc=private/n_cod
+replace sh_priv_valor_alc=0 if sh_priv_valor_alc==.
+gen year=2016
+
+replace depto=subinstr(depto,"Ñ","N",.)
+replace depto=subinstr(depto,"Á","A",.)
+replace depto=subinstr(depto,"É","E",.)
+replace depto=subinstr(depto,"Í","I",.)
+replace depto=subinstr(depto,"Ó","O",.)
+replace depto=subinstr(depto,"Ú","U",.)
+replace depto=subinstr(depto,"Ü","U",.)
+replace depto=strlower(depto)
+replace depto=subinstr(depto,"ñ","n",.)
+replace depto=subinstr(depto,"á","a",.)
+replace depto=subinstr(depto,"é","e",.)
+replace depto=subinstr(depto,"í","i",.)
+replace depto=subinstr(depto,"ó","o",.)
+replace depto=subinstr(depto,"ú","u",.)
+replace depto=subinstr(depto,"ü","u",.)
+
+replace mun=subinstr(mun,"Ñ","N",.)
+replace mun=subinstr(mun,"Á","A",.)
+replace mun=subinstr(mun,"É","E",.)
+replace mun=subinstr(mun,"Í","I",.)
+replace mun=subinstr(mun,"Ó","O",.)
+replace mun=subinstr(mun,"Ú","U",.)
+replace mun=subinstr(mun,"Ü","U",.)
+replace mun=strlower(mun)
+replace mun=subinstr(mun,"corregimiento ","",.)
+
+merge 1:1 depto mun using `DIVIPOLA', keep(1 3) nogen
+
+drop depto mun codepto
+drop if coddane==.
+
+tempfile LOBBY3
+save `LOBBY3', replace
+
+*-------------------------------------------------------------------------------
+* Merging all together
+*-------------------------------------------------------------------------------
 use "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta", clear
 
 *Renaming vars
@@ -671,9 +850,10 @@ destring codepto, replace
 *drop carmode
 
 *Merging info about mayor elections
-merge 1:1 coddane year using `ALC', keepus(codigo_partido_alc votos_alc) keep(1 3) nogen 
+merge 1:1 coddane year using `ALC', keepus(codigo_partido_alc votos_alc sh_votes_alc) keep(1 3) nogen 
+
 sort coddane year, stable
-bys coddane: carryforward codigo_partido_alc votos_alc, replace 
+bys coddane: carryforward codigo_partido_alc votos_alc sh_votes_alc, replace 
 
 merge m:1 codepto year using `GOB', keepus(codigo_partido_gob votos_gob) keep(1 3) nogen 
 sort coddane year, stable
@@ -683,16 +863,26 @@ bys coddane: carryforward codigo_partido_gob votos_gob, replace
 merge 1:1 coddane year using `CARALC', keep(1 3) gen(merge_caralc) 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
 merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
+merge 1:1 coddane year using `LICEN', keepus(n_licencia licencia_minero) keep(1 3) nogen 
 merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
 merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond) keep(1 3) nogen 
 merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
+merge 1:1 coddane year using `LOBBY1', keep(1 3) nogen 
+merge m:1 codepto year using `LOBBY2', keep(1 3) nogen 
+merge 1:1 coddane year using `LOBBY3', keep(1 3) nogen 
 
+sort coddane year, stable
+bys coddane: carryforward sh_priv_gob sh_priv_valor_gob, replace 
 gen code=codepto if merge_caralc==3
 
+sort coddane year, stable
+bys coddane: carryforward sh_priv_alc sh_priv_valor_alc, replace 
+
 *Merging Politic Power in CAR
-merge m:1 carcode_master year using `SHPOL', keepus(sh_* politics politics2 academics ethnias private envngo members) gen(merge_carcom)
+merge m:1 carcode_master year using `SHPOL', keepus(sh_* politics politics2 academics ethnias private envngo members female n_parties) gen(merge_carcom)
 merge m:1 carcode_master using `SHPOLLAW', keepus(sh_*_law) gen(merge_carcom_law)
 merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
+
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
@@ -705,7 +895,7 @@ gen mayorallied=(codigo_partido_alc==codigo_partido_gob) if codigo_partido_gob!=
 
 *Allianza with any politician in the CAR's board
 gen mayorallied_wanypol=.
-forval i=1/19{
+forval i=1/12{
 	replace mayorallied_wanypol=1 if codigo_partido_alc==codigo_partido_carpol`i' & codigo_partido_carpol`i'!=.
 }
 
