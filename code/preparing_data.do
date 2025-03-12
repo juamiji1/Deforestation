@@ -385,7 +385,8 @@ save `MCAR3'
 * Juntas CAR data
 *-------------------------------------------------------------------------------
 *import excel "${data}\Juntas CAR\Bases parciales\juntas_directivas_Sept23.xlsx", sheet("Sheet1") firstrow clear
-use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol-vot_feb.dta", clear
+*use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol-vot_feb.dta", clear
+use "${data}\Juntas CAR\juntas_directivas_19tot_Sex+rol-vot_march.dta", clear
 
 rename _all, low
 
@@ -451,9 +452,13 @@ preserve
 	gen sh_sameparty_gov=sameparty_gov/total_members
 
 	keep if type_election==1
-	keep codigo_partido year car type_election coddane sh_sameparty_gov porc_vots
+	
+	gen director_gob=1 if director==1
+	replace director_gob=0 if director_gob==.
+	
+	keep codigo_partido year car type_election coddane sh_sameparty_gov porc_vots director_gob
 	keep if year>1999 & year<2021
-	ren (codigo_partido coddane type_election porc_vots) (codigo_partido_cargob codepto type_election_cargob sh_votes_gov)
+	ren (codigo_partido coddane type_election porc_vots) (codigo_partido_cargob codepto type_election_cargob sh_votes_gob )
 	
 	duplicates drop codepto year, force
 	
@@ -501,8 +506,12 @@ preserve
 	drop each total_members
 
 	keep if type_election==2
+	
+	gen director_alc=1 if director==1
+	replace director_alc=0 if director_alc==.
+	
 	*keep codigo_partido year car carcode type_election coddane sh_politics sh_same_party
-	keep codigo_partido year car carcode type_election coddane sh_same_party
+	keep codigo_partido year car carcode type_election coddane sh_same_party director_alc
 	keep if year>1999 & year<2021
 	ren codigo_partido codigo_partido_caralc
 
@@ -527,7 +536,7 @@ tempfile CARPOL
 save `CARPOL', replace
 
 *Juntas CAR by Law 
-use "${data}\Juntas CAR\juntas_directivas_Ley.dta", clear
+use "${data}\Juntas CAR\sh_politics_law.dta", clear
 
 ren _all, low
 
@@ -536,6 +545,14 @@ gen sh_private_law=(privados)/total
 gen sh_ethnias_law=(comunidadesetnicas)/total
 gen sh_envngo_law=(ongsambientales)/total
 gen sh_academics_law=(institutosdeinvestigaciónnaci)/total
+
+ren gob_dir director_gob_law
+
+*two (hist sh_politics_law if director_gob_law==0, freq bins(20) color(gray) lcolor(black)) (hist sh_politics_law if director_gob_law==1, freq bins(20) fcolor(none) lcolor(black))
+
+*tab director_gob_law, m
+
+
 
 tempfile SHPOLLAW
 save `SHPOLLAW', replace
@@ -595,6 +612,83 @@ append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
 
 tempfile GOB
 save `GOB'
+
+*-------------------------------------------------------------------------------
+* Electoral data (ALL CANDIDATES FOR RDD)
+*-------------------------------------------------------------------------------
+foreach y in 2000 2003 2007 2011 2015 2019 {
+    
+	use "${data}/Elections\raw\Gobernaciones/`y'_gobernacion.dta", clear
+	
+	collapse (sum) votos (mean) codigo_partido, by(ano coddpto codigo_lista nombres primer_apellido segundo_apellido)
+	
+	bys coddpto: egen max_v=max(votos)
+	gen curules=(max_v==votos) if votos!=.
+	
+	keep if curules==1
+	drop max_v curules 
+	
+	ren (ano coddpto codigo_partido votos) (year codepto codigo_partido_gob votos_gob)
+
+	*Fixing year var
+	replace year=year+1
+	
+	tempfile `y'GOB
+	save ``y'GOB', replace
+	
+}
+
+use `2000GOB', clear 
+append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
+
+tempfile GOBALL
+save `GOBALL'
+
+
+foreach y in 2000 2003 2007 2011 2015 2019 {
+    
+	use "${data}/Elections\raw\Alcaldias/`y'_alcaldia.dta", clear
+	drop if codigo_lista==997 | codigo_lista==998 | codigo_lista==999 
+
+	gsort codmpio -votos
+
+	bys codmpio: gen position=_n
+
+	ren (ano coddpto codmpio codigo_partido votos) (year codepto coddane codigo_partido_alc votos_alc)
+
+	*Fixing year var
+	replace year=year+1
+	
+	keep year codepto coddane codigo_partido_alc votos_alc curules position
+	
+	tempfile `y'ALC
+	save ``y'ALC', replace
+	
+}
+
+use `2000ALC', clear 
+append using `2003ALC' `2007ALC' `2011ALC' `2015ALC' `2019ALC'
+
+merge m:1 codepto year using `GOBALL', keep(1 3) keepus(codigo_partido_gob) nogen 
+
+gen alligned=1 if codigo_partido_alc==codigo_partido_gob
+
+keep if position<3
+
+bys coddane year: egen tot_votos_alc=total(votos_alc)
+
+gen z_sh_votes_alc=votos_alc/tot_votos_alc
+
+bys coddane year: egen close_elec=total(alligned) 
+keep if close_elec==1
+
+replace z_sh_votes_alc=z_sh_votes_alc-.5
+keep if alligned==1
+
+ren curules win_alc
+
+tempfile ALCALL
+save `ALCALL'
 
 *-------------------------------------------------------------------------------
 * Deforestation data
@@ -803,6 +897,34 @@ tempfile LOBBY3
 save `LOBBY3', replace
 
 *-------------------------------------------------------------------------------
+* Party Content (green vs no green / left vs right)
+*-------------------------------------------------------------------------------
+use  "${data}/Elections\raw\Partidos_Electorales.dta", clear
+
+duplicates drop nombre_partido, force
+
+tempfile CODPARTY
+save `CODPARTY', replace 
+
+use "${data}/Congreso Visible\Votaciones Green_12March.dta", clear
+
+ren partido_cede nombre_partido
+
+merge 1:1 nombre_partido using `CODPARTY', keep(3) keepus(codigo_partido) nogen
+
+summ partido_votogreen, d
+gen green_party=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
+gen green_party_v2=(partido_votogreen>=`r(mean)') if partido_votogreen!=.
+
+replace green_party_v2=1 if partido_id_CEDE==194 | partido_id_CEDE==645
+replace green_party_v2=0 if partido_id_CEDE==14  | partido_id_CEDE==1
+
+ren codigo_partido codigo_partido_gob
+
+tempfile GREENPARTY
+save `GREENPARTY', replace
+
+*-------------------------------------------------------------------------------
 * Merging all together
 *-------------------------------------------------------------------------------
 use "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta", clear
@@ -880,9 +1002,26 @@ bys coddane: carryforward sh_priv_alc sh_priv_valor_alc, replace
 
 *Merging Politic Power in CAR
 merge m:1 carcode_master year using `SHPOL', keepus(sh_* politics politics2 academics ethnias private envngo members female n_parties) gen(merge_carcom)
-merge m:1 carcode_master using `SHPOLLAW', keepus(sh_*_law) gen(merge_carcom_law)
+merge m:1 carcode_master using `SHPOLLAW', keepus(sh_*_law director_gob_law) gen(merge_carcom_law)
 merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
 
+gen election=2000 if year>2000 & year<2004
+replace election=2003 if year>2003 & year<2008
+replace election=2007 if year>2007 & year<2012
+replace election=2011 if year>2011 & year<2016
+replace election=2015 if year>2015 & year<2020
+replace election=2019 if year>2019
+
+*Restrictions on sample
+keep if year>2000 & year<2021
+drop if carcode_master==12 // San andres y providencia
+
+merge 1:1 coddane year using `ALCALL', keep(1 3) nogen
+
+sort coddane year, stable
+bys coddane election: carryforward z_sh_votes_alc, replace 
+
+merge m:1 codigo_partido_gob using `GREENPARTY', keep(1 3) keepus(partido_votogreen green_party green_party_v2) nogen 
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
@@ -900,6 +1039,14 @@ forval i=1/12{
 }
 
 replace mayorallied_wanypol=0 if mayorallied_wanypol==. & mayorallied_wanypol!=1 & codigo_partido_alc!=.
+
+*Political power vars 
+gen dmdn_politics = (sh_politics>=.5) if sh_politics!=.
+gen dmdn_politics_law = (sh_politics_law>=.5) if sh_politics_law!=.
+
+*Green party assumption
+replace green_party_v2=1 if green_party_v2==.
+
 
 save "${data}/Interim\defo_caralc.dta", replace
 
