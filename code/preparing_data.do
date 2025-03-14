@@ -552,8 +552,6 @@ ren gob_dir director_gob_law
 
 *tab director_gob_law, m
 
-
-
 tempfile SHPOLLAW
 save `SHPOLLAW', replace
 
@@ -899,7 +897,7 @@ save `LOBBY3', replace
 *-------------------------------------------------------------------------------
 * Party Content (green vs no green / left vs right)
 *-------------------------------------------------------------------------------
-use  "${data}/Elections\raw\Partidos_Electorales.dta", clear
+use "${data}/Elections\raw\Partidos_Electorales.dta", clear
 
 duplicates drop nombre_partido, force
 
@@ -923,6 +921,23 @@ ren codigo_partido codigo_partido_gob
 
 tempfile GREENPARTY
 save `GREENPARTY', replace
+
+*-------------------------------------------------------------------------------
+* Municipality characteristics
+*-------------------------------------------------------------------------------
+import delimited "${data}\Gaez\muniShp_sut_data.csv", encoding(UTF-8) clear
+
+tempfile SUITCROPS
+save `SUITCROPS', replace
+
+use "${data}/Cede\Panel_context_12032025.dta", clear
+
+merge m:1 codmpio using `SUITCROPS', keep(1 3) nogen 
+
+ren (codmpio ano) (coddane year)
+
+tempfile CEDE
+save `CEDE', replace
 
 *-------------------------------------------------------------------------------
 * Merging all together
@@ -987,7 +1002,7 @@ merge m:1 codepto year using `CARGOB', keep(1 3) nogen
 merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
 merge 1:1 coddane year using `LICEN', keepus(n_licencia licencia_minero) keep(1 3) nogen 
 merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
-merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond) keep(1 3) nogen 
+merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond total_procesos) keep(1 3) nogen 
 merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 merge 1:1 coddane year using `LOBBY1', keep(1 3) nogen 
 merge m:1 codepto year using `LOBBY2', keep(1 3) nogen 
@@ -1022,6 +1037,8 @@ sort coddane year, stable
 bys coddane election: carryforward z_sh_votes_alc, replace 
 
 merge m:1 codigo_partido_gob using `GREENPARTY', keep(1 3) keepus(partido_votogreen green_party green_party_v2) nogen 
+
+merge 1:1 coddane year using `CEDE', keep(1 3) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
