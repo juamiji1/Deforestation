@@ -91,12 +91,14 @@ gen sh_area_bovino=bovino/(10*areaoficialkm2)
 
 gen ln_pobl_tot=ln(pobl_tot)
 
+replace sh_votes_reg=sh_votes_reg*10
+
 *Sample var
 reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 gen regsample=e(sample)
 
 *Asigning the pre-treatment var value
-gl varst "ln_pobl_tot ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural"
+gl varst "ln_pobl_tot ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural sh_votes_reg incumbent"
 
 preserve 
 	bys coddane: egen always=max(regsample)
@@ -142,6 +144,8 @@ la var pre_crime_rate "Crime rate"
 la var pre_crime_env_rate "Env. crime rate"
 la var pre_crime_forest_rate "Forest crime rate"
 la var pre_indrural "Rurality index"
+la var pre_sh_votes_reg "Registered voter (sh)"
+la var pre_incumbent "Incumbent (prob)"
 
 la var ln_pibtot "Log(Total GDP)"
 la var pre_desemp_fisc_index "Fiscal performance Index "
@@ -181,9 +185,9 @@ foreach yvar of global geovars {
 }
 
 *Demographic characteristics
-gl demovars "pre_ln_pobl_tot pre_mpi pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate"
+gl demovars "pre_ln_pobl_tot pre_mpi pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent"
 
-mat CD=J(4,7,.)
+mat CD=J(4,9,.)
 mat coln CD=${demovars}
 
 local i=1
@@ -243,14 +247,14 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
 
 *Exporting demographic results 
-esttab d1 d2 d3 d4 d5 d6 d7 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
+esttab d1 d2 d3 d4 d5 d6 d7 d8 d9 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{7}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{7}{c}{Demographic Characteristics} \\ \cmidrule(l){2-8}"'                   ///
-            `" & Log(Total population) & MPI index & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh)\\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) \\"'                       ///
+            `" & \multicolumn{9}{c}{Demographic Characteristics} \\ \cmidrule(l){2-10}"'                   ///
+            `" & Log(Total population) & MPI index & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh) & Register voters (sh) & Incumbent (prob) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 

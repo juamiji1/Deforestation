@@ -642,11 +642,17 @@ append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
 tempfile GOBALL
 save `GOBALL'
 
-
 foreach y in 2000 2003 2007 2011 2015 2019 {
     
 	use "${data}/Elections\raw\Alcaldias/`y'_alcaldia.dta", clear
-	drop if codigo_lista==997 | codigo_lista==998 | codigo_lista==999 
+	drop if codigo_lista==997 | codigo_lista==998 
+
+	bys codmpio: egen votantes_muni=total(votos)
+	bys coddpto: egen votantes_depto=total(votos)
+
+	gen sh_votes_reg=votantes_muni/votantes_depto
+
+	drop if codigo_lista==999 
 
 	gsort codmpio -votos
 
@@ -657,7 +663,7 @@ foreach y in 2000 2003 2007 2011 2015 2019 {
 	*Fixing year var
 	replace year=year+1
 	
-	keep year codepto coddane codigo_partido_alc votos_alc curules position
+	keep year codepto coddane codigo_partido_alc votos_alc curules position sh_votes_reg
 	
 	tempfile `y'ALC
 	save ``y'ALC', replace
@@ -666,6 +672,21 @@ foreach y in 2000 2003 2007 2011 2015 2019 {
 
 use `2000ALC', clear 
 append using `2003ALC' `2007ALC' `2011ALC' `2015ALC' `2019ALC'
+
+preserve
+	keep if curules==1
+	sort coddane year 
+	bys coddane: gen incumbent=1 if codigo_partido_alc[_n]==codigo_partido_alc[_n-1]
+	replace incumbent=0 if incumbent==.
+	
+	replace year=year-1
+	ren year election
+	
+	tempfile INCUMB
+	save `INCUMB', replace
+restore
+
+drop sh_votes_reg
 
 merge m:1 codepto year using `GOBALL', keep(1 3) keepus(codigo_partido_gob) nogen 
 
@@ -1039,6 +1060,8 @@ bys coddane election: carryforward z_sh_votes_alc, replace
 merge m:1 codigo_partido_gob using `GREENPARTY', keep(1 3) keepus(partido_votogreen green_party green_party_v2) nogen 
 
 merge 1:1 coddane year using `CEDE', keep(1 3) nogen
+
+merge m:1 election coddane using `INCUMB', keep(1 3) keepus(sh_votes_reg incumbent) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
