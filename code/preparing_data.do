@@ -170,6 +170,18 @@ save `LIVESTOCK', replace
 *-------------------------------------------------------------------------------
 * Forestal permits data
 *-------------------------------------------------------------------------------
+use "${data}\Permisos forestales\base_Corpoamazonia_13march25.dta", clear 
+
+keep if permiso_forest==1 & codigo_dane!=. & fecharesolucion_anio>1999 & fecharesolucion_anio<2010
+ren (codigo_dane fecharesolucion_anio) (coddane year)
+
+gen n_resol=1
+collapse (sum) n_resol, by(coddane year)
+ 
+tempfile PERMPRE10
+save `PERMPRE10', replace
+
+*Corpoamazonia permits after 2010
 forval y=2010/2020{
 	
 	import excel "${data}\Permisos forestales\CORPOAMAZONIA.xlsx", sheet("`y'") firstrow clear
@@ -181,7 +193,7 @@ forval y=2010/2020{
 	cap nois destring area, replace force
 
 	gen n_resol=1
-	collapse (sum) volotogado n_resol (mean) area, by(depto mun cedula)
+	collapse (sum) volotogado (mean) n_resol area, by(depto mun cedula)
 	collapse (sum) volotogado n_resol area, by(depto mun)
 
 	keep if depto=="Amazonas" | depto=="Caquetá" | depto=="Putumayo"
@@ -227,6 +239,8 @@ append using `PERM2011' `PERM2012' `PERM2013' `PERM2014' `PERM2015' `PERM2016' `
 
 merge m:1 depto mun using `DIVIPOLA', keep(1 3) nogen
 
+append using `PERMPRE10'
+
 ren (volotogado n_resol area) (perm_volume perm_n_resol perm_area)
 
 *Calculating percentage changes 
@@ -235,8 +249,23 @@ gen pc_perm_resol=D.perm_n_resol/L.perm_n_resol
 gen pc_perm_vol=D.perm_volume/L.perm_volume
 gen pc_perm_area=D.perm_area/L.perm_area
 
+tempfile APERM
+save `APERM', replace
+
+*Corposucre
+use "${data}\Permisos forestales\base_Corposucre_31march25.dta", clear 
+
+keep if permiso_forest==1 & codigo_dane_2!=.
+ren (codigo_dane fecharadicacion_anio) (coddane year)
+
+gen perm_n_resol=1
+collapse (sum) perm_n_resol, by(coddane year)
+ 
+*Merging both CARs together 
+append using `APERM'
+
 tempfile PERM
-save `PERM', replace 
+save `PERM', replace
 
 *Licencias 
 use "${data}/Licencias\base_car.dta", clear

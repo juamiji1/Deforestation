@@ -1,15 +1,6 @@
 use "${data}/Interim\defo_caralc.dta", clear 
 
 *-------------------------------------------------------------------------------
-* Labels
-*
-*-------------------------------------------------------------------------------
-replace floss_prim_ideam_area = floss_prim_ideam_area*100
-
-la var floss_prim_ideam_area "Primary Forest Loss"
-la var mayorallied "Same party"
-
-*-------------------------------------------------------------------------------
 * Local Continuity Assumption
 *
 *-------------------------------------------------------------------------------
@@ -52,9 +43,6 @@ egen dist_mcados=rowmean(dismdo distancia_mercado)
 gen ln_dist_mcados=ln(dist_mcados)
 
 egen mean_sut_crops=rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil)
-replace mean_sut_crops=mean_sut_crops/10000
-
-replace altura=altura/1000
 
 gen ln_area=ln(areaoficialkm2)
 gen sh_area_agro=areamuniagro/areaoficialkm2
@@ -63,20 +51,15 @@ replace total_procesos=0 if total_procesos==.
 replace crime_environment=0 if crime_environment==.
 replace crime_forest=0 if crime_forest==.
 
-gen crime_rate=(total_procesos/pobl_tot)*1000
+gen crime_rate=(total_procesos/pobl_tot)*10000
 gen crime_env_rate=(crime_environment/pobl_tot)*10000
 gen crime_forest_rate=(crime_forest/pobl_tot)*10000
 
 bys coddane: egen mean_nbi=mean(nbi)
-replace mean_nbi=mean_nbi/10
-
 bys coddane: egen mean_gini=mean(gini)
-replace mean_gini=mean_gini*10
 
 ren IPM mpi
-replace mpi=mpi/10
 bys coddane: egen mean_ipm=mean(mpi)
-replace mean_ipm=mean_ipm/10
 
 gen ln_pibpc=ln(pib_percapita)
 gen ln_pibagro=ln(pib_agricola)
@@ -85,13 +68,11 @@ gen ln_regalias=ln(giros_totales)
 gen ln_inv_total=ln(inv_total)
 gen ln_inv_ambiental=ln(inv_ambiental)
 
-gen desemp_fisc_index=DF_desemp_fisc/10
+gen desemp_fisc_index=DF_desemp_fisc
 
-gen sh_area_bovino=bovino/(10*areaoficialkm2)
+gen sh_area_bovino=bovino/areaoficialkm2
 
 gen ln_pobl_tot=ln(pobl_tot)
-
-replace sh_votes_reg=sh_votes_reg*10
 
 *Sample var
 reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
@@ -117,11 +98,11 @@ preserve
 	
 	ren (${varst}) pre_=
 	
-	tempfile CONSTANTVARS
-	save `CONSTANTVARS', replace 
+	tempfile NONCONSTANTVARS
+	save `NONCONSTANTVARS', replace 
 restore
 
-merge m:1 coddane using `CONSTANTVARS', keep(1 3) nogen 
+merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen 
 
 *Labels
 la var ln_area "Log(Area Km2)"
@@ -173,7 +154,9 @@ local i=1
 
 foreach yvar of global geovars {
 	
-	eststo g`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+	egen std_`yvar'= std(`yvar')
+	
+	eststo g`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 		
 	lincom mayorallied
 	mat CG[1,`i']= r(estimate) 
@@ -194,7 +177,9 @@ local i=1
 
 foreach yvar of global demovars {
 	
-	eststo d`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+	egen std_`yvar'= std(`yvar')
+	
+	eststo d`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 		
 	lincom mayorallied
 	mat CD[1,`i']= r(estimate) 
@@ -215,7 +200,9 @@ local i=1
 
 foreach yvar of global econvars {
 	
-	eststo e`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+	egen std_`yvar'= std(`yvar')
+	
+	eststo e`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 		
 	lincom mayorallied
 	mat CE[1,`i']= r(estimate) 
@@ -241,7 +228,7 @@ prehead(`"\begin{tabular}{@{}l*{11}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
-coefplot (mat(CG[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CG[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
@@ -258,7 +245,7 @@ prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
-coefplot (mat(CD[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CD[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_demovars.pdf", as(pdf) replace 
@@ -275,7 +262,7 @@ prehead(`"\begin{tabular}{@{}l*{8}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 	
-coefplot (mat(CE[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CE[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
