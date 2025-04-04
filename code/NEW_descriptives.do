@@ -266,100 +266,53 @@ gr export "${plots}/floss_prim_ideam_area_u2_yeartrend_het_mayorallied.pdf", as(
 
 
 * ONGOING WORK
+
 use "${data}/Interim\defo_caralc.dta", clear
-
-replace sh_politics=sh_politics2_law
-summ sh_politics, d
-
-gen diff_sh_politics= sh_politics-sh_politics2_law
-egen std_diff_sh_politics= std(diff_sh_politics)
-summ std_diff_sh_politics, d
-
-gen d_crazy =(abs(std_diff_sh_politics)>1) if std_diff_sh_politics!=.
-tab d_crazy
-
-drop if d_crazy==1
-
-*+sh_private
 
 summ floss_prim_ideam_area_v2 , d
 replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>100 & floss_prim_ideam_area_v2!=.
-replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>100 & floss_prim_ideam_area_v2!=.
+
+replace sh_politics=sh_politics2_law
+summ sh_politics, d
 
 cap drop dmdn_politics
 gen dmdn_politics=(sh_politics>=.5) if sh_politics!=.
 
 two (scatter floss_prim_ideam_area_v2 sh_politics) (qfit floss_prim_ideam_area_v2 sh_politics)
 
-areg director_gob_law if dmdn_politics==0, a(year) vce(cl coddane)
-areg director_gob_law if dmdn_politics==1, a(year) vce(cl coddane)
-
-areg floss_prim_ideam_area_v2 if dmdn_politics==0, a(year) vce(cl coddane)
-areg floss_prim_ideam_area_v2 if dmdn_politics==1, a(year) vce(cl coddane)
-
-areg floss_prim_ideam_area_v2 dmdn_politics director_gob_law i1.dmdn_politics#i1.director_gob_law, a(year) vce(cl coddane)
-
-
-reg floss_prim_ideam_area_v2 director_gob_law if dmdn_politics!=.
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law=dmdn_politics), a(year) first
-
-
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law=dmdn_politics) if mayorallied==1, a(year) first
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law=dmdn_politics) if mayorallied==0, a(year) first
-
-
-
-replace floss_prim_ideam_area_v2=0 if floss_prim_ideam_area_v2==.
-
-
-
-
-
-
-
-
-
 eststo clear
 
-eststo s0: areg floss_prim_ideam_area_v2 if dmdn_politics==1 & director_gob_law==0, a(year) vce(robust)
-eststo s1: areg floss_prim_ideam_area_v2 if dmdn_politics==1 & director_gob_law==1, a(year) vce(robust)
-eststo s2: areg floss_prim_ideam_area_v2 if dmdn_politics==0 & director_gob_law==0, a(year) vce(robust)
-eststo s3: areg floss_prim_ideam_area_v2 if dmdn_politics==0 & director_gob_law==1, a(year) vce(robust)
+eststo s0: areg director_gob_law if dmdn_politics==0, a(year) vce(cl coddane)
+eststo s1: areg director_gob_law if dmdn_politics==1, a(year) vce(cl coddane)
+eststo s2: areg floss_prim_ideam_area_v2 if dmdn_politics==0, a(year) vce(cl coddane)
+eststo s3: areg floss_prim_ideam_area_v2 if dmdn_politics==1, a(year) vce(cl coddane)
 
-coefplot (s0, label(s0)) (s1, label(s1)) ///
- (s2, label(s2)) (s3, label(s3)), ///
-vert recast(bar) ciopts(recast(rcap) lcolor("black")) citop mlabcolor("black") ///
-mlabsize(medsmall) barwidth(0.3) coeflabels(_cons=" ") mlabel(string(@b, "%9.3fc")) ///
-mlabposition(11) mlabgap(*2) l2title("Likelihood of choosing governor as head") 
+coefplot (s2, axis(1) color("gs9")) (s3, axis(1) color("gs6")) ///
+(s0, axis(2) color("gs9") legend(off)) (s1, axis(2) color("gs6") legend(off)), ///
+vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
+mlabcolor("black") mlabsize(medsmall) coeflabels(_cons=" ") ///
+mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
+ytitle("Probability of Governor being Head of REPA", axis(2)) ytitle("Primary Forest Loss (%)", axis(1)) ///
+xline(1, lc(gray) lp(dash)) legend(on order(1 "Politicians minority" 3 "Politicians majority"))
 
+*------
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics), abs(year) vce(robust) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayorallied==1, abs(year) vce(robust) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayorallied==0, abs(year) vce(robust) first
 
-
-gen diff_sh_politics= sh_politics-sh_politics_law
-egen std_diff_sh_politics= std(diff_sh_politics)
-
-gen d_crazy =(abs(diff_sh_politics)>.25) if diff_sh_politics!=.
-
-
-tabstat d_crazy, by(sh_politics) s(mean sd N min max)
-
-
-summ std_diff_sh_politics, d
-
-drop if d_crazy==1
-
-
-tab carcode_master if sh_politics<.3, nol 
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics), abs(year) vce(cluster coddane) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayorallied==1, abs(year) vce(cluster coddane) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayorallied==0, abs(year) vce(cluster coddane) first
 
 
 
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if green_party_v2==1, abs(year) vce(cluster coddane) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if green_party_v2==0, abs(year) vce(cluster coddane) first
 
-cap drop dmdn_politics
-gen dmdn_politics=(sh_politics_law>=.4) if sh_politics_law!=.
 
 
-two (scatter director_gob_law sh_politics if dmdn_politics==0) (scatter director_gob_law sh_politics if dmdn_politics==1)
-
-two (scatter floss_prim_ideam_area_v2 sh_politics_law if dmdn_politics==0) (scatter floss_prim_ideam_area_v2 sh_politics_law if dmdn_politics==1) (qfit floss_prim_ideam_area_v2 sh_politics_law)
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if election_year==1, abs(year) vce(cluster coddane) first
+ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if election_year==0, abs(year) vce(cluster coddane) first
 
 
 
@@ -367,37 +320,10 @@ two (scatter floss_prim_ideam_area_v2 sh_politics_law if dmdn_politics==0) (scat
 
 
 
-two (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==0) (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==1)  (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==1 &   director_gob_law==1)  (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==1  & director_gob_law==0)
+/*
+summ sh_politics2_law, d
 
+cap drop z_sh_politics2_law
+gen z_sh_politics2_law=sh_politics2_law - .5
 
-reg floss_prim_ideam_area_v2 sh_politics c.sh_politics#c.sh_politics
-
-
-two (scatter floss_prim_ideam_area_v2 sh_politics ) (qfit floss_prim_ideam_area_v2 sh_politics )
-
-
-
-
-
-collapse (sum) floss_prim_ideam primary_forest01 (mean) sh_politics*, by(year carcode_master)
-
-gen floss_prim_ideam_area_v2= floss_prim_ideam*100/primary_forest01
-summ floss_prim_ideam_area_v2, d
-
-
-two (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==0) (scatter floss_prim_ideam_area_v2 sh_politics if dmdn_politics==1) (qfit floss_prim_ideam_area_v2 sh_politics)
-
-cap drop dmdn_politics
-gen dmdn_politics=(sh_politics>=.4) if sh_politics!=.
-
-reg floss_prim_ideam_area_v2 if dmdn_politics==0 & sh_politics >.25
-reg floss_prim_ideam_area_v2 if dmdn_politics==1 & sh_politics >.25
-
-
-
-
-
-
-
-
-
+rdrobust floss_prim_ideam_area_v2 z_sh_politics2_law, c(0) fuzzy(director_gob_law) all kernel(tri) masspoints(check) // the RD bw ends up being the same sample.. 

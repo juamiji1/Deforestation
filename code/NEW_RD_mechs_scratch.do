@@ -7,6 +7,7 @@ use "${data}/Interim\defo_caralc.dta", clear
 *-------------------------------------------------------------------------------
 replace floss_prim_ideam_area = floss_prim_ideam_area*100
 gen election_year=1 if year==2000 | year==2003 | year==2007 | year==2011 | year==2015 | year==2019
+replace election_year=0 if election_year==.
 
 la var floss_prim_ideam_area "Primary Forest Loss"
 la var mayorallied "Same party"
