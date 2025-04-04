@@ -739,11 +739,25 @@ tempfile ALCALL
 save `ALCALL'
 
 *-------------------------------------------------------------------------------
+* Forest Cover data
+*-------------------------------------------------------------------------------
+import delimited "${data}/Primary Forest\Primary_Forest_2001.csv", encoding(UTF-8) clear 
+
+rename (codmpio) (coddane)
+
+replace primary_forest01=primary_forest01/1000000
+
+keep coddane primary_forest01
+
+tempfile PRIMARYCOVER
+save `PRIMARYCOVER', replace 
+
+*-------------------------------------------------------------------------------
 * Deforestation data
 *-------------------------------------------------------------------------------
 *Hansen deforestation conditioning to pixels with primary forest from Hansen
 forval y=1/20{
-	import delimited "${data}/Deforestation\forestloss_primary_Hansen\ForestLoss_Year`y'.csv", encoding(UTF-8)  clear 
+	import delimited "${data}/Deforestation\forestloss_primary_Hansen\ForestLoss_Year`y'.csv", encoding(UTF-8) clear 
 
 	rename (codmpio lossarea`y') (coddane floss_prim_hansen)
 	gen year=2000+`y'
@@ -765,7 +779,7 @@ save `FLOSS_PRIMARY_HANSEN', replace
 
 *Hansen deforestation conditioning to pixels with primary forest from IDEAM
 forval y=1/20{
-	import delimited "${data}/Deforestation\forestloss_primary_IDEAM\ForestLoss_IDEAM_Year`y'.csv", encoding(UTF-8)  clear 
+	import delimited "${data}/Deforestation\forestloss_primary_IDEAM\ForestLoss_IDEAM_Year`y'.csv", encoding(UTF-8) clear 
 
 	rename (codmpio lossarea`y') (coddane floss_prim_ideam)
 	gen year=2000+`y'
@@ -1017,6 +1031,7 @@ keep if year<2021
 *Merging other measures of deforestation
 *merge 1:1 coddane year using `FLOSS_PRIMARY_HANSEN', nogen
 merge 1:1 coddane year using `FLOSS_PRIMARY_IDEAM', nogen // it seems this is the same data
+merge m:1 coddane using `PRIMARYCOVER', keep(1 3) nogen
 
 *Calculating different normalizations of the forest loss
 gen floss_area=floss*100/area    
@@ -1024,6 +1039,7 @@ gen floss_prim00p1=floss*100/fprim00_p1
 gen floss_prim00p50=floss*100/fprim00_p50
 gen floss_prim01=floss*100/fprim_01
 gen floss_prim_ideam_area=floss_prim_ideam*100/area 
+gen floss_prim_ideam_area_v2=floss_prim_ideam*100/primary_forest01 
 
 *Fixing departamental code 
 tostring(coddane), gen(codepto)
@@ -1118,6 +1134,7 @@ replace green_party_v2=1 if green_party_v2==.
 
 *Converting in percentage
 replace floss_prim_ideam_area = floss_prim_ideam_area*100
+replace floss_prim_ideam_area_v2 = floss_prim_ideam_area_v2*100
 
 la var floss_prim_ideam_area "Primary Forest Loss (%)"
 la var mayorallied "Partisan Alignment"
