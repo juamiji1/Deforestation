@@ -295,6 +295,9 @@ mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
 ytitle("Probability of Governor being Head of REPA", axis(2)) ytitle("Primary Forest Loss (%)", axis(1)) ///
 xline(1, lc(gray) lp(dash)) legend(on order(1 "Politicians minority" 3 "Politicians majority"))
 
+gr export "${plots}/reduce_and_firststage.pdf", as(pdf) replace
+
+
 *------
 ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics), abs(year) vce(robust) first
 ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayorallied==1, abs(year) vce(robust) first
@@ -306,13 +309,28 @@ ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if mayoral
 
 
 
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if green_party_v2==1, abs(year) vce(cluster coddane) first
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if green_party_v2==0, abs(year) vce(cluster coddane) first
+
+mean floss_prim_ideam_area_v2 if dmdn_politics==0 & year>2000 & year<2021, over(year)
+mat b0=e(b)
+mat coln b0 = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
+
+mean floss_prim_ideam_area_v2 if dmdn_politics==1 & year>2000 & year<2021, over(year)
+mat b1=e(b)
+mat coln b1 = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
+
+gen x = 12 if year==2012
+replace x = 13 if year==2013
+replace x = 14 if year==2014
+replace x = 15 if year==2015
+replace x = 16 if year==2016
+
+gen y = 17 if x!=.
+
+coefplot (mat(b0[1]), label("Politicians minority") mcolor("gs9")) (mat(b1[1]), label("Politicians majority") color("gs6")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Years", size(medsmall)) addplot(scatteri 16 12 16 13 16 14 16 15 16 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero))
+
+gr export "${plots}/forestloss_trend_by_polcomposition.pdf", as(pdf) replace
 
 
-
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if election_year==1, abs(year) vce(cluster coddane) first
-ivreghdfe floss_prim_ideam_area_v2 (director_gob_law = dmdn_politics) if election_year==0, abs(year) vce(cluster coddane) first
 
 
 
