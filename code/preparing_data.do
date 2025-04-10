@@ -738,6 +738,30 @@ ren curules win_alc
 tempfile ALCALL
 save `ALCALL'
 
+use "${data}/Elections\raw\Alcaldias2023/1990_alcaldia.dta", clear
+
+bys codmpio: egen votantes_muni=total(votos)
+bys coddpto: egen votantes_depto=total(votos)
+
+gen sh_votes_reg90=votantes_muni/votantes_depto
+	
+ren (codmpio ano votos) (coddane year votos_alc)
+
+bys coddane year: egen tot_votos_alc90=total(votos_alc)
+keep if curules==1 
+
+keep coddane tot_votos_alc90 sh_votes_reg90
+
+tempfile ALC90
+save `ALC90'
+
+*-------------------------------------------------------------------------------
+* Forest Cover data at CAR from IDEAM
+*-------------------------------------------------------------------------------
+import excel "${data}\IDEAM\Proporcion cubierta bosques.xlsx", sheet("Data") firstrow clear
+
+
+
 *-------------------------------------------------------------------------------
 * Forest Cover data
 *-------------------------------------------------------------------------------
@@ -1107,6 +1131,8 @@ merge m:1 codigo_partido_gob using `GREENPARTY', keep(1 3) keepus(partido_votogr
 merge 1:1 coddane year using `CEDE', keep(1 3) nogen
 
 merge m:1 election coddane using `INCUMB', keep(1 3) keepus(sh_votes_reg incumbent) nogen
+
+merge m:1 coddane using `ALC90', keep(1 3) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
