@@ -291,6 +291,49 @@ ren codmpio coddane
 tempfile FIRES
 save `FIRES', replace 
 
+*-------------------------------------------------------------------------------
+* GDP in 1990 at Department level from DANE
+*-------------------------------------------------------------------------------
+import excel "${data}\DANE\PIB_historico.xlsx", sheet("Sheet1") firstrow clear
+
+tempfile GDP90
+save `GDP90', replace
+
+*-------------------------------------------------------------------------------
+* Agricultural production in 1990 at Department level from EVA
+*-------------------------------------------------------------------------------
+import excel "${data}\EVA\superficie_produccion_departamentos_1990_1992_codigos.xlsx", sheet("Sheet1") firstrow clear
+ren (Departamento Año Superficie_Total Producción_Total Código_DIVIPOLA) (depto year depto_harvested_area depto_crop_production codepto)
+
+destring codepto, replace
+
+collapse (sum) depto_harvested_area depto_crop_production, by(codepto year)
+
+gen depto_crop_yield=depto_crop_production/depto_harvested_area
+replace depto_harvested_area=depto_harvested_area*0.01 
+
+reshape wide depto_harvested_area depto_crop_production depto_crop_yield, i(codepto) j(year)
+
+tempfile DEPTOEVA90
+save `DEPTOEVA90', replace
+
+*-------------------------------------------------------------------------------
+* Forest Cover data in 1990 at Department level from IDEAM
+*-------------------------------------------------------------------------------
+import excel "${data}\IDEAM\Proporcion_cubierta_bosques_con_divipola.xlsx", sheet("data") firstrow clear
+ren (C E) (depto_forest_cover90 depto_forest_cover00)
+
+keep if indicador=="Superficie cubierta por bosque natural SCBN1  (ha)"
+drop indicador
+
+destring depto_forest_cover90 codepto, force replace
+replace depto_forest_cover90=depto_forest_cover90*0.01
+replace depto_forest_cover00=depto_forest_cover00*0.01
+
+gen depto_forest_change_90_00=(depto_forest_cover00-depto_forest_cover90)/depto_forest_cover90
+
+tempfile DEPTOFOREST90
+save `DEPTOFOREST90', replace
 
 *-------------------------------------------------------------------------------
 * Forest Cover data at CAR from IDEAM
@@ -1242,6 +1285,9 @@ merge 1:1 coddane year using `CEDE', keep(1 3) nogen
 merge m:1 election coddane using `INCUMB', keep(1 3) keepus(sh_votes_reg incumbent) nogen
 
 merge m:1 coddane using `ALC90', keep(1 3) nogen
+merge m:1 codepto using `DEPTOEVA90', keep(1 3) nogen
+merge m:1 codepto using `DEPTOFOREST90', keep(1 3) nogen
+merge m:1 codepto using `GDP90', keep(1 3) nogen 
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
