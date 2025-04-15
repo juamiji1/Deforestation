@@ -637,14 +637,17 @@ preserve
 
 	gen each=1
 	bys car year: egen total_members=sum(each)
+	gen politics2=(type_election<3 | contains_gobloc==1 | contains_gobnac==1)
+	bys car year: egen total_pols=sum(politics2)
 	gen sh_sameparty_gov=sameparty_gov/total_members
+	gen sh_sameparty_gov2=sameparty_gov/total_pols
 
 	keep if type_election==1
 	
 	gen director_gob=1 if director==1
 	replace director_gob=0 if director_gob==.
 	
-	keep codigo_partido year car type_election coddane sh_sameparty_gov porc_vots director_gob
+	keep codigo_partido year car type_election coddane sh_sameparty_gov* porc_vots director_gob
 	keep if year>1999 & year<2021
 	ren (codigo_partido coddane type_election porc_vots) (codigo_partido_cargob codepto type_election_cargob sh_votes_gob )
 	
