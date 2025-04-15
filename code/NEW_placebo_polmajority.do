@@ -56,7 +56,7 @@ foreach yvar of global yvars{
 	
 	egen std_`yvar'= std(`yvar')
 	
-	bootstrap, reps(100) seed(123):reg std_`yvar' dmdn_politics, r
+	bootstrap, reps(100) seed(123): reg std_`yvar' dmdn_politics, r
 			
 	lincom dmdn_politics
 	mat C[1,`i']= r(estimate) 

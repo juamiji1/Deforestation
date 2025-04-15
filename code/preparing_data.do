@@ -1208,6 +1208,16 @@ ren (codmpio ano) (coddane year)
 tempfile CEDE
 save `CEDE', replace
 
+import excel "${data}\DANE\va_2011-2023.xlsx", sheet("Sheet1") firstrow clear
+
+reshape long va, i(coddane) j(year)
+destring coddane, replace
+
+keep coddane year va
+
+tempfile VA
+save `VA', replace
+
 *-------------------------------------------------------------------------------
 * Merging all together
 *-------------------------------------------------------------------------------
@@ -1320,6 +1330,7 @@ merge m:1 codepto using `GDP90', keep(1 3) nogen
 
 merge 1:1 coddane year using `NLDATA', keep(1 3) nogen
 merge 1:1 coddane year using "${data}/EVA\eva_yield.dta", keep(1 3) nogen
+merge 1:1 coddane year using `VA', keep(1 3) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest

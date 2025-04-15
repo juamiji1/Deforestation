@@ -1,4 +1,18 @@
+use "${data}/Cede\Panel_context_12032025.dta", clear
+
+keep if ano==1993
+ren coddepto codepto 
+
+collapse (sum) pobl_tot desplazados_expulsion (mean) gini nbi pobreza, by(codepto)
+
+ren (gini nbi pobreza) (gini93 nbi93 pobreza93)
+
+tempfile CEDE93
+save `CEDE93', replace
+
 use "${data}/Interim\defo_caralc.dta", clear
+
+merge m:1 codepto using `CEDE93', keep(1 3) nogen 
 
 summ floss_prim_ideam_area_v2 , d
 replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>100 & floss_prim_ideam_area_v2!=.
@@ -185,38 +199,113 @@ reghdfe floss_prim_ideam_area_v2 d_sameparty_gov, abs(year coddane) vce(cl codda
 reghdfe floss_prim_ideam_area_v2 d_sameparty_gov2, abs(year coddane) vce(cl coddane)
 
 
+
+egen tot_votos_col=total(tot_votos_alc90)
+gen sh_votos_alc90=tot_votos_alc90/tot_votos_col
+gen sh_harvest90=depto_harvested_area1990/area
+gen ln_crop_prod90=ln(depto_crop_production1990)
+gen sh_forestcov90=depto_forest_cover90/area
+gen ln_pib90=ln(pib_1990)
+gen ln_agg_va90=ln(agg_va_1990)
+gen ln_min_va90=ln(min_va_1990)
+gen ln_pobl_tot93=ln(pobl_tot)
+gen sh_displaced93= desplazados_expulsion/pobl_tot
+
+gl Xvars "sh_forestcov90 depto_forest_change_90_00 sh_votos_alc90 sh_harvest90 ln_crop_prod90 depto_crop_yield1990 ln_pib90 ln_agg_va90 ln_min_va90 ln_pobl_tot93 sh_displaced93 gini93 nbi93 pobreza93"
+
+egen panel_id = group(carcode_master coddane year)
+drop if panel_id==.
+
+reghdfe floss_prim_ideam_area_v2 dmdn_politics ${Xvars} [aw=tweights] ${if}, abs(year) vce(cl coddane)
+
+
+*Creating matrix to export estimates
+mat coef=J(3,5,.)
+mat coln coef= .05 .1 .15 .2 .25
+
+*Estimations
+local h=0.05
+forval c=1/5{
+
+	*Conditional for all specifications
+	gl if "if abs(z_sh_politics2_law)<=`h'"
+
+	*Replicating triangular weights
+	cap drop tweights
+	gen tweights=(1-abs(z_sh_politics2_law/`h')) ${if}
+	
+	*Total Households
+	reghdfe floss_prim_ideam_area_v2 dmdn_politics ${Xvars} [aw=tweights] ${if}, abs(year) vce(cl coddane)
+	lincom dmdn_politics	
+	mat coef[1,`c']= r(estimate) 
+	mat coef[2,`c']= r(lb)
+	mat coef[3,`c']= r(ub)
+	
+	local h=`h'+0.05	
+}
+
+*Plotting estimates 
+coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) color(gs2%70) ///
+ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
+ylabel(,labsize(small)) xlabel(,labsize(small)) b2title("Bandwidth of Politicians Margin in REPA's Board ", size(medsmall)) ///
+l2title("Effect of Politicians Majority on Forest Loss (%)", size(small))
+
 gen ln_pib_total=log(pib_total)
 gen ln_pib_agricola=log(pib_agricola)
+gen ln_pib_industria=log(pib_industria)
+gen ln_pib_servicios=log(pib_servicios)
+gen ln_pib_percapita= log(pib_percapita)
 gen ln_regalias=log(y_cap_regalias)
 gen ln_g_total=log(g_total)
-gen ln_bovinos=log(bovinos)
+gen sh_bovinos=bovinos/area
 gen sh_coca_area=H_coca*0.01/area
 gen sh_sown_area=tot_sown_area*0.01/area  
 gen sh_harv_area=tot_harv_area*0.01/area
 gen ln_tot_prod=log(tot_prod)
+gen ln_va=ln(va)
 
-reghdfe ln_pib_total dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_pib_percapita_cons dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe night_light dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_regalias dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_g_total dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_bovinos dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe sh_coca_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe sh_sown_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe sh_harv_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe yield_allcrop dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_tot_prod dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+gen ln_pib_total=log(pib_total)
 
 
+gen x=ln_pib_total
+replace x=ln_va if x==.
+
+gen y=log(pib_cons)
+replace y=ln_va if y==.
+
+
+reghdfe ln_pib_total dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+reghdfe ln_pib_agricola dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_pib_industria dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_pib_servicios dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+reghdfe y dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+
+
+reghdfe ln_pib_percapita_cons dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_va dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+reghdfe night_light dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_regalias dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_g_total dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe sh_bovinos dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+
+reghdfe sh_coca_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+
+reghdfe sh_sown_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe sh_harv_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe yield_allcrop dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_tot_prod dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
 
 
 
 
 
 
-
+*END
 
 
 
