@@ -135,6 +135,43 @@ coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title(
 mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
 
 
+gen z_sh_politics2_law=sh_politics2_law-.5
+
+*Creating matrix to export estimates
+mat coef=J(3,5,.)
+mat coln coef= .05 .1 .15 .2 .25
+
+*Estimations
+local h=0.05
+forval c=1/5{
+
+	*Conditional for all specifications
+	gl if "if abs(z_sh_politics2_law)<=`h'"
+
+	*Replicating triangular weights
+	cap drop tweights
+	gen tweights=(1-abs(z_sh_politics2_law/`h')) ${if}
+	
+	*Total Households
+	reghdfe floss_prim_ideam_area_v2 dmdn_politics [aw=tweights] ${if}, abs(year) vce(cl coddane)
+	lincom dmdn_politics	
+	mat coef[1,`c']= r(estimate) 
+	mat coef[2,`c']= r(lb)
+	mat coef[3,`c']= r(ub)
+	
+	local h=`h'+0.05	
+}
+
+*Plotting estimates 
+coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) color(gs2%70) ///
+ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
+ylabel(,labsize(small)) xlabel(,labsize(small)) b2title("Bandwidth of Politicians Margin in REPA's Board ", size(medsmall)) ///
+l2title("Effect of Politicians Majority on Forest Loss (%)", size(small))
+ 
+ 
+ 
+ 
+
 
 reghdfe floss_prim_ideam_area_v2 d_sameparty_gov dmdn_politics 1.d_sameparty_gov#1.dmdn_politics, abs(year) vce(cl coddane)
 reghdfe floss_prim_ideam_area_v2 d_sameparty_gov2 dmdn_politics 1.d_sameparty_gov2#1.dmdn_politics, abs(year) vce(cl coddane)
@@ -148,19 +185,37 @@ reghdfe floss_prim_ideam_area_v2 d_sameparty_gov, abs(year coddane) vce(cl codda
 reghdfe floss_prim_ideam_area_v2 d_sameparty_gov2, abs(year coddane) vce(cl coddane)
 
 
-hist sh_politics2_law, freq
+gen ln_pib_total=log(pib_total)
+gen ln_pib_agricola=log(pib_agricola)
+gen ln_regalias=log(y_cap_regalias)
+gen ln_g_total=log(g_total)
+gen ln_bovinos=log(bovinos)
+gen sh_coca_area=H_coca*0.01/area
+gen sh_sown_area=tot_sown_area*0.01/area  
+gen sh_harv_area=tot_harv_area*0.01/area
+gen ln_tot_prod=log(tot_prod)
 
-rdrobust floss_prim_ideam_area_v2 sh_politics2_law, c(.5)
+reghdfe ln_pib_total dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_pib_percapita_cons dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe night_light dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_regalias dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_g_total dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_bovinos dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
 
-reghdfe floss_prim_ideam_area_v2 dmdn_politics if abs(sh_politics2_law-.5)<=.04
+reghdfe sh_coca_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
 
-summ sh_politics2_law if e(sample)==1 & sh_politics2_law<.5
+reghdfe sh_sown_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe sh_harv_area dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe yield_allcrop dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+reghdfe ln_tot_prod dmdn_politics [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
 
-tab carcode_master if e(sample)==1 & sh_politics2_law<.5
 
-summ sh_politics2_law if e(sample)==1 & sh_politics2_law>=.5
 
-tab carcode_master if e(sample)==1 & sh_politics2_law>=.5
+
+
+
+
+
 
 
 

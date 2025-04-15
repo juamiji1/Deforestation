@@ -987,6 +987,32 @@ save `FLOSS_PRIMARY_IDEAM', replace
 *copy "muniShp_defoinfo_sp_shp.dta" "${data}/Gis\workinprogress\muniShp_defoinfo_sp_shp.dta" , replace
 
 *-------------------------------------------------------------------------------
+* Night Light data
+*-------------------------------------------------------------------------------
+*Hansen deforestation conditioning to pixels with primary forest from Hansen
+forval y=2001/2020{
+	import delimited "${data}/Night light\NightLight_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio nl`y') (coddane night_light)
+	gen year=`y'
+
+	keep coddane year night_light
+	
+	local y=`y'-2000
+	
+	tempfile F`y'
+	save `F`y'', replace 
+}
+
+use `F1', clear
+
+append using `F2' `F3' `F4' `F5' `F6' `F7' `F8' `F9' `F10' `F11' `F12' `F13' `F14' `F15' `F16' `F17' `F18' `F19' `F20'
+sort coddane year 
+
+tempfile NLDATA
+save `NLDATA', replace 
+
+*-------------------------------------------------------------------------------
 * Lobbying data 
 *-------------------------------------------------------------------------------
 use "${data}/Cuentas Claras\financed_munis.dta", clear
@@ -1173,7 +1199,7 @@ import delimited "${data}\Gaez\muniShp_sut_data.csv", encoding(UTF-8) clear
 tempfile SUITCROPS
 save `SUITCROPS', replace
 
-use "${data}/Cede\Panel_context_12032025.dta", clear
+use "${data}/Cede\Panel_context_11042025.dta", clear
 
 merge m:1 codmpio using `SUITCROPS', keep(1 3) nogen 
 
@@ -1291,6 +1317,9 @@ merge m:1 coddane using `ALC90', keep(1 3) nogen
 merge m:1 codepto using `DEPTOEVA90', keep(1 3) nogen
 merge m:1 codepto using `DEPTOFOREST90', keep(1 3) nogen
 merge m:1 codepto using `GDP90', keep(1 3) nogen 
+
+merge 1:1 coddane year using `NLDATA', keep(1 3) nogen
+merge 1:1 coddane year using "${data}/EVA\eva_yield.dta", keep(1 3) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
