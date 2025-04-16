@@ -72,7 +72,7 @@ mat C[4,5]= r(p)
 
 coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Deforestation (%)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
 mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
-
+gr export "${plots}/coefplot_fact1.pdf", as(pdf) replace
 
 eststo clear
 
@@ -109,8 +109,7 @@ mat C[4,4]= r(p)
 
 coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Deforestation (%)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
 mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
-
-
+gr export "${plots}/coefplot_fact2.pdf", as(pdf) replace
 
 eststo clear
 
@@ -147,7 +146,7 @@ mat C[4,4]= r(p)
 
 coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Deforestation (%)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
 mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
-
+gr export "${plots}/coefplot_fact3.pdf", as(pdf) replace
 
 gen z_sh_politics2_law=sh_politics2_law-.5
 
@@ -181,7 +180,7 @@ coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) colo
 ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
 ylabel(,labsize(small)) xlabel(,labsize(small)) b2title("Bandwidth of Politicians Margin in REPA's Board ", size(medsmall)) ///
 l2title("Effect of Politicians Majority on Forest Loss (%)", size(small))
- 
+gr export "${plots}/coefplot_fact4.pdf", as(pdf) replace
  
  
  
@@ -249,8 +248,10 @@ coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) colo
 ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
 ylabel(,labsize(small)) xlabel(,labsize(small)) b2title("Bandwidth of Politicians Margin in REPA's Board ", size(medsmall)) ///
 l2title("Effect of Politicians Majority on Forest Loss (%)", size(small))
+gr export "${plots}/coefplot_fact5.pdf", as(pdf) replace
 
 gen ln_pib_total=log(pib_total)
+gen ln_pib_percapita_cons=log(pib_percapita_cons)
 gen ln_pib_agricola=log(pib_agricola)
 gen ln_pib_industria=log(pib_industria)
 gen ln_pib_servicios=log(pib_servicios)
@@ -263,42 +264,48 @@ gen sh_sown_area=tot_sown_area*0.01/area
 gen sh_harv_area=tot_harv_area*0.01/area
 gen ln_tot_prod=log(tot_prod)
 gen ln_va=ln(va)
+replace ln_va=log(pib_cons) if ln_va==.
+gen ln_bovinos=log(bovinos)
 
-gen ln_pib_total=log(pib_total)
+la var ln_va "Log(GDP)"
+la var ln_pib_percapita_cons "Log(GDP percapita)"
+la var ln_pib_agricola "Log(Agricultural GDP)"
+la var night_light "Night Light - radiance"
+la var ln_regalias "Log(Royalties)"
+la var ln_g_total "Log(Public expenditure)"
+la var sh_bovinos "Cattler per Km2"
+la var sh_coca_area "Coca area (%)"
+la var sh_sown_area "Crop sown area (%)"
+la var sh_harv_area "Crop harvested area (%)"
+la var yield_allcrop "Crop yield"
+la var ln_tot_prod "Log(Crop production)"
+la var ln_bovinos "Log(Cattle)"
 
+gl Yvars "ln_va ln_pib_percapita_cons ln_pib_agricola night_light ln_regalias ln_g_total ln_bovinos sh_coca_area sh_sown_area sh_harv_area yield_allcrop ln_tot_prod"
 
-gen x=ln_pib_total
-replace x=ln_va if x==.
+mat C=J(4,12,.)
+mat coln C =${Yvars}
 
-gen y=log(pib_cons)
-replace y=ln_va if y==.
+local i=1
 
+foreach yvar of global Yvars{
+	
+	egen std_`yvar'= std(`yvar')
+	
+	reghdfe std_`yvar' dmdn_politics ${Xvars} [aw=tweights] ${if}, abs(year) vce(cl coddane)
+	lincom dmdn_politics
+	mat C[1,`i']= r(estimate) 
+	mat C[2,`i']= r(lb)
+	mat C[3,`i']= r(ub)
+	mat C[4,`i']= r(p)
+	
+	local i=`i'+1
+	
+}
 
-reghdfe ln_pib_total dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe ln_pib_agricola dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_pib_industria dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_pib_servicios dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe y dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-
-
-reghdfe ln_pib_percapita_cons dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_va dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe night_light dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_regalias dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_g_total dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe sh_bovinos dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-
-reghdfe sh_coca_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-
-reghdfe sh_sown_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe sh_harv_area dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe yield_allcrop dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
-reghdfe ln_tot_prod dmdn_politics ${Xvars} [aw=tweights] ${if} & floss_prim_ideam_area_v2!=., abs(year) vce(cl coddane)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Politician Majority in REPA's Board (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Municipal Characteristics") ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2) mlabsize(vsmall)
+gr export "${plots}/coefplot_fact6.pdf", as(pdf) replace
 
 
 

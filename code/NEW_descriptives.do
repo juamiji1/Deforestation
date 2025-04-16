@@ -316,7 +316,7 @@ coefplot (s2, axis(1) color("gs9")) (s3, axis(1) color("gs6")) ///
 vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
 mlabcolor("black") mlabsize(medsmall) coeflabels(_cons=" ") ///
 mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
-ytitle("Probability of Governor being Head of REPA", axis(2)) ytitle("Primary Forest Loss (%)", axis(1)) ///
+ytitle("Share of REPAs with Governor as Head by Law", axis(2)) ytitle("Primary Forest Loss (%)", axis(1)) ///
 xline(1, lc(gray) lp(dash)) legend(on order(1 "Politicians minority" 3 "Politicians majority"))
 
 gr export "${plots}/reduce_and_firststage.pdf", as(pdf) replace
