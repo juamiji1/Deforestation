@@ -306,8 +306,8 @@ gr export "${plots}/forestloss_trend_by_polcomposition.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 eststo clear
 
-eststo s0: areg director_gob_law if dmdn_politics==0, a(year) vce(robust)
-eststo s1: areg director_gob_law if dmdn_politics==1, a(year) vce(robust)
+eststo s0: areg director_gob_law if dmdn_politics==0, a(year) vce(cl coddane)
+eststo s1: areg director_gob_law if dmdn_politics==1, a(year) vce(cl coddane)
 eststo s2: areg floss_prim_ideam_area_v2 if dmdn_politics==0, a(year) vce(robust)
 eststo s3: areg floss_prim_ideam_area_v2 if dmdn_politics==1, a(year) vce(robust)
 

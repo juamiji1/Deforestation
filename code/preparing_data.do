@@ -1173,23 +1173,31 @@ duplicates drop nombre_partido, force
 tempfile CODPARTY
 save `CODPARTY', replace 
 
-use "${data}/Congreso Visible\Votaciones Green_12March.dta", clear
+use "${data}/Congreso Visible\Votaciones Green_13March.dta", clear
 
+ren _all, low
 ren partido_cede nombre_partido
 
 merge 1:1 nombre_partido using `CODPARTY', keep(3) keepus(codigo_partido) nogen
+
+ren partido_votogreen_mean partido_votogreen
 
 summ partido_votogreen, d
 gen green_party=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
 gen green_party_v2=(partido_votogreen>=`r(mean)') if partido_votogreen!=.
 
-replace green_party_v2=1 if partido_id_CEDE==194 | partido_id_CEDE==645
-replace green_party_v2=0 if partido_id_CEDE==14  | partido_id_CEDE==1
+*replace green_party_v2=1 if partido_id_cede==194 | partido_id_cede==645
+*replace green_party_v2=0 if partido_id_cede==14  | partido_id_cede==1
 
 ren codigo_partido codigo_partido_gob
 
 tempfile GREENPARTY
 save `GREENPARTY', replace
+
+ren codigo_partido_gob codigo_partido_alc
+
+tempfile GREENPARTYALC
+save `GREENPARTYALC', replace
 
 *-------------------------------------------------------------------------------
 * Municipality characteristics
@@ -1318,6 +1326,10 @@ sort coddane year, stable
 bys coddane election: carryforward z_sh_votes_alc, replace 
 
 merge m:1 codigo_partido_gob using `GREENPARTY', keep(1 3) keepus(partido_votogreen green_party green_party_v2) nogen 
+ren (partido_votogreen green_party green_party_v2) (partido_votogreen_gov green_party_gov green_party_v2_gov)
+
+merge m:1 codigo_partido_alc using `GREENPARTYALC', keep(1 3) keepus(partido_votogreen green_party green_party_v2) nogen 
+ren (partido_votogreen green_party green_party_v2) (partido_votogreen_alc green_party_alc green_party_v2_alc)
 
 merge 1:1 coddane year using `CEDE', keep(1 3) nogen
 
@@ -1354,7 +1366,7 @@ gen dmdn_politics = (sh_politics>=.5) if sh_politics!=.
 gen dmdn_politics_law = (sh_politics_law>=.5) if sh_politics_law!=.
 
 *Green party assumption
-replace green_party_v2=1 if green_party_v2==.
+*replace green_party_v2=1 if green_party_v2==.
 
 *Converting in percentage
 replace floss_prim_ideam_area = floss_prim_ideam_area*100
@@ -1362,6 +1374,9 @@ replace floss_prim_ideam_area_v2 = floss_prim_ideam_area_v2*100
 
 la var floss_prim_ideam_area "Primary Forest Loss (%)"
 la var mayorallied "Partisan Alignment"
+
+summ floss_prim_ideam_area_v2 , d
+replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>100 & floss_prim_ideam_area_v2!=.
 
 
 save "${data}/Interim\defo_caralc.dta", replace
