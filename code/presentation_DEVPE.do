@@ -58,8 +58,9 @@ tab z_sh_politics2_law if floss_prim_ideam_area_v2!=.
 egen sh_other=rowtotal(sh_ethnias sh_private sh_envngo sh_academics), m
 
 two (kdensity sh_politics) (kdensity sh_other), ///
-legend(order(1 "Politicians" 2 "Non-Politicians")) l2title("Kdensity Estimator", size(medsmall)) xtitle("") ///
-b2title("Share of each member type on the board", size(medsmall))
+legend(order(1 "Politicians" 2 "Non-Politicians") rows(1) size(medium)) ///
+l2title("Kdensity Estimator", size(medlarge)) xtitle("") ///
+b2title("Share of each member type on the board", size(medlarge))
 
 gr export "${plots}/kdensity_sh_memberstype.pdf", as(pdf) replace
 
@@ -82,7 +83,13 @@ replace x = 16 if year==2016
 
 gen y = 17 if x!=.
 
-coefplot (mat(b0[1]), label("Politicians minority") mcolor("gs9")) (mat(b1[1]), label("Politicians majority") color("gs6")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Years", size(medsmall)) addplot(scatteri 16 12 16 13 16 14 16 15 16 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero))
+coefplot (mat(b0[1]), label("Politicians minority") mcolor("gs9")) ///
+(mat(b1[1]), label("Politicians majority") color("gs6")), ///
+vert noci recast(connected) xline(4, lp(dash)) ///
+xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) ///
+l2title("Primary Forest Loss (%)", size(medlarge)) b2title("Year", size(medlarge)) ///
+addplot(scatteri 16 12 16 13 16 14 16 15 16 16, recast(area) color(gs5%20) lcolor(white) base(0)) ///
+plotregion(margin(zero)) legend(rows(1) size(medium)) 
 
 gr export "${plots}/forestloss_trend_by_polcomposition.pdf", as(pdf) replace
 
@@ -101,8 +108,9 @@ coefplot (s2, axis(1) color("gs9")) (s3, axis(1) color("gs6")) ///
 vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
 mlabcolor("black") mlabsize(medsmall) coeflabels(_cons=" ") ///
 mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
-ytitle("Share of REPAs with Governor as Head by Law", axis(2)) ytitle("Primary Forest Loss (%)", axis(1)) ///
-xline(1, lc(gray) lp(dash)) legend(on order(1 "Politicians minority" 3 "Politicians majority"))
+ytitle("Share of REPAs with Governor as Head by Law", axis(2) size(medium)) ///
+ytitle("Primary Forest Loss (%)", axis(1) size(medlarge)) ///
+xline(1, lc(gray) lp(dash)) legend(on order(1 "Politicians minority" 3 "Politicians majority") rows(1) size(medium))
 
 gr export "${plots}/reduce_and_firststage.pdf", as(pdf) replace
 
@@ -137,21 +145,23 @@ foreach h of local zrunning{
 }
 
 coefplot (mat(C[1]), ci((2 3))), vert ciopts(recast(rcap)) ///
-xline(4.5, lp(dash) lc("maroon")) ///
-l2title("Primary Forest Loss (%)", size(medium)) ///
-b2title("Seat Margin Held by Politicians in REPAs Board", size(medium))
+xline(4.5, lp(dash) lc("maroon")) xlabel(,labsize(medium)) ylabel(,labsize(medium)) ///
+l2title("Primary Forest Loss (%)", size(medlarge)) ///
+b2title("Seat Margin Held by Politicians in REPAs Board", size(medlarge))
 gr export "${plots}/coefplot_forestloss_polmargin_fig0.pdf", as(pdf) replace
 
 coefplot (mat(C[1]), ci((2 3))), vert ciopts(recast(rcap)) ///
 xline(4.5, lp(dash) lc("maroon")) xline(3.5, lp(dash)) xline(5.5, lp(dash)) ///
-l2title("Primary Forest Loss (%)", size(medium)) ///
-b2title("Seat Margin Held by Politicians in REPAs Board", size(medium))
+ xlabel(,labsize(medium)) ylabel(,labsize(medium)) ///
+l2title("Primary Forest Loss (%)", size(medlarge)) ///
+b2title("Seat Margin Held by Politicians in REPAs Board", size(medlarge))
 gr export "${plots}/coefplot_forestloss_polmargin_fig1.pdf", as(pdf) replace
 
 coefplot (mat(C[1]), ci((2 3))), vert ciopts(recast(rcap)) ///
 xline(4.5, lp(dash) lc("maroon")) xline(1.8, lp(dash)) xline(6.2, lp(dash)) ///
-l2title("Primary Forest Loss (%)", size(medium)) ///
-b2title("Seat Margin Held by Politicians in REPAs Board", size(medium))
+ xlabel(,labsize(medium)) ylabel(,labsize(medium)) ///
+l2title("Primary Forest Loss (%)", size(medlarge)) ///
+b2title("Seat Margin Held by Politicians in REPAs Board", size(medlarge))
 gr export "${plots}/coefplot_forestloss_polmargin_fig2.pdf", as(pdf) replace
 
 *-------------------------------------------------------------------------------
@@ -161,7 +171,7 @@ mean floss_prim_ideam_area_v2 if carcode_master==14, over(year)
 mat B=e(b)
 mat coln B = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 
-coefplot (mat(B[1]), label("Macarena") mcolor("gs9")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Years", size(medsmall)) addplot(scatteri 26 12 26 13 26 14 26 15 26 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero))
+coefplot (mat(B[1]), label("Macarena") mcolor("gs9")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medlarge)) b2title("Year", size(medlarge)) addplot(scatteri 26 12 26 13 26 14 26 15 26 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero)) xlabel(,labsize(medium)) ylabel(,labsize(medium))
 
 gr export "${plots}/forestloss_trend_cormacarena.pdf", as(pdf) replace
 
@@ -194,10 +204,10 @@ foreach h in .04 .05 .08 .1 .25{
 }
 
 coefplot (mat(C[1]), ci((2 3)) aux(4)), vert ciopts(recast(rcap)) ///
-yline(0, lp(dash) lc("maroon")) ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(3) mlabgap(*2) mlabsize(medsmall) ///
-l2title("Primary Forest Loss (%)", size(medium)) ///
-b2title("Bandwidth of Seat Margin Held by Politicians in REPAs Board", size(medium))
+yline(0, lp(dash) lc("maroon")) xlabel(,labsize(medium)) ylabel(,labsize(medium)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(3) mlabgap(*2) mlabsize(medium) ///
+l2title("Primary Forest Loss (%)", size(medlarge)) ///
+b2title("Bandwidth of Seat Margin Held by Politicians in REPAs Board", size(medlarge))
 gr export "${plots}/coefplot_rd_seatmargin.pdf", as(pdf) replace
 
 *Exporting geographic results 
@@ -284,8 +294,10 @@ mat C[2,4]= r(lb)
 mat C[3,4]= r(ub)
 mat C[4,4]= r(p)
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Pols Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabsize(medsmall) mlabposition(12) mlabgap(*2) ///
+ xlabel(,labsize(medium)) 
+ 
 gr export "${plots}/coefplot_rd_seatmargin_hetalignment.pdf", as(pdf) replace	
 	
 *-------------------------------------------------------------------------------
@@ -313,8 +325,10 @@ mat C[2,2]= r(lb)
 mat C[3,2]= r(ub)
 mat C[4,2]= r(p)
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Pols Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabsize(medsmall) mlabposition(12) mlabgap(*2) ///
+ xlabel(,labsize(medium)) 
+ 
 gr export "${plots}/coefplot_rd_seatmargin_greenalignment_placebo.pdf", as(pdf) replace
 	
 *-------------------------------------------------------------------------------
@@ -359,8 +373,10 @@ mat C[2,4]= r(lb)
 mat C[3,4]= r(ub)
 mat C[4,4]= r(p)
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(small)) ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Pols Majority in REPA's Board on Forest Loss (%)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabsize(medsmall) mlabposition(12) mlabgap(*2) ///
+xlabel(,labsize(medium)) 
+ 
 gr export "${plots}/coefplot_rd_seatmargin_mayorinbrd.pdf", as(pdf) replace
 	
 *-------------------------------------------------------------------------------
@@ -394,8 +410,10 @@ foreach yvar of global Yvars{
 	
 }
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Politician Majority in REPA's Board (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Municipal Characteristics") ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2) mlabsize(vsmall)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Pols Majority in REPA's Board on Dep Var (std)", size(medium)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2) mlabsize(medsmall) ///
+xlabel(, labsize(medium))
+
 gr export "${plots}/coefplot_rd_seatmargin_econchars.pdf", as(pdf) replace
 	
 *-------------------------------------------------------------------------------
@@ -427,7 +445,9 @@ foreach yvar of global Yvars{
 	
 }
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Politician Majority in REPA's Board (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Municipal Characteristics") ///
-mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2) mlabsize(vsmall)
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Pols Majority in REPA's Board on Dep Var (std)", size(medium)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+mlabel(cond(@aux1<=.01, string(@b, "%9.2fc") +"***", cond(@aux1<=.05, string(@b, "%9.2fc") +"**", cond(@aux1<=.1, string(@b, "%9.2fc") +"*", string(@b, "%9.2fc"))))) mlabposition(12) mlabgap(*2) mlabsize(medsmall) ///
+xlabel(, labsize(medium))
+
 gr export "${plots}/coefplot_rd_seatmargin_econchars_mayoraligned.pdf", as(pdf) replace
 

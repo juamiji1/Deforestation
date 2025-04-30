@@ -117,7 +117,7 @@ foreach yvar of global yvars{
 	
 }
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Politician Majority in REPA's Board (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Historical Characteristics at the Department Level") ///
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board (std)", size(medium)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}/coefplot_historic_vars_polmajority.pdf", as(pdf) replace
@@ -148,7 +148,7 @@ foreach yvar of global yvars{
 	
 }
 
-coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board (std)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Historical Characteristics at the Department Level") ///
+coefplot (mat(C[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Effect of Politicians Majority in REPA's Board (std)", size(medium)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}/coefplot_historic_vars_polmajority_bw.pdf", as(pdf) replace
@@ -158,8 +158,8 @@ gr export "${plots}/coefplot_historic_vars_polmajority_bw.pdf", as(pdf) replace
 * Histogram of running variable 
 *-------------------------------------------------------------------------------
 hist z_sh_politics2_law, frac width(0.01) xline(0, lp(dash) lc("maroon")) ///
-xlabel(, labsize(medium)) ///
-xtitle(" ") b2title("Seat Margin Held by Politicians in REPAs Board", size(medium)) 
+ylabel(, labsize(medium)) xlabel(, labsize(medium)) ytitle(, size(medlarge)) ///
+xtitle("Seat Margin Held by Politicians in REPAs Board", size(medlarge)) 
 
 gr export "${plots}/hist_z_sh_politics2_law.pdf", as(pdf) replace
 
