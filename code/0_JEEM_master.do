@@ -39,10 +39,12 @@ END
 * Work flow 
 *
 *-------------------------------------------------------------------------------
-do "${do}\preparing_data.do"
-do "${do}\descriptives.do"
-do "${do}\forest_loss_twfe.do"
-do "${do}\forest_loss_es.do"
+do "${do}\1_JEEM_preparing_data.do"
+do "${do}\2_JEEM_descriptives.do"
+do "${do}\3_JEEM_RD_lc_scratch.do"
+do "${do}\3_JEEM_RD_lc_assump.do"
+do "${do}\3_JEEM_RD_main.do"
+do "${do}\3_JEEM_RD_mechs.do"
 
 
 

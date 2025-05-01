@@ -6,7 +6,7 @@ use "${data}/Interim\defo_caralc.dta", clear
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc, d
 
-rdrobust floss_prim_ideam_area z_sh_votes_alc, all kernel(triangular)
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
 gl h = e(h_l)
 gl ht= round(${h}, .001)
 gl p = e(p)
@@ -75,7 +75,7 @@ gen sh_area_bovino=bovino/areaoficialkm2
 gen ln_pobl_tot=ln(pobl_tot)
 
 *Sample var
-reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 gen regsample=e(sample)
 
 *Asigning the pre-treatment var value
@@ -120,7 +120,7 @@ la var gandina "Andean region"
 la var pre_ln_pobl_tot "Log(Total population)"
 la var pre_nbi "UBN index"
 la var mean_gini "Gini index"
-la var pre_mpi "MPI index"
+la var pre_mpi "Poverty index"
 la var pre_crime_rate "Crime rate" 
 la var pre_crime_env_rate "Env. crime rate"
 la var pre_crime_forest_rate "Forest crime rate"
@@ -228,7 +228,7 @@ prehead(`"\begin{tabular}{@{}l*{11}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
-coefplot (mat(CG[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CG[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) l2title("Dependent variable in pre-treatment", size(medium)) ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
@@ -245,7 +245,7 @@ prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
-coefplot (mat(CD[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CD[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) l2title("Dependent variable in pre-treatment", size(medium)) ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_demovars.pdf", as(pdf) replace 
@@ -262,7 +262,7 @@ prehead(`"\begin{tabular}{@{}l*{8}{c}}"' ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 	
-coefplot (mat(CE[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(small)) ciopts(recast(rcap)) ylab(, labsize(small)) l2title("Dependent variable in pre-treatment") ///
+coefplot (mat(CE[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) b2title("Magnitude of the partisan alignment coefficient (std)", size(medsmall)) ciopts(recast(rcap)) ylab(, labsize(medsmall)) l2title("Dependent variable in pre-treatment", size(medium)) ///
 mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 

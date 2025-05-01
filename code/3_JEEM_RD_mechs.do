@@ -5,11 +5,11 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Labels
 *
 *-------------------------------------------------------------------------------
-replace floss_prim_ideam_area = floss_prim_ideam_area*100
+*replace floss_prim_ideam_area_v2 = floss_prim_ideam_area_v2*100
 gen election_year=1 if year==2000 | year==2003 | year==2007 | year==2011 | year==2015 | year==2019
 replace election_year=0 if election_year==.
 
-la var floss_prim_ideam_area "Primary Forest Loss"
+la var floss_prim_ideam_area_v2 "Primary Forest Loss"
 la var mayorallied "Same party"
 
 
@@ -19,8 +19,8 @@ la var mayorallied "Same party"
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc, d
 
-rdrobust floss_prim_ideam_area z_sh_votes_alc, all kernel(triangular)
-gl h = e(h_l)
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
+gl h = ${h}
 gl ht= round(${h}, .001)
 gl p = e(p)
 gl k = e(kernel)
@@ -31,45 +31,45 @@ cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 
 *All municipalities 
-eststo r1: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR with a majority of politicians
-eststo r4: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==1 & dmdn_politics==1, abs(year) vce(robust)
+eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics==1, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y4=round(r(mean), .01)
 
 *Municipalities under a CAR with a minority of politicians
-eststo r5: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==1 & dmdn_politics==0, abs(year) vce(robust)
+eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics==0, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y5=round(r(mean), .01)
 
 *Municipalities under a non-green governor 
-eststo r6: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2==0, abs(year) vce(robust)
+eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2_gov==0, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y6=round(r(mean), .01)
 
 *Municipalities under a green governor 
-eststo r7: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2==1, abs(year) vce(robust)
+eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2_gov==1, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y7=round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
-eststo r8: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==1 & election_year==1, abs(year) vce(robust)
+eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & election_year==1, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y8=round(r(mean), .01)
 
 *Municipalities under other director in an election year
-eststo r9: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==0 & election_year==1, abs(year) vce(robust)
+eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==0 & election_year==1, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y9=round(r(mean), .01)
 
 
@@ -98,7 +98,7 @@ coefplot (r4, label(Politicians majority)) (r5, label(Politicians minority)) (r6
 (r7, label("Governor is head + Green party")) (r8, label("Governor is head + Election year")) ///
 (r9, label("Governor not head + Election year")), keep(mayorallied) ///
 coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(3) size(vsmall)) ///
-xtitle("Primary Forest Loss (%)", size(medsmall)) ytitle("Partisan Alignment Between Mayor and Governor", size(small)) ///
+xtitle("Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
 mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_mechs_results.pdf", as(pdf) replace 

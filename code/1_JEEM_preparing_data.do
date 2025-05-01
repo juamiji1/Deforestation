@@ -1186,8 +1186,8 @@ summ partido_votogreen, d
 gen green_party=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
 gen green_party_v2=(partido_votogreen>=`r(mean)') if partido_votogreen!=.
 
-*replace green_party_v2=1 if partido_id_cede==194 | partido_id_cede==645
-*replace green_party_v2=0 if partido_id_cede==14  | partido_id_cede==1
+replace green_party_v2=1 if partido_id_cede==194 | partido_id_cede==645
+replace green_party_v2=0 if partido_id_cede==14  | partido_id_cede==1
 
 ren codigo_partido codigo_partido_gob
 

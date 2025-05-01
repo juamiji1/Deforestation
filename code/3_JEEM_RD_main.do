@@ -12,7 +12,7 @@ use "${data}/Interim\defo_caralc.dta", clear
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc, d
 
-rdrobust floss_prim_ideam_area z_sh_votes_alc, all kernel(triangular)
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
 gl h = e(h_l)
 gl ht= round(${h}, .001)
 gl p = e(p)
@@ -26,7 +26,7 @@ gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 eststo clear
 
 *All municipalities 
-eststo r1: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 
 summ floss_prim_ideam_area if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
@@ -38,9 +38,9 @@ summ floss_prim_ideam_area if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
-eststo r3: reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law==0, abs(year) vce(robust)
+eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==0, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y3=round(r(mean), .01)
 
 *-------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ prehead(`"\begin{tabular}{@{}l*{3}{c}}"' ///
 	`"\bottomrule \end{tabular}"') 
 
 coefplot (r1, label(All)) (r2, label(Governor is head)) (r3, label(Governor not head)), keep(mayorallied) ///
-coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(3)) xtitle("Primary Forest Loss (%)", size(medsmall)) ytitle("Partisan Alignment Between Mayor and Governor", size(small)) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(3)) xtitle("Primary Forest Loss (%)", size(medsmall)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
 mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_main_results.pdf", as(pdf) replace 
@@ -74,7 +74,7 @@ gr export "${plots}\rdplot_main_results.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 *All municipalities 
 cap drop rdplot_*
-rdplot floss_prim_ideam_area z_sh_votes_alc if abs(z_sh_votes_alc)<=.1, all kernel(triangular) h(.1) p(1) ci(95) genvars 
+rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<=${h}, all kernel(triangular) h(${h}) p(1) ci(95) genvars 
 
 preserve
 	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
@@ -83,9 +83,9 @@ preserve
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
-	two (scatter `var' x if abs(x)<.1, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
+	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
 	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)
@@ -95,7 +95,7 @@ restore
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
 cap drop rdplot_*
-rdplot floss_prim_ideam_area z_sh_votes_alc if abs(z_sh_votes_alc)<=.1 & director_gob_law==1, all kernel(triangular) h(.1) p(1) ci(95) genvars
+rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<=${h} & director_gob_law==1, all kernel(triangular) h(${h}) p(1) ci(95) genvars
 
 preserve
 	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
@@ -104,11 +104,11 @@ preserve
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
-	two (scatter `var' x if abs(x)<.1, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
+	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
-	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote margin", size(medsmall)) ///
+	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)
 	
 	gr export "${plots}\rdplot_main_sample_govheadyes.pdf", as(pdf) replace 
@@ -116,7 +116,7 @@ restore
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
 cap drop rdplot_*
-rdplot floss_prim_ideam_area z_sh_votes_alc if abs(z_sh_votes_alc)<=.1 & director_gob_law==0, all kernel(triangular) h(.1) p(1) ci(95) genvars
+rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<${h} & director_gob_law==0, all kernel(triangular) h(${h}) p(1) ci(95) genvars
 
 preserve
 	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
@@ -125,9 +125,9 @@ preserve
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
-	two (scatter `var' x if abs(x)<.1, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<.1, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
+	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
 	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)
@@ -141,12 +141,12 @@ restore
 rddensity z_sh_votes_alc, c(0) noplot
 gl pval=round(`e(pv_q)', .01)
 
-rddensity z_sh_votes_alc, c(0) plot h(.085) plot_range(-.1 .1) cirl_opt(acolor(gs6%30) alw(vvthin)) esll_opt(clc(gs2%90) clw(medthick)) cirr_opt(acolor(gs6%30) alw(vvthin)) eslr_opt(clc(gs2%90) clw(medthick)) nohist graph_opt(title("") xline(0, lc(maroon) lp(dash)) legend(off) b2title("Vote Margin", size(medsmall)) xtitle("") ytitle("Frequency") note("p-value=${pval}"))
+rddensity z_sh_votes_alc, c(0) plot h(${h}) plot_range(-.1 .1) cirl_opt(acolor(gs6%30) alw(vvthin)) esll_opt(clc(gs2%90) clw(medthick)) cirr_opt(acolor(gs6%30) alw(vvthin)) eslr_opt(clc(gs2%90) clw(medthick)) nohist graph_opt(title("") xline(0, lc(maroon) lp(dash)) legend(off) b2title("Vote Margin", size(medium)) xtitle("") ytitle("Frequency", size(medium)) note("p-value=${pval}"))
 
 gr export "${plots}\mccraryplot_z_sh_votes_alc.pdf", as(pdf) replace 
 
 *-------------------------------------------------------------------------------
-* Robustness of 
+* Robustness of All sample
 *-------------------------------------------------------------------------------
 *Dependent's var mean
 summ z_sh_votes_alc, d
@@ -166,7 +166,7 @@ forval c=1/30{
 	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
 	
 	*Total Households
-	reghdfe floss_prim_ideam_area ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+	reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if}, abs(year) vce(robust)
 	lincom mayorallied	
 	mat coef[1,`c']= r(estimate) 
 	mat coef[2,`c']= r(lb)
@@ -181,12 +181,92 @@ mat coln coef= .01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .1
 *Plotting estimates 
 coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) color(gs2%70) ///
 ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
-xline(8.5, lp(dash) lc(gs2%70)) ylabel(,labsize(small)) xlabel(,labsize(vsmall)) ///
-b2title("Bandwidth of Vote Margin", size(medsmall)) l2title("Effect of Partisan Alignment on Primary Forest Loss (%)", size(small))
+xline(6.5, lp(dash) lc(gs2%70)) ylabel(,labsize(small)) xlabel(,labsize(vsmall)) ///
+b2title("Bandwidth of Vote Margin", size(medsmall)) l2title("Effect of Partisan Alignment on Primary Forest Loss (%)", size(medsmall))
  
 gr export "${plots}\rdplot_main_results_bwrobust.pdf", as(pdf) replace 
  
+*-------------------------------------------------------------------------------
+* Robustness of Gob director sample 
+*-------------------------------------------------------------------------------
+*Dependent's var mean
+summ z_sh_votes_alc, d
+
+*Creating matrix to export estimates
+mat coef=J(3,30,.)
+
+*Estimations
+local h=0.01
+forval c=1/30{
+
+	*Conditional for all specifications
+	gl if "if abs(z_sh_votes_alc)<=`h'"
+
+	*Replicating triangular weights
+	cap drop tweights
+	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
+	
+	*Total Households
+	reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1, abs(year) vce(robust)
+	lincom mayorallied	
+	mat coef[1,`c']= r(estimate) 
+	mat coef[2,`c']= r(lb)
+	mat coef[3,`c']= r(ub)
+	
+	local h=`h'+0.01	
+}
+	
+*Labeling coef matrix rows according to each bw
+mat coln coef= .01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .17 .18 .19 .2 .21 .22 .23 .24 .25 .26 .27 .28 .29 .3
+
+*Plotting estimates 
+coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) color(gs2%70) ///
+ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
+xline(6.5, lp(dash) lc(gs2%70)) ylabel(,labsize(small)) xlabel(,labsize(vsmall)) ///
+b2title("Bandwidth of Vote Margin", size(medsmall)) l2title("Effect of Partisan Alignment on Primary Forest Loss (%)", size(medsmall))
  
+gr export "${plots}\rdplot_main_results_bwrobust_gobhead.pdf", as(pdf) replace 
+ 
+*-------------------------------------------------------------------------------
+* Robustness of director not Gob sample 
+*-------------------------------------------------------------------------------
+*Dependent's var mean
+summ z_sh_votes_alc, d
+
+*Creating matrix to export estimates
+mat coef=J(3,30,.)
+
+*Estimations
+local h=0.01
+forval c=1/30{
+
+	*Conditional for all specifications
+	gl if "if abs(z_sh_votes_alc)<=`h'"
+
+	*Replicating triangular weights
+	cap drop tweights
+	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
+	
+	*Total Households
+	reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==0, abs(year) vce(robust)
+	lincom mayorallied	
+	mat coef[1,`c']= r(estimate) 
+	mat coef[2,`c']= r(lb)
+	mat coef[3,`c']= r(ub)
+	
+	local h=`h'+0.01	
+}
+	
+*Labeling coef matrix rows according to each bw
+mat coln coef= .01 .02 .03 .04 .05 .06 .07 .08 .09 .1 .11 .12 .13 .14 .15 .16 .17 .18 .19 .2 .21 .22 .23 .24 .25 .26 .27 .28 .29 .3
+
+*Plotting estimates 
+coefplot (mat(coef[1]), ci((2 3)) label("X")), vert recast(line) lwidth(*2) color(gs2%70) ///
+ciopts(recast(rarea) color(gs6%40) acolor(gs6%30) alw(vvthin)) yline(0, lp(dash) lcolor(maroon)) ///
+xline(6.5, lp(dash) lc(gs2%70)) ylabel(,labsize(small)) xlabel(,labsize(vsmall)) ///
+b2title("Bandwidth of Vote Margin", size(medsmall)) l2title("Effect of Partisan Alignment on Primary Forest Loss (%)", size(medsmall))
+ 
+gr export "${plots}\rdplot_main_results_bwrobust_gobnothead.pdf", as(pdf) replace 
 
 /*-------------------------------------------------------------------------------
 * Observations and sample 
