@@ -1,5 +1,20 @@
 
+*-------------------------------------------------------------------------------
+* Descriptives
+*
+*-------------------------------------------------------------------------------
 use "${data}/Interim\defo_caralc.dta", clear
+
+*-------------------------------------------------------------------------------
+* Maps
+*-------------------------------------------------------------------------------
+preserve
+
+	collapse (mean) primary_forest01 director_gob_law dmdn_politics_law sh_politics_law* (sum) floss_prim_ideam, by(coddane)
+	gen floss_prim_ideam_area_v2=floss_prim_ideam*100/primary_forest01 
+	
+	export delimited "${data}/interim\map_inputs.csv", replace
+restore 
 
 *-------------------------------------------------------------------------------
 * Aggregate effect 
