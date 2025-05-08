@@ -109,7 +109,7 @@ eststo s1: areg director_gob_law if dmdn_politics==1, a(year) vce(cl coddane)
 coefplot (s0, label(Politicians minority)) (s1, label(Politicians majority)), ///
 vert recast(bar) ciopts(recast(rcap) lcolor("black")) citop mlabcolor("black") ///
 mlabsize(medsmall) barwidth(0.3) coeflabels(_cons=" ") mlabel(string(@b, "%9.3fc")) ///
-mlabposition(11) mlabgap(*2) l2title("Likelihood of choosing governor as head") 
+mlabposition(11) mlabgap(*2) l2title("Likelihood of governor is head") 
 *note("12 out 28 REPAs have a majority of politicians" )
  
 gr export "${plots}/prob_govhead_dmdnpoliticians.pdf", as(pdf) replace
@@ -289,15 +289,8 @@ mean floss_prim_ideam_area_v2 if dmdn_politics==1 & year>2000 & year<2021, over(
 mat b1=e(b)
 mat coln b1 = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 
-gen x = 12 if year==2012
-replace x = 13 if year==2013
-replace x = 14 if year==2014
-replace x = 15 if year==2015
-replace x = 16 if year==2016
-
-gen y = 17 if x!=.
-
-coefplot (mat(b0[1]), label("Politicians minority") mcolor("gs9")) (mat(b1[1]), label("Politicians majority") color("gs6")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Years", size(medsmall)) addplot(scatteri 16 12 16 13 16 14 16 15 16 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero))
+coefplot (mat(b0[1]), label("Politicians minority") mcolor("gs9")) (mat(b1[1]), label("Politicians majority") color("gs6")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash))  l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Years", size(medsmall)) 
+addplot(scatteri .16 12 .16 13 .16 14 .16 15 .16 16, recast(area) color(gs5%20) lcolor(white) base(0)) plotregion(margin(zero))
 
 gr export "${plots}/forestloss_trend_by_polcomposition.pdf", as(pdf) replace
 

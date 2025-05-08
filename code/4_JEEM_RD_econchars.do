@@ -19,6 +19,9 @@ gen sh_sown_area=tot_sown_area*0.01/primary_forest01
 gen sh_harv_area=tot_harv_area*0.01/primary_forest01
 gen ln_tot_prod=log(tot_prod)
 gen ln_va=ln(va)
+gen ln_va_prim=ln(va_prim)
+gen ln_va_sec=ln(va_sec)
+gen ln_va_terc=ln(va_terc)
 replace ln_va=log(pib_cons) if ln_va==.
 gen ln_bovinos=log(sh_bovinos)
 replace tot_harv_area=tot_harv_area*0.01
@@ -38,6 +41,10 @@ la var yield_allcrop "Crop yield"
 la var ln_tot_prod "Log(Crop production)"
 la var ln_bovinos "Log(Cattle per Km2)"
 la var ln_tot_harv_area "Log(Harvested area)"
+
+la var ln_va_prim "Log(GDP primary)"
+la var ln_va_sec "Log(GDP secondary)"
+la var ln_va_terc "Log(GDP tertiary)"
 
 *-------------------------------------------------------------------------------
 * Main Results
@@ -61,9 +68,9 @@ eststo clear
 *-------------------------------------------------------------------------------
 * Economic characteristics 
 *-------------------------------------------------------------------------------
-gl Yvars "ln_va ln_pib_percapita_cons ln_pib_agricola night_light ln_regalias ln_g_total ln_bovinos ln_tot_harv_area ln_tot_prod yield_allcrop"
+gl Yvars "ln_va ln_va_prim ln_va_sec ln_va_terc night_light ln_regalias ln_g_total ln_bovinos ln_tot_harv_area ln_tot_prod yield_allcrop"
 
-mat C=J(4,10,.)
+mat C=J(4,11,.)
 mat coln C =${Yvars}
 
 local i=1

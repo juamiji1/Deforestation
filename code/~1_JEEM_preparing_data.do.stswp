@@ -1228,7 +1228,6 @@ save `VA', replace
 
 import excel "${data}\DANE\va_sector_2011-2021.xlsx", sheet("Sheet1") firstrow clear
 destring coddane, replace
-
 keep coddane year va_*
 
 tempfile VAS
