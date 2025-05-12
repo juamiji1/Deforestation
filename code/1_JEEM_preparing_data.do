@@ -989,7 +989,6 @@ save `FLOSS_PRIMARY_IDEAM', replace
 *-------------------------------------------------------------------------------
 * Night Light data
 *-------------------------------------------------------------------------------
-*Hansen deforestation conditioning to pixels with primary forest from Hansen
 forval y=2001/2020{
 	import delimited "${data}/Night light\NightLight_Year`y'.csv", encoding(UTF-8) clear 
 
@@ -1011,6 +1010,137 @@ sort coddane year
 
 tempfile NLDATA
 save `NLDATA', replace 
+
+*-------------------------------------------------------------------------------
+* Land Change data
+*-------------------------------------------------------------------------------
+forval y=2015/2021{
+	import delimited "${data}/Land Use\bare_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio bare_area`y') (coddane bare_area)
+	gen year=`y'-1
+	
+	replace bare_area=bare_area/1000000
+	
+	keep coddane year bare_area
+	
+	local y=`y'-2000
+	
+	tempfile B`y'
+	save `B`y'', replace 
+}
+
+use `B15', clear
+
+append using `B16' `B17' `B18' `B19' `B20' `B21'
+sort coddane year 
+
+tempfile BARE
+save `BARE', replace 
+
+forval y=2015/2021{
+	import delimited "${data}/Land Use\built_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio built_area`y') (coddane built_area)
+	gen year=`y'-1
+
+	replace built_area=built_area/1000000
+	
+	keep coddane year built_area
+	
+	local y=`y'-2000
+	
+	tempfile A`y'
+	save `A`y'', replace 
+}
+
+use `A15', clear
+
+append using `A16' `A17' `A18' `A19' `A20' `A21'
+sort coddane year 
+
+tempfile BUILT
+save `BUILT', replace 
+
+forval y=2015/2021{
+	import delimited "${data}/Land Use\grass_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio grass_area`y') (coddane grass_area)
+	gen year=`y'-1
+
+	replace grass_area=grass_area/1000000
+	
+	keep coddane year grass_area
+	
+	local y=`y'-2000
+	
+	tempfile G`y'
+	save `G`y'', replace 
+}
+
+use `G15', clear
+
+append using `G16' `G17' `G18' `G19' `G20' `G21'
+sort coddane year 
+
+tempfile GRASS
+save `GRASS', replace 
+
+forval y=2015/2021{
+	import delimited "${data}/Land Use\shrub_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio shrub_area`y') (coddane shrub_area)
+	gen year=`y'-1
+
+	replace shrub_area=shrub_area/1000000
+	
+	keep coddane year shrub_area
+	
+	local y=`y'-2000
+	
+	tempfile S`y'
+	save `S`y'', replace 
+}
+
+use `S15', clear
+
+append using `S16' `S17' `S18' `S19' `S20' `S21'
+sort coddane year 
+
+tempfile SHRUB
+save `SHRUB', replace 
+
+forval y=2015/2021{
+	import delimited "${data}/Land Use\crop_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio crop_area`y') (coddane crop_area)
+	gen year=`y'-1
+
+	replace crop_area=crop_area/1000000
+	
+	keep coddane year crop_area
+	
+	local y=`y'-2000
+	
+	tempfile C`y'
+	save `C`y'', replace 
+}
+
+use `C15', clear
+
+append using `C16' `C17' `C18' `C19' `C20' `C21'
+sort coddane year 
+
+tempfile CROP
+save `CROP', replace 
+
+merge 1:1 coddane year using `BARE', nogen
+merge 1:1 coddane year using `BUILT', nogen
+merge 1:1 coddane year using `SHRUB', nogen
+merge 1:1 coddane year using `GRASS', nogen
+
+tempfile LANDUSE
+save `LANDUSE', replace 
 
 *-------------------------------------------------------------------------------
 * Lobbying data 
@@ -1365,6 +1495,8 @@ merge 1:1 coddane year using "${data}/EVA\eva_yield.dta", keep(1 3) nogen
 merge 1:1 coddane year using `VA', keep(1 3) nogen
 merge 1:1 coddane year using `VAS', keep(1 3) nogen
 
+merge 1:1 coddane year using `LANDUSE', keep(1 3) nogen
+
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
 *-------------------------------------------------------------------------------
@@ -1397,6 +1529,19 @@ replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>1 & floss_prim_
 
 summ floss_prim_ideam_area_v3 , d
 replace floss_prim_ideam_area_v3 = . if floss_prim_ideam_area_v3>1 & floss_prim_ideam_area_v3!=.
+
+*Preparing land use shares
+gen bare_area_floss=bare_area*100/floss_prim_ideam
+gen built_area_floss=built_area*100/floss_prim_ideam
+gen shrub_area_floss=shrub_area*100/floss_prim_ideam
+gen grass_area_floss=grass_area*100/floss_prim_ideam
+gen crop_area_floss=crop_area*100/floss_prim_ideam
+
+gen grass_shrub_area=grass_area+shrub_area
+gen grass_shrub_area_floss=grass_shrub_area*100/floss_prim_ideam
+
+gen landuse_area=grass_area+shrub_area+bare_area+built_area+crop_area
+gen landuse_area_floss=landuse_area*100/floss_prim_ideam
 
 
 save "${data}/Interim\defo_caralc.dta", replace

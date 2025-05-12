@@ -23,7 +23,7 @@ gen ln_va_prim=ln(va_prim)
 gen ln_va_sec=ln(va_sec)
 gen ln_va_terc=ln(va_terc)
 replace ln_va=log(pib_cons) if ln_va==.
-gen ln_bovinos=log(sh_bovinos)
+gen ln_bovinos=log(bovinos)
 replace tot_harv_area=tot_harv_area*0.01
 gen ln_tot_harv_area=log(tot_harv_area)
 
@@ -45,6 +45,11 @@ la var ln_tot_harv_area "Log(Harvested area)"
 la var ln_va_prim "Log(GDP primary)"
 la var ln_va_sec "Log(GDP secondary)"
 la var ln_va_terc "Log(GDP tertiary)"
+
+la var built_area_floss "Built on lost forest (%)"
+la var grass_shrub_area_floss "Grass on lost forest (%)"
+la var crop_area_floss "Crop on lost forest (%)"
+
 
 *-------------------------------------------------------------------------------
 * Main Results
@@ -68,9 +73,13 @@ eststo clear
 *-------------------------------------------------------------------------------
 * Economic characteristics 
 *-------------------------------------------------------------------------------
-gl Yvars "ln_va ln_va_prim ln_va_sec ln_va_terc night_light ln_regalias ln_g_total ln_bovinos ln_tot_harv_area ln_tot_prod yield_allcrop"
+gl Yvars "ln_va ln_va_prim ln_va_sec ln_va_terc night_light ln_regalias ln_g_total ln_bovinos yield_allcrop built_area_floss grass_shrub_area_floss crop_area_floss"
 
-mat C=J(4,11,.)
+foreach yvar of global Yvars{
+tabstat `yvar',by(year)
+}
+
+mat C=J(4,12,.)
 mat coln C =${Yvars}
 
 local i=1
@@ -80,7 +89,7 @@ foreach yvar of global Yvars{
 	cap drop std_`yvar'
 	bys year: egen std_`yvar'= std(`yvar')
 	
-	reghdfe std_`yvar' ${controls} [aw=tweights] ${if}, abs(year) vce(cl coddane)
+	reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & year>=2014, abs(year) vce(cl coddane)
 	lincom mayorallied
 	mat C[1,`i']= r(estimate) 
 	mat C[2,`i']= r(lb)
