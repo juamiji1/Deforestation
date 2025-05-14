@@ -53,12 +53,18 @@ gr export "${plots}/desc_OLS_plot_bygovhead.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * Year time trends 
 *-------------------------------------------------------------------------------
-*All sample
+*All sample and Amazon (CORPORINOQUIA 27 CDA 9 CORMACARENA 14 CORPOAMAZONIA 17)
 mean floss_prim_ideam_area_v2 if year>2000 & year<2021, over(year)
 mat B=e(b)
 mat coln B = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 
-coefplot (mat(B[1]), mcolor("gs4")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .16 12 .16 13 .16 14 .16 15 .16 16, recast(area) color(gs5%20) lcolor(white) base(0.05)) plotregion(margin(zero))
+mean floss_prim_ideam_area_v2 if year>2000 & year<2021 & inlist(carcode_master, 9, 14, 17, 27), over(year)
+mat A=e(b)
+mat coln A = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
+
+coefplot (mat(B[1]), mcolor("gs4") label("National")) ///
+(mat(A[1]), mcolor("gs8") label("Amazon")), ///
+vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .2 12 .2 13 .2 14 .2 15 .2 16, recast(area) color(gs5%20) lcolor(white) base(0.05)) plotregion(margin(zero))
 
 gr export "${plots}/desc_all_yearly_trend.pdf", as(pdf) replace
 
