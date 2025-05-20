@@ -243,12 +243,6 @@ append using `PERMPRE10'
 
 ren (volotogado n_resol area) (perm_volume perm_n_resol perm_area)
 
-*Calculating percentage changes 
-tsset coddane year
-gen pc_perm_resol=D.perm_n_resol/L.perm_n_resol
-gen pc_perm_vol=D.perm_volume/L.perm_volume
-gen pc_perm_area=D.perm_area/L.perm_area
-
 tempfile APERM
 save `APERM', replace
 
@@ -260,9 +254,23 @@ ren (codigo_dane fecharadicacion_anio) (coddane year)
 
 gen perm_n_resol=1
 collapse (sum) perm_n_resol, by(coddane year)
- 
+
+tempfile SUCPERM
+save `SUCPERM', replace
+
+*CDA
+use "${data}\Permisos forestales\base_CDA_15may25.dta", clear 
+rename _all, low
+
+collapse (sum) cantidad_especie (mean) permiso_forest area_autorizada, by(actoadmnistrativo coddane year)
+collapse (sum) cantidad_especie permiso_forest area_autorizada, by(coddane year)
+
+ren (cantidad_especie permiso_forest area_autorizada) (perm_volume perm_n_resol perm_area)
+
 *Merging both CARs together 
-append using `APERM'
+append using `APERM' `SUCPERM'
+
+keep coddane year perm_volume perm_n_resol perm_area
 
 tempfile PERM
 save `PERM', replace
@@ -1438,7 +1446,7 @@ bys coddane: carryforward codigo_partido_gob votos_gob, replace
 *Merging info about directors of the board
 merge 1:1 coddane year using `CARALC', keep(1 3) gen(merge_caralc) 
 merge m:1 codepto year using `CARGOB', keep(1 3) nogen 
-merge 1:1 coddane year using `PERM', keepus(perm_volume pc_perm_resol perm_n_resol perm_area pc_perm_area pc_perm_vol) keep(1 3) nogen 
+merge 1:1 coddane year using `PERM', keepus(perm_volume perm_n_resol perm_area) keep(1 3) nogen 
 merge 1:1 coddane year using `LICEN', keepus(n_licencia licencia_minero) keep(1 3) nogen 
 merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
 merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond total_procesos) keep(1 3) nogen 

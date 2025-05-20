@@ -21,8 +21,8 @@ restore
 *-------------------------------------------------------------------------------
 eststo clear
 
-eststo s0: areg floss_prim_ideam_area_v2 if mayorallied==0, a(year) vce(cl coddane)
-eststo s1: areg floss_prim_ideam_area_v2 if mayorallied==1, a(year) vce(cl coddane)
+eststo s0: areg floss_prim_ideam_area_v2 if mayorallied==0, a(year) vce(robust)
+eststo s1: areg floss_prim_ideam_area_v2 if mayorallied==1, a(year) vce(robust)
 
 coefplot (s0, color("gs9")) (s1, color("gs4")), ///
 vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
@@ -33,10 +33,10 @@ legend(on order(1 "Mayor-Governor not Aligned" 3 "Mayor-Governor Aligned"))
 
 gr export "${plots}/desc_OLS_plot.pdf", as(pdf) replace
 
-eststo s2: areg floss_prim_ideam_area_v2 if mayorallied==0 & director_gob_law==0, a(year) vce(cl coddane)
-eststo s3: areg floss_prim_ideam_area_v2 if mayorallied==1 & director_gob_law==0, a(year) vce(cl coddane)
-eststo s4: areg floss_prim_ideam_area_v2 if mayorallied==0 & director_gob_law==1, a(year) vce(cl coddane)
-eststo s5: areg floss_prim_ideam_area_v2 if mayorallied==1 & director_gob_law==1, a(year) vce(cl coddane)
+eststo s2: areg floss_prim_ideam_area_v2 if mayorallied==0 & director_gob_law==0, a(year) vce(robust)
+eststo s3: areg floss_prim_ideam_area_v2 if mayorallied==1 & director_gob_law==0, a(year) vce(robust)
+eststo s4: areg floss_prim_ideam_area_v2 if mayorallied==0 & director_gob_law==1, a(year) vce(robust)
+eststo s5: areg floss_prim_ideam_area_v2 if mayorallied==1 & director_gob_law==1, a(year) vce(robust)
 
 coefplot (s4, color("gs9")) (s5, color("gs4")) ///
 (s2, color("gs9")) (s3, color("gs4")), ///
@@ -55,16 +55,27 @@ gr export "${plots}/desc_OLS_plot_bygovhead.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 *All sample and Amazon (CORPORINOQUIA 27 CDA 9 CORMACARENA 14 CORPOAMAZONIA 17)
 mean floss_prim_ideam_area_v2 if year>2000 & year<2021, over(year)
-mat B=e(b)
-mat coln B = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
-
-mean floss_prim_ideam_area_v2 if year>2000 & year<2021 & inlist(carcode_master, 9, 14, 17, 27), over(year)
 mat A=e(b)
 mat coln A = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 
-coefplot (mat(B[1]), mcolor("gs4") label("National")) ///
-(mat(A[1]), mcolor("gs8") label("Amazon")), ///
-vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .2 12 .2 13 .2 14 .2 15 .2 16, recast(area) color(gs5%20) lcolor(white) base(0.05)) plotregion(margin(zero))
+mean floss_prim_ideam_area_v2 if year>2000 & year<2021 & inlist(carcode_master, 9, 14, 17, 27), over(year)
+mat B=e(b)
+mat coln B = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
+
+cap drop perm_x
+gen perm_x=perm_area/(perm_n_resol*1000)
+
+summ perm_x  if inlist(carcode_master,9, 17), d  			// .5 or 3 Km2 per permit
+replace perm_x = . if perm_x>`r(p95)' & inlist(carcode_master,9, 17)
+
+mean perm_x if year>2010 & year<2020 & inlist(carcode_master,9, 17), over(year)
+mat C=e(b)
+mat coln C =  11 12 13 14 15 16 17 18 19
+
+coefplot (mat(A[1]), mcolor("gs2") label("National")) ///
+(mat(B[1]), mcolor("gs6") label("Amazon")) ///
+(mat(C[1]), mcolor("gs11") label("Area per 1K Permits")), ///
+vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .2 12 .2 13 .2 14 .2 15 .2 16, recast(area) color(gs5%15) lcolor(white) base(0.02)) plotregion(margin(zero)) legend(cols(3))
 
 gr export "${plots}/desc_all_yearly_trend.pdf", as(pdf) replace
 
@@ -77,7 +88,7 @@ mean floss_prim_ideam_area_v2 if mayorallied==1 & year>2000 & year<2021, over(ye
 mat b1=e(b)
 mat coln b1 = 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20
 
-coefplot (mat(b0[1]), label("Mayor-Governor not Aligned") mcolor("gs9")) (mat(b1[1]), label("Mayor-Governor Aligned") color("gs4")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .25 12 .25 13 .25 14 .25 15 .25 16, recast(area) color(gs5%20) lcolor(white) base(0.03)) plotregion(margin(zero))
+coefplot (mat(b0[1]), label("Mayor-Governor not Aligned") mcolor("gs9")) (mat(b1[1]), label("Mayor-Governor Aligned") color("gs4")), vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) xline(20, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .25 12 .25 13 .25 14 .25 15 .25 16, recast(area) color(gs5%15) lcolor(white) base(0.02)) plotregion(margin(zero))
 
 gr export "${plots}/desc_all_yearly_trend_bygovhead.pdf", as(pdf) replace
 
