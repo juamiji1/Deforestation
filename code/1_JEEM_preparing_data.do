@@ -1151,6 +1151,26 @@ tempfile LANDUSE
 save `LANDUSE', replace 
 
 *-------------------------------------------------------------------------------
+* BII data
+*-------------------------------------------------------------------------------
+foreach y in 2000 2005 2010 2015 2020 {
+	import delimited "${data}/BII\muni_bii_`y'.csv", encoding(UTF-8) clear 
+	
+	tempfile BII`y'
+	save `BII`y'', replace 
+}
+
+use `BII2000', clear
+
+append using `BII2005' `BII2010' `BII2015' `BII2020'
+sort coddane year 
+
+duplicates drop 
+
+tempfile BII
+save `BII', replace 
+	
+*-------------------------------------------------------------------------------
 * Lobbying data 
 *-------------------------------------------------------------------------------
 use "${data}/Cuentas Claras\financed_munis.dta", clear
@@ -1504,6 +1524,9 @@ merge 1:1 coddane year using `VA', keep(1 3) nogen
 merge 1:1 coddane year using `VAS', keep(1 3) nogen
 
 merge 1:1 coddane year using `LANDUSE', keep(1 3) nogen
+merge 1:1 coddane year using `BII', keep(1 3) nogen 
+
+bys coddane: carryforward bii, replace 
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
