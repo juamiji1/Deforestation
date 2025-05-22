@@ -1524,8 +1524,8 @@ merge 1:1 coddane year using `VA', keep(1 3) nogen
 merge 1:1 coddane year using `VAS', keep(1 3) nogen
 
 merge 1:1 coddane year using `LANDUSE', keep(1 3) nogen
-merge 1:1 coddane year using `BII', keep(1 3) nogen 
 
+merge 1:1 coddane year using `BII', keep(1 3) nogen 
 bys coddane: carryforward bii, replace 
 
 *-------------------------------------------------------------------------------

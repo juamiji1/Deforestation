@@ -93,6 +93,22 @@ coefplot (mat(b0[1]), label("Mayor-Governor not Aligned") mcolor("gs9")) (mat(b1
 gr export "${plots}/desc_all_yearly_trend_bygovhead.pdf", as(pdf) replace
 
 *-------------------------------------------------------------------------------
+* BII
+*-------------------------------------------------------------------------------
+eststo s6: areg bii if director_gob_law==0 & floss_prim_ideam_area_v2!=. & inlist(year, 2005, 2010, 2015, 2020), a(year) vce(robust)
+eststo s7: areg bii if director_gob_law==1 & floss_prim_ideam_area_v2!=. & inlist(year, 2005, 2010, 2015, 2020), a(year) vce(robust)
+
+coefplot (s7, color("gs9")) (s6, color("gs4")), ///
+vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
+mlabcolor("black") mlabsize(medium) coeflabels(_cons=" ") ///
+mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
+l2title("Biodiversity Intactness Index (%)", size(medium)) ///
+legend(on order(1 "Governor as REPA Head" 3 "Governor not REPA Head")) 
+
+gr export "${plots}/desc_OLS_bii_plot_bygovhead.pdf", as(pdf) replace
+
+
+*-------------------------------------------------------------------------------
 * Partisan alignment trends
 *-------------------------------------------------------------------------------
 sort coddane year, stable

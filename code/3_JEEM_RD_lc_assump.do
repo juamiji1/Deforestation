@@ -35,7 +35,7 @@ egen producto_siembra=rowtotal(p_arrozr p_arrozsm p_arrozsme p_palmaa p_palmaam 
 replace producto_siembra=0 if producto_siembra==.
 gen ln_prod_crops=ln(producto_siembra)
 
-gen sh_area_forest=areamunibosque/areaoficialkm2
+gen sh_area_forest=primary_forest01/area
 
 ren SRAingeominasanh_giros_totales giros_totales
 
@@ -73,6 +73,8 @@ gen desemp_fisc_index=DF_desemp_fisc
 gen sh_area_bovino=bovino/areaoficialkm2
 
 gen ln_pobl_tot=ln(pobl_tot)
+replace ln_pobl_tot=. if year!=2018
+bys coddane: egen ln_pobl_tot18=mean(ln_pobl_tot)
 
 gen ln_va=ln(va)
 gen ln_va_prim=ln(va_prim)
@@ -80,12 +82,15 @@ gen ln_va_sec=ln(va_sec)
 gen ln_va_terc=ln(va_terc)
 replace ln_va=log(pib_cons) if ln_va==.
 
+summ night_light, d
+replace night_light=. if night_light>`r(p99)' | night_light<`r(p1)'
+
 *Sample var
 reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 gen regsample=e(sample)
 
 *Asigning the pre-treatment var value
-gl varst "ln_pobl_tot ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural sh_votes_reg incumbent ln_va ln_va_prim ln_va_sec ln_va_terc"
+gl varst "ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural sh_votes_reg incumbent ln_va ln_va_prim ln_va_sec ln_va_terc night_light bii"
 
 preserve 
 	bys coddane: egen always=max(regsample)
@@ -113,7 +118,7 @@ merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen
 *Labels
 la var ln_area "Log(Area Km2)"
 la var pre_sh_area_agro "Agricultural area (sh)"
-la var sh_area_forest "Forest area (sh)"
+la var sh_area_forest "Primary forest cover(sh)"
 la var altura "Altitude (masl)"
 la var mean_sut_crops "Crop suitability"
 la var ln_dist_mcados "Log(Distance to market Km2)"
@@ -123,7 +128,7 @@ la var gpacifica "Pacific region"
 la var gcaribe "Caribe region"
 la var gandina "Andean region"
 
-la var pre_ln_pobl_tot "Log(Total population)"
+la var ln_pobl_tot18 "Log(Total population)"
 la var pre_nbi "UBN index"
 la var mean_gini "Gini index"
 la var pre_mpi "Poverty index"
@@ -146,15 +151,18 @@ la var pre_ln_prod_crops "Log(Crop produce ton)"
 la var pre_sh_area_bovino "Cattle per Km2"
 la var pre_floss_prim_ideam_area "Primary Forest loss (sh)"
 
+la var pre_night_light "Night Light"
+la var pre_bii "Biodiversity Index"
+
 *-------------------------------------------------------------------------------
 * LC Results
 *-------------------------------------------------------------------------------
 eststo clear
 
 *Geographic characteristics
-gl geovars "ln_area pre_sh_area_agro sh_area_forest altura mean_sut_crops ln_dist_mcados gamazonia gorinoquia gpacifica gcaribe gandina"
+gl geovars "ln_area pre_sh_area_agro sh_area_forest altura mean_sut_crops ln_dist_mcados pre_bii gamazonia gorinoquia gpacifica gcaribe gandina"
 
-mat CG=J(4,11,.)
+mat CG=J(4,12,.)
 mat coln CG=${geovars}
 
 local i=1
@@ -175,9 +183,9 @@ foreach yvar of global geovars {
 }
 
 *Demographic characteristics
-gl demovars "pre_ln_pobl_tot pre_mpi pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent"
+gl demovars "ln_pobl_tot18 pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent"
 
-mat CD=J(4,9,.)
+mat CD=J(4,8,.)
 mat coln CD=${demovars}
 
 local i=1
@@ -198,9 +206,9 @@ foreach yvar of global demovars {
 }
 
 *Economic characteristics
-gl econvars "pre_ln_va pre_desemp_fisc_index pre_ln_regalias pre_ln_inv_total pre_ln_inv_ambiental pre_sh_area_coca pre_sh_area_bovino pre_floss_prim_ideam_area"
+gl econvars "pre_ln_va pre_night_light pre_desemp_fisc_index pre_ln_regalias pre_ln_inv_total pre_ln_inv_ambiental pre_sh_area_coca pre_sh_area_bovino pre_floss_prim_ideam_area"
 
-mat CE=J(4,8,.)
+mat CE=J(4,9,.)
 mat coln CE=${econvars}
 
 local i=1
@@ -224,14 +232,14 @@ foreach yvar of global econvars {
 * Tables and coefplots
 *-------------------------------------------------------------------------------
 *Exporting geographic results 
-esttab g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 using "${tables}/rdplot_lc_results_geovars.tex", keep(mayorallied) ///
+esttab g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 using "${tables}/rdplot_lc_results_geovars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{11}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{12}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{11}{c}{Geographic Characteristics} \\ \cmidrule(l){2-12}"'                   ///
-            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Amazonia region & Orinoquia region & Pacific region & Caribe region & Andean region \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)  & (10) & (11) \\"'                       ///
+            `" & \multicolumn{12}{c}{Geographic Characteristics} \\ \cmidrule(l){2-13}"'                   ///
+            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Biodiversity Intactness (\%) & Amazonia region & Orinoquia region & Pacific region & Caribe region & Andean region \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)  & (10) & (11) & (12) \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
@@ -241,14 +249,14 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
 
 *Exporting demographic results 
-esttab d1 d2 d3 d4 d5 d6 d7 d8 d9 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
+esttab d1 d2 d3 d4 d5 d6 d7 d8 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{8}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{9}{c}{Demographic Characteristics} \\ \cmidrule(l){2-10}"'                   ///
-            `" & Log(Total population) & MPI index & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh) & Register voters (sh) & Incumbent (prob) \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"'                       ///
+            `" & \multicolumn{8}{c}{Demographic Characteristics} \\ \cmidrule(l){2-9}"'                   ///
+            `" & Log(Total population in 2005) & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh) & Register voters (sh) & Incumbent (prob) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
@@ -258,14 +266,14 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 gr export "${plots}\rdplot_lc_results_demovars.pdf", as(pdf) replace 
 
 *Exporting economic results 
-esttab e1 e2 e3 e4 e5 e6 e7 e8 using "${tables}/rdplot_lc_results_econvars.tex", keep(mayorallied) ///
+esttab e1 e2 e3 e4 e5 e6 e7 e8 e9 using "${tables}/rdplot_lc_results_econvars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{8}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{8}{c}{Economic Characteristics} \\ \cmidrule(l){2-9}"'                   ///
-            `" & Log(Total GDP) & Fiscal performance Index & Log(Royalties) & Log(Public Investment) & Log(Env. Investment) & Coca area (sh) & Cattle per Km2 & Primary Forest loss (sh) \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\"'                       ///
+            `" & \multicolumn{9}{c}{Economic Characteristics} \\ \cmidrule(l){2-10}"'                   ///
+            `" & Log(Total GDP) & Night Light & Fiscal performance Index & Log(Royalties) & Log(Public Investment) & Log(Env. Investment) & Coca area (sh) & Cattle per Km2 & Primary Forest loss (sh) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 	
