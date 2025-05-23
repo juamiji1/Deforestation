@@ -72,8 +72,10 @@ gen desemp_fisc_index=DF_desemp_fisc
 
 gen sh_area_bovino=bovino/areaoficialkm2
 
+gen ln_pobl_tot93=ln(pobl_tot93)
 gen ln_pobl_tot=ln(pobl_tot)
-replace ln_pobl_tot=. if year!=2018
+
+replace ln_pobl_tot=. if year!=2010
 bys coddane: egen ln_pobl_tot18=mean(ln_pobl_tot)
 
 gen ln_va=ln(va)
@@ -128,7 +130,8 @@ la var gpacifica "Pacific region"
 la var gcaribe "Caribe region"
 la var gandina "Andean region"
 
-la var ln_pobl_tot18 "Log(Total population)"
+la var ln_pobl_tot93 "Log(Population-'93)"
+la var pobreza93 "Poverty incidence-'93"
 la var pre_nbi "UBN index"
 la var mean_gini "Gini index"
 la var pre_mpi "Poverty index"
@@ -183,9 +186,9 @@ foreach yvar of global geovars {
 }
 
 *Demographic characteristics
-gl demovars "ln_pobl_tot18 pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent"
+gl demovars "ln_pobl_tot93 pobreza93 pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent"
 
-mat CD=J(4,8,.)
+mat CD=J(4,9,.)
 mat coln CD=${demovars}
 
 local i=1
@@ -228,6 +231,7 @@ foreach yvar of global econvars {
 	local i=`i'+1
 }
 
+
 *-------------------------------------------------------------------------------
 * Tables and coefplots
 *-------------------------------------------------------------------------------
@@ -249,14 +253,14 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
 
 *Exporting demographic results 
-esttab d1 d2 d3 d4 d5 d6 d7 d8 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
+esttab d1 d2 d3 d4 d5 d6 d7 d8 d9 using "${tables}/rdplot_lc_results_demovars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{8}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{8}{c}{Demographic Characteristics} \\ \cmidrule(l){2-9}"'                   ///
-            `" & Log(Total population in 2005) & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh) & Register voters (sh) & Incumbent (prob) \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) \\"'                       ///
+            `" & \multicolumn{9}{c}{Demographic Characteristics} \\ \cmidrule(l){2-10}"'                   ///
+            `" & Log(Population in 1993 & Poverty incidence in 1993 & Rurality index & Gini index & Crime rate (1k inh) & Env. crime rate (10k inh) & Forest crime rate (10k inh) & Register voters (sh) & Incumbent (prob) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 

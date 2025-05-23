@@ -1371,6 +1371,14 @@ merge m:1 codmpio using `SUITCROPS', keep(1 3) nogen
 
 ren (codmpio ano) (coddane year)
 
+gen x=pobl_tot if year<=2000
+bys coddane: egen pobl_tot93=mean(x)
+
+gen y=pobreza if year==1993
+bys coddane: egen pobreza93=mean(y)
+
+drop x y 
+
 tempfile CEDE
 save `CEDE', replace
 
