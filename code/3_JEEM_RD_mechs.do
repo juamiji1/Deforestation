@@ -100,7 +100,7 @@ prehead(`"\begin{tabular}{@{}l*{4}{c}}"' ///
     postfoot(`" Dependent mean & ${mean_y4} & ${mean_y5} & ${mean_y6} & ${mean_y7} \\"' ///
 	`" & & & & \\"' ///
 	`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
-	`" Polynomial & ${p} & ${p} & ${p} & ${p} & \\"' ///
+	`" Polynomial & ${p} & ${p} & ${p} & ${p} \\"' ///
 	`" Kernel & ${k} & ${k} & ${k} & ${k} \\"' ///
 	`"\bottomrule \end{tabular}"') 
 
@@ -127,7 +127,7 @@ prehead(`"\begin{tabular}{@{}l*{4}{c}}"' ///
     postfoot(`" Dependent mean & ${mean_y8} & ${mean_y9} & ${mean_y10} & ${mean_y11} \\"' ///
 	`" & & & & \\"' ///
 	`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
-	`" Polynomial & ${p} & ${p} & ${p} & ${p} & \\"' ///
+	`" Polynomial & ${p} & ${p} & ${p} & ${p} \\"' ///
 	`" Kernel & ${k} & ${k} & ${k} & ${k} \\"' ///
 	`"\bottomrule \end{tabular}"') 
 

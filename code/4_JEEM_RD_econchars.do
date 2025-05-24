@@ -73,13 +73,13 @@ eststo clear
 *-------------------------------------------------------------------------------
 * Economic characteristics 
 *-------------------------------------------------------------------------------
-gl Yvars "ln_va ln_va_prim ln_va_sec ln_va_terc night_light ln_regalias ln_g_total ln_bovinos yield_allcrop built_area_floss grass_shrub_area_floss crop_area_floss"
+gl Yvars "ln_va ln_va_prim ln_va_sec ln_va_terc night_light ln_regalias ln_g_total ln_bovinos sh_coca_area yield_allcrop built_area_floss grass_shrub_area_floss crop_area_floss"
 
 foreach yvar of global Yvars{
 tabstat `yvar',by(year)
 }
 
-mat C=J(4,12,.)
+mat C=J(4,13,.)
 mat coln C =${Yvars}
 
 local i=1
