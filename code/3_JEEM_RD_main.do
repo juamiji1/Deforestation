@@ -28,13 +28,13 @@ eststo clear
 *All municipalities 
 eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
 eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1, abs(year) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
@@ -59,8 +59,6 @@ prehead(`"\begin{tabular}{@{}l*{3}{c}}"' ///
     postfoot(`" Dependent mean & ${mean_y1} & ${mean_y2} & ${mean_y3} \\"' ///
 	`" & & &  \\"' ///
 	`" Bandwidth & ${ht} & ${ht} & ${ht} \\"' ///
-	`" Polynomial & ${p} & ${p} & ${p} \\"' ///
-	`" Kernel & ${k} & ${k} & ${k} \\"' ///
 	`"\bottomrule \end{tabular}"') 
 
 coefplot (r1, label(All)) (r2, label(Governor is head)) (r3, label(Governor not head)), keep(mayorallied) ///

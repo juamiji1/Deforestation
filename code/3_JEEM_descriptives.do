@@ -6,6 +6,23 @@
 use "${data}/Interim\defo_caralc.dta", clear
 
 *-------------------------------------------------------------------------------
+* Plot of the seat distribution between local politicians vs non-politicians
+*-------------------------------------------------------------------------------
+*Kdensity
+summ sh_politics if floss_prim_ideam_area_v2!=., d
+replace sh_politics=. if sh_politics>`r(p95)' | sh_politics<`r(p5)' 
+
+gen sh_other=1-sh_politics
+
+two (kdensity sh_politics) (kdensity sh_other), ///
+legend(order(1 "Politicians" 2 "Non-Politicians")) l2title("Kdensity Estimator", size(medsmall)) xtitle("") ///
+b2title("Share of members per type on the board", size(medsmall))
+
+gr export "${plots}/kdensity_sh_memberstype.pdf", as(pdf) replace
+
+tab director_gob_law if floss_prim_ideam_area_v2!=.
+
+*-------------------------------------------------------------------------------
 * Maps
 *-------------------------------------------------------------------------------
 preserve
