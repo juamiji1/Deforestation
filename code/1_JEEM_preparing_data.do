@@ -1331,18 +1331,18 @@ duplicates drop nombre_partido, force
 tempfile CODPARTY
 save `CODPARTY', replace 
 
-use "${data}/Congreso Visible\Votaciones Green_13March.dta", clear
+use "${data}/Congreso Visible\Votaciones Green_29May.dta", clear
 
 ren _all, low
 ren partido_cede nombre_partido
 
 merge 1:1 nombre_partido using `CODPARTY', keep(3) keepus(codigo_partido) nogen
 
-ren partido_votogreen_mean partido_votogreen
+ren mean_partido_votogreen_mean partido_votogreen
 
 summ partido_votogreen, d
 gen green_party=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
-gen green_party_v2=(partido_votogreen>=`r(mean)') if partido_votogreen!=.
+gen green_party_v2=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
 
 replace green_party_v2=1 if partido_id_cede==194 | partido_id_cede==645
 replace green_party_v2=0 if partido_id_cede==14  | partido_id_cede==1

@@ -11,7 +11,7 @@ gen election_year=1 if year==2000 | year==2003 | year==2007 | year==2011 | year=
 replace election_year=0 if election_year==.
 
 la var floss_prim_ideam_area_v2 "Primary Forest Loss"
-la var mayorallied "Same party"
+la var mayorallied "Partisan Alignment"
 
 
 *-------------------------------------------------------------------------------
