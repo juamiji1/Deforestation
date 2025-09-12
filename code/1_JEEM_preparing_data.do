@@ -754,6 +754,16 @@ ren gob_dir director_gob_law
 tempfile SHPOLLAW
 save `SHPOLLAW', replace
 
+*Juntas CAR revision law
+import excel "${data}\Juntas CAR\juntas_directivas_Ley_rev.xlsx", sheet("dta_car") firstrow clear
+rename _all, low
+
+ren gob_dir2 director_gob_law_v2
+keep carcode_master director_gob_law_v2
+
+tempfile DIRGOBREV
+save `DIRGOBREV', replace
+
 *-------------------------------------------------------------------------------
 * Electoral data
 *-------------------------------------------------------------------------------
@@ -985,6 +995,30 @@ sort coddane year
 
 tempfile FLOSS_PRIMARY_IDEAM
 save `FLOSS_PRIMARY_IDEAM', replace 
+
+*Hansen deforestation conditioning to pixels with primary forest from IDEAM and protected areas
+forval y=1/20{
+	import delimited "${data}/Deforestation\forestloss_illegal_measures\ForestLoss_Illegal_Year`y'.csv", encoding(UTF-8) clear 
+
+	rename (codmpio lossarea`y') (coddane floss_prim_ilegal)
+	gen year=2000+`y'
+	replace floss_prim_ilegal=floss_prim_ilegal/1000000
+
+	keep coddane year floss_prim_ilegal
+
+	tempfile F`y'
+	save `F`y'', replace 
+}
+
+use `F1', clear
+
+append using `F2' `F3' `F4' `F5' `F6' `F7' `F8' `F9' `F10' `F11' `F12' `F13' `F14' `F15' `F16' `F17' `F18' `F19' `F20'
+sort coddane year 
+
+collapse (sum) floss_prim_ilegal, by(year coddane)
+
+tempfile FLOSS_PRIMARY_ILLEGAL
+save `FLOSS_PRIMARY_ILLEGAL', replace 
 
 *Coverting shape to dta 
 *shp2dta using "${data}/Gis\workinprogress\muniShp_defoinfo_sp", data("${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta") coordinates("${data}/Gis\workinprogress\muniShp_defoinfo_sp_coord.dta") genid(idmap) genc(coord) replace 
@@ -1428,6 +1462,7 @@ keep if year<2021
 *Merging other measures of deforestation
 *merge 1:1 coddane year using `FLOSS_PRIMARY_HANSEN', nogen
 merge 1:1 coddane year using `FLOSS_PRIMARY_IDEAM', nogen // it seems this is the same data
+merge 1:1 coddane year using `FLOSS_PRIMARY_ILLEGAL', nogen // it seems this is the same data
 merge m:1 coddane using `PRIMARYCOVER', keep(1 3) nogen
 
 *Calculating different normalizations of the forest loss
@@ -1437,6 +1472,15 @@ gen floss_prim00p50=floss*100/fprim00_p50
 gen floss_prim01=floss*100/fprim_01
 gen floss_prim_ideam_area=floss_prim_ideam*100/area 
 gen floss_prim_ideam_area_v2=floss_prim_ideam*100/primary_forest01 
+
+*Looking at legal vs illegal deforestation
+*replace floss_prim_ilegal=0 if floss_prim_ilegal==.
+gen floss_prim_legal = floss_prim_ideam - floss_prim_ilegal
+gen floss_prim_legal_area_v2 = floss_prim_legal*100/primary_forest01 
+gen floss_prim_ilegal_area_v2 = floss_prim_ilegal*100/primary_forest01 
+
+replace floss_prim_ilegal_area_v2 =. if floss_prim_legal_area_v2<0
+replace floss_prim_legal_area_v2 =. if floss_prim_legal_area_v2<0
 
 *Measure of flow
 sort coddane year
@@ -1494,6 +1538,7 @@ bys coddane: carryforward sh_priv_alc sh_priv_valor_alc, replace
 merge m:1 carcode_master year using `SHPOL', keepus(sh_* politics politics2 academics ethnias private envngo members female n_parties) gen(merge_carcom)
 merge m:1 carcode_master using `SHPOLLAW', keepus(sh_*_law director_gob_law) gen(merge_carcom_law)
 merge m:1 carcode_master year using `CARPOL', keep(1 3) gen(merge_carpol)
+merge m:1 carcode_master using `DIRGOBREV', keep(1 3) nogen
 
 gen election=2000 if year>2000 & year<2004
 replace election=2003 if year>2003 & year<2008
