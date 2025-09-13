@@ -188,6 +188,12 @@ mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b
 
 gr export "${plots}\rdplot_legal_results_gobnothead.pdf", as(pdf) replace 
 
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(year) vce(robust)
+eststo r1: reghdfe sh_floss_prim_ilegal ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(year) vce(robust)
+
+eststo r1: reghdfe sh_floss_prim_ilegal ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(year) vce(robust)
+eststo r1: reghdfe sh_floss_prim_ilegal ${controls} [aw=tweights] ${if} & director_gob_law_v2==0, abs(year) vce(robust)
+
 
 
 

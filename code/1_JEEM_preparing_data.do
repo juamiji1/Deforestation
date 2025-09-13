@@ -1474,13 +1474,16 @@ gen floss_prim_ideam_area=floss_prim_ideam*100/area
 gen floss_prim_ideam_area_v2=floss_prim_ideam*100/primary_forest01 
 
 *Looking at legal vs illegal deforestation
-*replace floss_prim_ilegal=0 if floss_prim_ilegal==.
+*replace floss_prim_ilegal=0 if floss_prim_ilegal==. // Missings are munis without protected areas
 gen floss_prim_legal = floss_prim_ideam - floss_prim_ilegal
 gen floss_prim_legal_area_v2 = floss_prim_legal*100/primary_forest01 
 gen floss_prim_ilegal_area_v2 = floss_prim_ilegal*100/primary_forest01 
 
 replace floss_prim_ilegal_area_v2 =. if floss_prim_legal_area_v2<0
 replace floss_prim_legal_area_v2 =. if floss_prim_legal_area_v2<0
+
+gen sh_floss_prim_ilegal= floss_prim_ilegal*100 / floss_prim_ideam
+replace sh_floss_prim_ilegal=100 if sh_floss_prim_ilegal>100 & sh_floss_prim_ilegal!=.
 
 *Measure of flow
 sort coddane year
