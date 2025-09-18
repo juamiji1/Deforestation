@@ -1486,7 +1486,8 @@ replace floss_prim_ilegal_area_v2 =. if floss_prim_legal_area_v2<0
 replace floss_prim_legal_area_v2 =. if floss_prim_legal_area_v2<0
 
 gen sh_floss_prim_ilegal= floss_prim_ilegal*100 / floss_prim_ideam
-replace sh_floss_prim_ilegal=. if sh_floss_prim_ilegal>100 & sh_floss_prim_ilegal!=.
+replace sh_floss_prim_ilegal=100 if sh_floss_prim_ilegal>100 & sh_floss_prim_ilegal!=.
+
 replace sh_floss_prim_ilegal=. if floss_prim_ideam_area_v2>1 & floss_prim_ideam_area_v2!=.
 
 *Measure of flow
