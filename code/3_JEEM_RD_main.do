@@ -75,15 +75,17 @@ cap drop rdplot_*
 rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<=${h}, all kernel(triangular) h(${h}) p(1) ci(95) genvars 
 
 preserve
-	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
+	collapse (mean) rdplot_mean_y rdplot_N tweights, by(rdplot_mean_x)
 	
 	local var "rdplot_mean_y"
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
+	gen ntweights=n*tweights
+	
 	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	(lfitci `var' x [aw = ntweights] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = ntweights] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
 	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)
@@ -96,15 +98,17 @@ cap drop rdplot_*
 rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<=${h} & director_gob_law==1, all kernel(triangular) h(${h}) p(1) ci(95) genvars
 
 preserve
-	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
+	collapse (mean) rdplot_mean_y rdplot_N tweights, by(rdplot_mean_x)
 	
 	local var "rdplot_mean_y"
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
+	gen ntweights=n*tweights
+	
 	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	(lfitci `var' x [aw = ntweights] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = ntweights] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
 	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)
@@ -117,15 +121,17 @@ cap drop rdplot_*
 rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<${h} & director_gob_law==0, all kernel(triangular) h(${h}) p(1) ci(95) genvars
 
 preserve
-	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)
+	collapse (mean) rdplot_mean_y rdplot_N tweights, by(rdplot_mean_x)
 	
 	local var "rdplot_mean_y"
 	ren rdplot_mean_x x
 	ren rdplot_N n
 	
+	gen ntweights=n*tweights
+	
 	two (scatter `var' x if abs(x)<=${h}, mcolor(gs6) xline(0, lc(maroon) lp(dash))) ///
-	(lfitci `var' x [aw = n] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
-	(lfitci `var' x [aw = n] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
+	(lfitci `var' x [aw = ntweights] if x<0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)) ///
+	(lfitci `var' x [aw = ntweights] if x>=0 & abs(x)<=${h}, clc(gs2%90) clw(medthick) acolor(gs6%30) alw(vvthin)), ///
 	legend(off) ///
 	l2title("Primary Forest Loss (%)", size(medsmall)) b2title("Vote Margin", size(medsmall)) ///
 	xtitle("") name(`var', replace)

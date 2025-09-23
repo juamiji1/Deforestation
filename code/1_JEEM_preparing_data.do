@@ -1635,6 +1635,9 @@ gen grass_shrub_area_floss=grass_shrub_area*100/floss_prim_ideam
 gen landuse_area=grass_area+shrub_area+bare_area+built_area+crop_area
 gen landuse_area_floss=landuse_area*100/floss_prim_ideam
 
+*Keeping complete election term years
+keep if year <2020
+
 
 save "${data}/Interim\defo_caralc.dta", replace
 
