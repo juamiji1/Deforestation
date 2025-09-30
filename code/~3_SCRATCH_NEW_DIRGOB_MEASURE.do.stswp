@@ -144,19 +144,19 @@ restore
 * RD on Legal vs Ilegal Deforestation given Gov is head
 *-------------------------------------------------------------------------------
 *All municipalities 
-eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(robust)
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
-eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(robust)
+eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
-eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(robust)
+eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(region##year) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y3=round(r(mean), .01)

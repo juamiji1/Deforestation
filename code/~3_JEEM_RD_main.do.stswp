@@ -27,19 +27,19 @@ gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 eststo clear
 
 *All municipalities 
-eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
-eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(robust)
+eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
-eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0, abs(${fes}) vce(robust)
+eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0, abs(${fes}) vce(cl coddane)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y3=round(r(mean), .01)
@@ -173,7 +173,7 @@ forval c=1/30{
 	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
 	
 	*Total Households
-	reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if}, abs(${fes}) vce(robust)
+	reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if}, abs(${fes}) vce(cl coddane)
 	lincom mayorallied	
 	mat coef[1,`c']= r(estimate) 
 	mat coef[2,`c']= r(lb)
