@@ -175,7 +175,7 @@ foreach yvar of global geovars {
 	
 	egen std_`yvar'= std(`yvar')
 	
-	eststo g`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
+	eststo g`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(cl coddane)
 		
 	lincom mayorallied
 	mat CG[1,`i']= r(estimate) 
@@ -232,6 +232,7 @@ foreach yvar of global econvars {
 	local i=`i'+1
 }
 
+END
 
 *-------------------------------------------------------------------------------
 * Tables and coefplots
