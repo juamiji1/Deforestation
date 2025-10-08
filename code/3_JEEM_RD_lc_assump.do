@@ -1,5 +1,18 @@
 use "${data}/Interim\defo_caralc.dta", clear 
 
+
+*-------------------------------------------------------------------------------
+* McCrary test
+*
+*-------------------------------------------------------------------------------
+rddensity z_sh_votes_alc if floss_prim_ideam_area_v2!=., c(0) noplot
+gl pval=round(`e(pv_q)', .01)
+
+rddensity z_sh_votes_alc, c(0) plot h(${h}) plot_range(-.1 .1) cirl_opt(acolor(gs6%30) alw(vvthin)) esll_opt(clc(gs2%90) clw(medthick)) cirr_opt(acolor(gs6%30) alw(vvthin)) eslr_opt(clc(gs2%90) clw(medthick)) nohist graph_opt(title("") xline(0, lc(maroon) lp(dash)) legend(off) b2title("Vote Margin", size(medium)) xtitle("") ytitle("Frequency", size(medium)) note("p-value=${pval}"))
+
+gr export "${plots}\mccraryplot_z_sh_votes_alc.pdf", as(pdf) replace 
+
+
 *-------------------------------------------------------------------------------
 * Local Continuity Assumption
 *
@@ -13,7 +26,7 @@ gl p = e(p)
 gl k = e(kernel)
 gl if "if abs(z_sh_votes_alc)<=${h}"
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
-gl fes "region##year"
+gl fes "region year"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
@@ -164,7 +177,7 @@ la var pre_bii "Biodiversity Index"
 eststo clear
 
 *Geographic characteristics
-gl geovars "ln_area pre_sh_area_agro sh_area_forest altura mean_sut_crops ln_dist_mcados pre_bii gamazonia gorinoquia gpacifica gcaribe gandina"
+gl geovars "ln_area pre_sh_area_agro sh_area_forest altura mean_sut_crops ln_dist_mcados pre_bii"
 
 mat CG=J(4,12,.)
 mat coln CG=${geovars}
@@ -175,7 +188,7 @@ foreach yvar of global geovars {
 	
 	egen std_`yvar'= std(`yvar')
 	
-	eststo g`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(cl coddane)
+	eststo g`i': reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 		
 	lincom mayorallied
 	mat CG[1,`i']= r(estimate) 
@@ -232,20 +245,19 @@ foreach yvar of global econvars {
 	local i=`i'+1
 }
 
-END
 
 *-------------------------------------------------------------------------------
 * Tables and coefplots
 *-------------------------------------------------------------------------------
 *Exporting geographic results 
-esttab g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 using "${tables}/rdplot_lc_results_geovars.tex", keep(mayorallied) ///
+esttab g1 g2 g3 g4 g5 g6 g7 using "${tables}/rdplot_lc_results_geovars.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-prehead(`"\begin{tabular}{@{}l*{12}{c}}"' ///
+prehead(`"\begin{tabular}{@{}l*{7}{c}}"' ///
             `"\hline \toprule"'                     ///
-            `" & \multicolumn{12}{c}{Geographic Characteristics} \\ \cmidrule(l){2-13}"'                   ///
-            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Biodiversity Intactness (\%) & Amazonia region & Orinoquia region & Pacific region & Caribe region & Andean region \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)  & (10) & (11) & (12) \\"'                       ///
+            `" & \multicolumn{7}{c}{Geographic Characteristics} \\ \cmidrule(l){2-8}"'                   ///
+            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Biodiversity Intactness (\%) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7)  \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 

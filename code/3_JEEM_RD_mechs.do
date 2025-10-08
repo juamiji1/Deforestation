@@ -27,58 +27,59 @@ gl p = e(p)
 gl k = e(kernel)
 gl if "if abs(z_sh_votes_alc)<=${h}"
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes "region year"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 
 *All municipalities 
-eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a non-green governor 
-eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2_gov==0, abs(year) vce(robust)
+eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y4=round(r(mean), .01)
 
 *Municipalities under a green governor 
-eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & green_party_v2_gov==1, abs(year) vce(robust)
+eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y5=round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
-eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==1 & election_year==1, abs(year) vce(robust)
+eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y6=round(r(mean), .01)
 
 *Municipalities under other director in an election year
-eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law==0 & election_year==1, abs(year) vce(robust)
+eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y7=round(r(mean), .01)
 
 *Municipalities under a CAR with gov head by politicians minority vs moajority
-eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law==1, abs(year) vce(robust)
+eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==1, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y8=round(r(mean), .01)
 
-eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law==1, abs(year) vce(robust)
+eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==1, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y9=round(r(mean), .01)
 
 *Municipalities under a CAR with gov head by politicians minority vs moajority
-eststo r10: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law==0, abs(year) vce(robust)
+eststo r10: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==0, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y10=round(r(mean), .01)
 
-eststo r11: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law==0, abs(year) vce(robust)
+eststo r11: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==0, abs(${fes}) vce(robust)
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y11=round(r(mean), .01)
