@@ -5,11 +5,11 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Creating placebo running variables	
 *
 *-------------------------------------------------------------------------------
-gen z_sh_votes_alc_pos10=z_sh_votes_alc-.1
-gen z_sh_votes_alc_neg10=z_sh_votes_alc+.1
+gen z_sh_votes_alc_neg10=z_sh_votes_alc-.1
+gen z_sh_votes_alc_pos10=z_sh_votes_alc+.1
 
-gen d_won_pos10=(z_sh_votes_alc_pos10>=0) if z_sh_votes_alc_pos10!=.
 gen d_won_neg10=(z_sh_votes_alc_neg10>=0) if z_sh_votes_alc_neg10!=.
+gen d_won_pos10=(z_sh_votes_alc_pos10>=0) if z_sh_votes_alc_pos10!=.
 
 
 *-------------------------------------------------------------------------------

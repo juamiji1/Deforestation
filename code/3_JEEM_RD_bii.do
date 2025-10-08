@@ -12,13 +12,14 @@ use "${data}/Interim\defo_caralc.dta", clear
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc, d
 
-rdrobust bii z_sh_votes_alc, all kernel(triangular)
-gl h = .1
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
+gl h = e(h_l)
 gl ht= round(${h}, .001)
 gl p = e(p)
 gl k = e(kernel)
 gl if "if abs(z_sh_votes_alc)<=${h} & floss_prim_ideam_area_v2!=."
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes "region year"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
@@ -26,19 +27,19 @@ gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 eststo clear
 
 *All municipalities 
-eststo r1: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law!=., abs(year) vce(robust)
+eststo r1: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 
 summ bii if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
-eststo r2: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law==1, abs(year) vce(robust)
+eststo r2: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(robust)
 
 summ bii if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
-eststo r3: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law==0, abs(year) vce(robust)
+eststo r3: reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law_v2==0, abs(${fes}) vce(robust)
 
 summ bii if e(sample)==1, d
 gl mean_y3=string(round(r(mean), .01))
@@ -154,7 +155,7 @@ forval c=1/30{
 	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
 	
 	*Total Households
-	reghdfe bii ${controls} [aw=tweights] ${if}, abs(year) vce(robust)
+	reghdfe bii ${controls} [aw=tweights] ${if}, abs(${fes}) vce(robust)
 	lincom mayorallied	
 	mat coef[1,`c']= r(estimate) 
 	mat coef[2,`c']= r(lb)
@@ -195,7 +196,7 @@ forval c=1/29{
 	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
 	
 	*Total Households
-	reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law==1, abs(year) vce(robust)
+	reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(robust)
 	lincom mayorallied	
 	mat coef[1,`c']= r(estimate) 
 	mat coef[2,`c']= r(lb)
@@ -236,7 +237,7 @@ forval c=1/29{
 	gen tweights=(1-abs(z_sh_votes_alc/`h')) ${if}
 	
 	*Total Households
-	reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law==0, abs(year) vce(robust)
+	reghdfe bii ${controls} [aw=tweights] ${if} & director_gob_law_v2==0, abs(${fes}) vce(robust)
 	lincom mayorallied	
 	mat coef[1,`c']= r(estimate) 
 	mat coef[2,`c']= r(lb)
