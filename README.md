@@ -59,37 +59,37 @@ The structure of the analysis pipeline is organized as follows:
 ### 1. Data Preparation and Replication of Satellite Data
 | File | Description |
 |------|--------------|
-| `0_JEEM_master.do` | Master file that coordinates the entire analysis pipeline |
-| `1_forestloss_measures_replication.ipynb` | Forest loss analysis using Hansen Global Forest Change data |
-| `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss analysis using IDEAM data |
-| `1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation measures |
-| `1_primary_forest_measures_replication.ipynb` | Primary forest measure |
-| `1_primary_forest_protected_measures_replication.ipynb` | Primary forest measure in protected areas |
-| `1_bii_measures_replication.ipynb` | Biodiversity Intactness Index data |
-| `1_land_change_replication.ipynb` | Land use change data |
-| `1_nl_measures_replication.ipynb` | Night lights data |
-| `1_JEEM_preparing_data.do` | Data cleaning and merging all together |
+| `./do-files/0_JEEM_master.do` | Master file that coordinates the entire analysis pipeline |
+| `./python-scripts/1_forestloss_measures_replication.ipynb` | Forest loss analysis using Hansen Global Forest Change data |
+| `./python-scripts/1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss analysis using IDEAM data |
+| `./python-scripts/1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation measures |
+| `./python-scripts/1_primary_forest_measures_replication.ipynb` | Primary forest measure |
+| `./python-scripts/1_primary_forest_protected_measures_replication.ipynb` | Primary forest measure in protected areas |
+| `./python-scripts/1_bii_measures_replication.ipynb` | Biodiversity Intactness Index data |
+| `./python-scripts/1_land_change_replication.ipynb` | Land use change data |
+| `./python-scripts/1_nl_measures_replication.ipynb` | Night lights data |
+| `./do-files/1_JEEM_preparing_data.do` | Data cleaning and merging all together |
 
 ### 2. Descriptives and Empirical Strategy Assumptions
 | File | Description |
 |------|--------------|
-| `2_JEEM_descriptives.do` | Descriptive statistics |
-| `2_JEEM_RD_lc_assump.do` | Testing RDD assumptions |
+| `./do-files/2_JEEM_descriptives.do` | Descriptive statistics |
+| `./do-files/2_JEEM_RD_lc_assump.do` | Testing RDD assumptions |
 
 ### 3. Main Analysis (Regression Discontinuity Design)
 | File | Description |
 |------|--------------|
-| `3_JEEM_RD_main.do` | Main regression discontinuity results |
-| `3_JEEM_RD_mechs.do` | Mechanism analysis |
-| `3_JEEM_RD_econchars.do` | Economic characteristics analysis |
-| `3_JEEM_RD_bii.do` | Biodiversity loss results |
+| `./do-files/3_JEEM_RD_main.do` | Main regression discontinuity results |
+| `./do-files/3_JEEM_RD_mechs.do` | Mechanism analysis |
+| `./do-files/3_JEEM_RD_econchars.do` | Economic characteristics analysis |
+| `./do-files/3_JEEM_RD_bii.do` | Biodiversity loss results |
 
 ### 4. Robustness and Additional Analyses
-| `4_JEEM_RD_main_robustness.do` | Robustness checks for main results |
-| `4_JEEM_RD_main_lccontrols.do` | Analysis with LC controls |
-| `4_JEEM_RD_main_placebos.do` | Placebo tests |
-| `4_JEEM_RD_main_plotslargebw.do` | RD-plots in a large bandwidth |
-| `4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
+| `./do-files/4_JEEM_RD_main_robustness.do` | Robustness checks for main results |
+| `./do-files/4_JEEM_RD_main_lccontrols.do` | Analysis with LC controls |
+| `./do-files/4_JEEM_RD_main_placebos.do` | Placebo tests |
+| `./do-files/4_JEEM_RD_main_plotslargebw.do` | RD-plots in a large bandwidth |
+| `./do-files/4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
 
 ## Getting Started
 1. Clone the repository and pull the latest changes
