@@ -36,7 +36,7 @@ To replicate results, ensure access to:
 | `/Overleaf/tables` | Tables for manuscript |
 | `/Overleaf/plots` | Figures and plots |
 | `/Overleaf/Politicians_Deforestation` | Main manuscript |
-| `/Dropbox` | Shared data repository |
+| `/Dropbox/Deforestation` | Shared data repository |
 
 *Overleaf project:* [View here](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56)
 
