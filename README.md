@@ -106,29 +106,6 @@ Below we can find what do-file generates the raw tables for each result included
 | `3_JEEM_descriptives.do` | Descriptive statistics tables |
 | `forest_loss_twfe.do` | Two-way fixed effects results |
 
-## What has been done by others and by whom?
-- Google Earth Engine satellite data processing and validation
-- Administrative boundary data cleaning and geocoding
-- Spatial analysis framework development
-
-## What is the current status of the project? What remains to be done?
-**Current Status**: 
-- Main regression discontinuity analysis completed
-- Satellite data processing pipeline established
-- Robustness checks and mechanism analysis in progress
-
-**Remaining Tasks**:
-- Final robustness checks and sensitivity analysis
-- Policy simulation analysis
-- Final manuscript preparation
-
-## Anything else we should know?
-- **Google Earth Engine Access**: You will need to authenticate with Google Earth Engine to run the satellite data analysis notebooks.
-- **Data Intensive**: Please do not try to run `0_JEEM_master.do` file all at once. We recommend running this file section by section.
-- **Computational Requirements**: The satellite data analysis requires significant computational resources and internet connectivity.
-- **Authentication**: Before running any GEE notebooks, make sure to run `ee.Authenticate()` and `ee.Initialize()`.
-- **File Dependencies**: Some analysis files depend on outputs from the Jupyter notebooks, so run the notebooks first before the Stata analysis.
-
 ## Getting Started
 1. Clone the repository and pull the latest changes
 2. Set up your Dropbox directory structure as outlined above
