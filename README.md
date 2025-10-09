@@ -49,62 +49,47 @@ The structure of the analysis pipeline is organized as follows:
 
 | Prefix | Description |
 | ---- | ----------- |
-| `0_` | Master files and data replication notebooks |
+| `0_` | Master file |
 | `1_` | Files with this prefix clean and prepare the raw data |
-| `3_` | Files with this prefix make the main estimations and analysis |
-| `4_` | Files with this prefix perform additional economic analysis |
-| `5_` | Files with this prefix conduct environmental and sustainability analysis |
+| `3_` | Files with this prefix make the main estimations |
+| `4_` | Files with this prefix perform additional analysis |
 
 ### Key Analysis Files
 
-#### Data Preparation and Replication
-- `0_JEEM_master.do` - Master file that coordinates the entire analysis pipeline
-- `1_JEEM_preparing_data.do` - Data cleaning and preparation
-- `preparing_data.R` - R script for spatial data preparation
+### 1. Data Preparation and Replication of Satellite Data
+| File | Description |
+|------|--------------|
+| `0_JEEM_master.do` | Master file that coordinates the entire analysis pipeline |
+| `1_forestloss_measures_replication.ipynb` | Forest loss analysis using Hansen Global Forest Change data |
+| `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss analysis using IDEAM data |
+| `1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation measures |
+| `1_primary_forest_measures_replication.ipynb` | Primary forest measure |
+| `1_primary_forest_protected_measures_replication.ipynb` | Primary forest measure in protected areas |
+| `1_bii_measures_replication.ipynb` | Biodiversity Intactness Index data |
+| `1_land_change_replication.ipynb` | Land use change data |
+| `1_nl_measures_replication.ipynb` | Night lights data |
+| `1_JEEM_preparing_data.do` | Data cleaning and merging all together |
 
-#### Jupyter Notebooks for Satellite Data Analysis
-- `0_forestloss_measures_replication.ipynb` - Forest loss analysis using Hansen Global Forest Change data
-- `0_forestloss_IDEAM_measures_replication.ipynb` - Forest loss analysis using IDEAM data
-- `0_forestloss_illegal_measures_replication.ipynb` - Illegal deforestation measures
-- `0_primary_forest_measures_replication.ipynb` - Primary forest analysis
-- `0_bii_measures_replication.ipynb` - Biodiversity Intactness Index analysis
-- `0_land_change_replication.ipynb` - Land use change analysis
-- `0_nl_measures_replication.ipynb` - Night lights analysis
-- `fires_measures_replication.ipynb` - Fire incidents analysis
+### 2. Descriptives and Empirical Strategy Assumptions
+| File | Description |
+|------|--------------|
+| `2_JEEM_descriptives.do` | Descriptive statistics |
+| `2_JEEM_RD_lc_assump.do` | Testing RDD assumptions |
 
-#### Main Analysis (Regression Discontinuity)
-- `3_JEEM_RD_main.do` - Main regression discontinuity results
-- `3_JEEM_RD_main_robustness.do` - Robustness checks for main results
-- `3_JEEM_RD_main_lccontrols.do` - Analysis with land cover controls
-- `3_JEEM_RD_main_neighbors.do` - Neighbor-based analysis
-- `3_JEEM_RD_main_placebos.do` - Placebo tests
-- `3_JEEM_RD_lc_assump.do` - Land cover assumptions testing
-- `3_JEEM_RD_bii.do` - Biodiversity analysis
-- `3_JEEM_RD_mechs.do` - Mechanism analysis
+### 3. Main Analysis (Regression Discontinuity Design)
+| File | Description |
+|------|--------------|
+| `3_JEEM_RD_main.do` | Main regression discontinuity results |
+| `3_JEEM_RD_mechs.do` | Mechanism analysis |
+| `3_JEEM_RD_econchars.do` | Economic characteristics analysis |
+| `3_JEEM_RD_bii.do` | Biodiversity loss results |
 
-#### Economic Analysis
-- `4_JEEM_RD_econchars.do` - Economic characteristics analysis
-- `4_JEEM_RD_main_term.do` - Term-based economic analysis
-
-#### Additional Analysis
-- `3_JEEM_descriptives.do` - Descriptive statistics
-- `forest_loss_twfe.do` - Two-way fixed effects analysis for forest loss
-- `forest_loss_twfe_v2.do` - Updated TWFE analysis
-- `alternative_channels.do` - Alternative mechanism analysis
-
-### Code source for tables - Guide
-Below we can find what do-file generates the raw tables for each result included in the analysis:
-
-| File | Table(s) that it makes |
-| ---- | ----------- |
-| `3_JEEM_RD_lc_assump.do` | Land cover assumptions and smooth condition tests |
-| `3_JEEM_RD_main.do` | Main effects of political control on deforestation |
-| `3_JEEM_RD_main_robustness.do` | Robustness analysis for main outcomes |
-| `3_JEEM_RD_bii.do` | Effects on biodiversity measures |
-| `3_JEEM_RD_mechs.do` | Mechanism analysis tables |
-| `4_JEEM_RD_econchars.do` | Economic characteristics analysis |
-| `3_JEEM_descriptives.do` | Descriptive statistics tables |
-| `forest_loss_twfe.do` | Two-way fixed effects results |
+### 4. Robustness and Additional Analyses
+| `4_JEEM_RD_main_robustness.do` | Robustness checks for main results |
+| `4_JEEM_RD_main_lccontrols.do` | Analysis with LC controls |
+| `4_JEEM_RD_main_placebos.do` | Placebo tests |
+| `4_JEEM_RD_main_plotslargebw.do` | RD-plots in a large bandwidth |
+| `4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
 
 ## Getting Started
 1. Clone the repository and pull the latest changes
