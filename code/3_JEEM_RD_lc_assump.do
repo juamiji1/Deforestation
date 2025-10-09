@@ -36,13 +36,13 @@ gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
 *-------------------------------------------------------------------------------
 tab year if H_coca!=.
 replace H_coca=0 if H_coca==.
-gen sh_area_coca=H_coca/areaoficialkm2
+gen sh_area_coca=H_coca/area
 
 pca sut_cof sut_banana sut_cocoa sut_rice sut_oil, components(1) 
 predict sut_pc, score
 
 egen area_siembra=rowtotal(as_arrozr as_arrozsm as_arrozsme as_palmaa as_palmaam as_palmar as_soya), m
-gen sh_area_siembra=area_siembra/areaoficialkm2
+gen sh_area_siembra=area_siembra/area
 replace sh_area_siembra=0 if sh_area_siembra==.
 
 egen producto_siembra=rowtotal(p_arrozr p_arrozsm p_arrozsme p_palmaa p_palmaam p_palmar p_soya), m
@@ -66,8 +66,8 @@ gen ln_dist_mcados=ln(dist_mcados)
 
 egen mean_sut_crops=rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil)
 
-gen ln_area=ln(areaoficialkm2)
-gen sh_area_agro=areamuniagro/areaoficialkm2
+gen ln_area=ln(area)
+gen sh_area_agro=areamuniagro/area
 
 replace total_procesos=0 if total_procesos==.
 replace crime_environment=0 if crime_environment==.
@@ -92,8 +92,7 @@ gen ln_inv_ambiental=ln(inv_ambiental)
 
 gen desemp_fisc_index=DF_desemp_fisc
 
-gen sh_area_bovino=bovino/areaoficialkm2
-
+gen sh_area_bovino=bovinos/area
 gen ln_pobl_tot93=ln(pobl_tot93)
 gen ln_pobl_tot=ln(pobl_tot)
 
@@ -143,8 +142,8 @@ merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen
 la var ln_area "Log(Area Km2)"
 la var pre_sh_area_agro "Agricultural area (sh)"
 la var sh_area_forest "Primary forest cover (sh)"
-la var sh_area_forest_pa "Primary forest cover - Protected (sh)"
-la var sh_area_forest_nopa "Primary forest cover - Unprotected (sh)"
+la var sh_area_forest_pa `" "Protected Primary" "forest cover (sh)" "'
+la var sh_area_forest_nopa `" "Unprotected Primary" "forest cover (sh)" "'
 la var altura "Altitude (masl)"
 la var mean_sut_crops "Crop suitability"
 la var ln_dist_mcados "Log(Distance to market Km2)"

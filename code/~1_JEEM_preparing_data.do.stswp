@@ -1422,10 +1422,13 @@ ren (codmpio ano) (coddane year)
 gen x=pobl_tot if year<=2000
 bys coddane: egen pobl_tot93=mean(x)
 
+gen z=pobl_rur if year<=2000
+bys coddane: egen pobl_rur93=mean(x)
+
 gen y=pobreza if year==1993
 bys coddane: egen pobreza93=mean(y)
 
-drop x y 
+drop x y z
 
 tempfile CEDE
 save `CEDE', replace
