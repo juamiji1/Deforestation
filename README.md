@@ -60,11 +60,11 @@ Each file name begins with a numeric prefix indicating its role in the analysis 
 ---
 
 ## Pipeline for replication
+The master file that coordinates the entire analysis pipeline is `0_JEEM_master.do`.
 
 ### 1. Data Preparation & Satellite Replication
 | File | Description |
 |------|--------------|
-| `0_JEEM_master.do` | Master file coordinating the full pipeline |
 | `1_JEEM_preparing_data.do` | Data cleaning and merging |
 | `1_forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
 | `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
