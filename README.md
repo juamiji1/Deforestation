@@ -66,14 +66,14 @@ Each file name begins with a numeric prefix indicating its role in the analysis 
 |------|--------------|
 | `0_JEEM_master.do` | Master file coordinating the full pipeline |
 | `1_JEEM_preparing_data.do` | Data cleaning and merging |
-| `forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
-| `forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
-| `forestloss_illegal_measures_replication.ipynb` | Illegal deforestation |
-| `primary_forest_measures_replication.ipynb` | Primary forest cover |
-| `primary_forest_protected_measures_replication.ipynb` | Protected primary forests |
-| `bii_measures_replication.ipynb` | Biodiversity Intactness Index |
-| `land_change_replication.ipynb` | Land use change |
-| `nl_measures_replication.ipynb` | Night lights analysis |
+| `1_forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
+| `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
+| `1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation |
+| `1_primary_forest_measures_replication.ipynb` | Primary forest cover |
+| `1_primary_forest_protected_measures_replication.ipynb` | Protected primary forests |
+| `1_bii_measures_replication.ipynb` | Biodiversity Intactness Index |
+| `1_land_change_replication.ipynb` | Land use change |
+| `1_nl_measures_replication.ipynb` | Night lights analysis |
 
 ---
 
