@@ -265,8 +265,8 @@ label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3
 prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \toprule"'                     ///
             `" & \multicolumn{7}{c}{Geographic Characteristics} \\ \cmidrule(l){2-10}"'                   ///
-            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Protected Forest area (sh) & Unprotected Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Biodiversity Intactness (\%) \\"'                   ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9)  \\"'                       ///
+            `" & Log(Area Km2) & Agricultural area (sh) & Forest area (sh) & Forest area (sh) & Forest area (sh) & Altitude (masl) & Crop suitability (gaez) & Log(Distance to market Km2) & Biodiversity Intactness (\%) \\"'                   ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7)  \\"'                       ///
             `" \toprule"')  ///
     postfoot(`"\bottomrule \end{tabular}"') 
 
