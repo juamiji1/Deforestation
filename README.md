@@ -65,7 +65,6 @@ The master file that coordinates the entire analysis pipeline is `0_JEEM_master.
 ### 1. Data Preparation & Satellite Replication
 | File | Description |
 |------|--------------|
-| `1_JEEM_preparing_data.do` | Data cleaning and merging |
 | `1_forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
 | `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
 | `1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation |
@@ -74,6 +73,7 @@ The master file that coordinates the entire analysis pipeline is `0_JEEM_master.
 | `1_bii_measures_replication.ipynb` | Biodiversity Intactness Index |
 | `1_land_change_replication.ipynb` | Land use change |
 | `1_nl_measures_replication.ipynb` | Night lights analysis |
+| `1_JEEM_preparing_data.do` | Data cleaning and merging |
 
 ---
 
