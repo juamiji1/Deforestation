@@ -13,7 +13,7 @@ clear all
 if c(username) == "juami" {
 	gl localpath "C:\Users/`c(username)'\Dropbox\My-Research\Deforestation"
 	gl overleafpath "C:\Users/`c(username)'\Dropbox\Overleaf\Politicians_Deforestation"
-	gl do "C:\Github\Deforestation\code\do-files"
+	gl do "C:\Github\Deforestation\code"
 	
 }
 else {
@@ -41,10 +41,8 @@ END
 *
 *-------------------------------------------------------------------------------
 do "${do}\1_JEEM_preparing_data.do"
-
 do "${do}\2_JEEM_descriptives.do"
 do "${do}\2_JEEM_RD_lc_assump.do"
-
 do "${do}\3_JEEM_RD_main.do"
 do "${do}\3_JEEM_RD_mechs.do"
 do "${do}\3_JEEM_RD_econchars.do"
