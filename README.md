@@ -15,7 +15,7 @@ To replicate results, ensure access to:
 
 | Tool | Notes |
 |------|-------|
-| *Stata 16+* | Main analysis and data processing |
+| *Stata 19* | Main analysis and data processing |
 | *Google Earth Engine* | Remote sensing data access |
 | *Python 3.x* | Language used for GEE |
 | *Jupyter Notebooks* | Python execution environment |
