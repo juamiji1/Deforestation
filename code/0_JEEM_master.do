@@ -48,6 +48,7 @@ do "${do}\3_JEEM_RD_mechs.do"
 do "${do}\4_JEEM_RD_econchars.do"
 do "${do}\3_JEEM_RD_main_placebos.do"
 do "${do}\3_JEEM_RD_main_plotslargebw.do"
+do "${do}\3_JEEM_RD_main_neighbors.do"
 
 
 do "${do}\3_JEEM_RD_bii.do"
