@@ -1,102 +1,124 @@
-# Project: Power Plays in the Jungle - Political Alignment and Environmental Degradation in Colombia
+# Project: *Power Plays in the Jungle*  
+### Political Alignment and Environmental Degradation in Colombia  
 
-**Name**: Juan Miguel Jimenez R.
+**Author:** Juan Miguel Jimenez R.  
+**Contact:** [juamiji@gmail.com](mailto:juamiji@gmail.com)
 
-**Contact information**: juamiji@gmail.com
+---
 
-## What is the project?
-We examine how political dynamics shape environmental outcomes in Colombia, focusing on the role of Regional Environmental Protection Agencies (REPAs). To identify causal effects, we implement a regression discontinuity design based on close mayoral elections. We find that when governors, who sit on the boards of REPAs, are politically aligned with local mayors, deforestation rises sharply—by about 60 percent. The problem is most pronounced in agencies where political actors dominate decision-making and around election years. Crucially, additional deforestation does not translate into local economic gains or higher public investment, suggesting that forests are being lost without broader social benefit. These findings highlight how institutional design can leave environmental governance vulnerable to political capture, and underscore the need for safeguards that protect natural resources from short-term political interests.
+## Overview
+This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs).  
+Using a regression discontinuity design (RDD) based on close mayoral elections, we find that when governors and mayors are politically aligned, **deforestation increases by about 60%**—especially where political actors dominate agency boards and around election years.  
 
-## Set-up
-To replicate this project, you will need to have Stata-16, R-studio, Python with Google Earth Engine access, Jupyter notebooks, GitHub, and access to Dropbox.
+Despite higher forest loss, **no gains in local income or public investment** are observed, suggesting that forests are being lost without broader social benefits.  
+The findings highlight how institutional design can leave environmental governance vulnerable to **political capture**, underscoring the need for stronger safeguards.
 
-### Required Software and Packages
-- **Stata 16** or higher
-- **R-studio** with spatial analysis packages
-- **Python 3.x** with the following packages:
-  - Google Earth Engine (`ee`)
-  - `geemap`
-  - `pandas`
-  - `jupyter`
-- **GitHub** for version control
-- **Dropbox** for data storage
+---
 
-### Dropbox Structure
-The main folders used in this project are:
+## Environment Setup
+To replicate results, ensure access to:
 
-| Path | Description |
-| ---- | ----------- |
-| `/My-Research/Deforestation/data` | Contains all datasets used in this project |
-| `/Overleaf/Politicians_Deforestation/tables` | Contains all tables for the manuscript |
-| `/Overleaf/Politicians_Deforestation/plots` | Contains all figures and plots |
-| `/Github/Deforestation/code` | Contains all code used in this project |
+| Tool | Notes |
+|------|-------|
+| **Stata 16+** | Main analysis and data processing |
+| **R-Studio** | Spatial and visualization tasks |
+| **Python 3.x** | Satellite and biodiversity data analysis |
+| **Google Earth Engine** | Remote sensing data access |
+| **Jupyter Notebooks** | Python execution environment |
+| **GitHub** | Version control |
+| **Dropbox** | Data and output storage |
 
-### Overleaf
-The project manuscript is available on Overleaf: https://www.overleaf.com/project/6535e4744c49b4c847ec1f56
+### Key Python Packages
+`ee`, `geemap`, `pandas`, `jupyter`
 
-| Path | Description |
-| ---- | ----------- |
-| `/plots` | Has all plots used in the draft |
-| `/tables` | Has all tables used in the draft |
+---
 
-## What are the steps taken to conduct this work?
-The steps to replicate all work can be viewed in the master do-file of the project (`C:/Github/Deforestation/code/0_JEEM_master.do`) which lists all do-files, R scripts, and Jupyter notebooks, and allows you to follow the pipeline. However, we ***do not*** recommend running it entirely since this project is data intensive and requires Google Earth Engine authentication.
+## Directory Structure
 
-**Note**: Before starting work please ***do not forget*** to pull from the origin to your local machine.
+| Location | Contents |
+|-----------|-----------|
+| `/Deforestation/data` | All raw and processed datasets |
+| `/Deforestation/code` | Stata, R, and Python scripts |
+| `/Overleaf/tables` | Tables for manuscript |
+| `/Overleaf/plots` | Figures and plots |
+| `/Overleaf/Politicians_Deforestation` | Main manuscript |
+| `/Dropbox` | Shared data repository |
 
-### Code folder explanation
-The structure of the analysis pipeline is organized as follows:
+**Overleaf project:** [View here](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56)
 
-| Prefix | Description |
-| ---- | ----------- |
-| `0_` | Master file |
-| `1_` | Files with this prefix clean and prepare the raw data |
-| `3_` | Files with this prefix make the main estimations |
-| `4_` | Files with this prefix perform additional analysis |
+---
 
-### Key Analysis Files
+## Code Organization
+Each code file follows a consistent prefix convention:
 
-### 1. Data Preparation and Replication of Satellite Data
+| Prefix | Purpose |
+|--------|----------|
+| `0_` | Master pipeline coordination |
+| `1_` | Data preparation and cleaning |
+| `2_` | Descriptive analysis and RDD assumptions |
+| `3_` | Main estimations |
+| `4_` | Robustness and extensions |
+
+---
+
+## Key Files by Stage
+
+### 1. Data Preparation & Satellite Replication
 | File | Description |
 |------|--------------|
-| `./do-files/0_JEEM_master.do` | Master file that coordinates the entire analysis pipeline |
-| `./python-scripts/1_forestloss_measures_replication.ipynb` | Forest loss analysis using Hansen Global Forest Change data |
-| `./python-scripts/1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss analysis using IDEAM data |
-| `./python-scripts/1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation measures |
-| `./python-scripts/1_primary_forest_measures_replication.ipynb` | Primary forest measure |
-| `./python-scripts/1_primary_forest_protected_measures_replication.ipynb` | Primary forest measure in protected areas |
-| `./python-scripts/1_bii_measures_replication.ipynb` | Biodiversity Intactness Index data |
-| `./python-scripts/1_land_change_replication.ipynb` | Land use change data |
-| `./python-scripts/1_nl_measures_replication.ipynb` | Night lights data |
-| `./do-files/1_JEEM_preparing_data.do` | Data cleaning and merging all together |
+| `0_JEEM_master.do` | Master file coordinating the full pipeline |
+| `1_JEEM_preparing_data.do` | Data cleaning and merging |
+| `forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
+| `forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
+| `forestloss_illegal_measures_replication.ipynb` | Illegal deforestation |
+| `primary_forest_measures_replication.ipynb` | Primary forest cover |
+| `primary_forest_protected_measures_replication.ipynb` | Protected primary forests |
+| `bii_measures_replication.ipynb` | Biodiversity Intactness Index |
+| `land_change_replication.ipynb` | Land use change |
+| `nl_measures_replication.ipynb` | Night lights analysis |
 
-### 2. Descriptives and Empirical Strategy Assumptions
+---
+
+### 2. Descriptives & RDD Assumptions
 | File | Description |
 |------|--------------|
-| `./do-files/2_JEEM_descriptives.do` | Descriptive statistics |
-| `./do-files/2_JEEM_RD_lc_assump.do` | Testing RDD assumptions |
+| `2_JEEM_descriptives.do` | Descriptive statistics |
+| `2_JEEM_RD_lc_assump.do` | RDD validity checks |
 
-### 3. Main Analysis (Regression Discontinuity Design)
+---
+
+### 3. Main Analysis (RDD)
 | File | Description |
 |------|--------------|
-| `./do-files/3_JEEM_RD_main.do` | Main regression discontinuity results |
-| `./do-files/3_JEEM_RD_mechs.do` | Mechanism analysis |
-| `./do-files/3_JEEM_RD_econchars.do` | Economic characteristics analysis |
-| `./do-files/3_JEEM_RD_bii.do` | Biodiversity loss results |
+| `3_JEEM_RD_main.do` | Main results |
+| `3_JEEM_RD_mechs.do` | Mechanisms |
+| `3_JEEM_RD_econchars.do` | Economic characteristics |
+| `3_JEEM_RD_bii.do` | Biodiversity effects |
 
-### 4. Robustness and Additional Analyses
-| `./do-files/4_JEEM_RD_main_robustness.do` | Robustness checks for main results |
-| `./do-files/4_JEEM_RD_main_lccontrols.do` | Analysis with LC controls |
-| `./do-files/4_JEEM_RD_main_placebos.do` | Placebo tests |
-| `./do-files/4_JEEM_RD_main_plotslargebw.do` | RD-plots in a large bandwidth |
-| `./do-files/4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
+---
 
-## Getting Started
-1. Clone the repository and pull the latest changes
-2. Set up your Dropbox directory structure as outlined above
-3. Authenticate with Google Earth Engine
-4. Run the satellite data notebooks to generate the required datasets
-5. Execute the Stata analysis pipeline starting with data preparation
-6. Generate tables and figures using the specified do-files
+### 4. Robustness & Additional Analyses
+| File | Description |
+|------|--------------|
+| `4_JEEM_RD_main_robustness.do` | Robustness checks |
+| `4_JEEM_RD_main_lccontrols.do` | Land cover controls |
+| `4_JEEM_RD_main_placebos.do` | Placebo tests |
+| `4_JEEM_RD_main_plotslargebw.do` | RD plots (wide bandwidth) |
+| `4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
 
-For questions or issues, please contact the project author at the email address provided above.
+---
+
+## Reproduction Guide
+1. Clone the repository and pull the latest version.  
+2. Mirror the Dropbox structure shown above.  
+3. Authenticate with Google Earth Engine.  
+4. Run the Jupyter notebooks to generate satellite indicators.  
+5. Execute Stata scripts starting from `0_JEEM_master.do`.  
+6. Export tables and plots for Overleaf.
+
+> **Tip:** The full pipeline is data-intensive. Avoid running all scripts sequentially; process by section as needed.
+
+---
+
+For questions or issues, please contact the authors.
+
