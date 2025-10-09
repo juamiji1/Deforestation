@@ -32,7 +32,7 @@ The main folders used in this project are:
 | `/Github/Deforestation/code` | Contains all code used in this project |
 
 ### Overleaf
-The project manuscript is available on Overleaf. 
+The project manuscript is available on Overleaf: https://www.overleaf.com/project/6535e4744c49b4c847ec1f56
 
 | Path | Description |
 | ---- | ----------- |
