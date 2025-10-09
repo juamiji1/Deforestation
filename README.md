@@ -1,11 +1,11 @@
-# Project: Politicians and Deforestation - Environmental and Economic Effects
+# Project: Power Plays in the Jungle - Political Alignment and Environmental Degradation in Colombia
 
 **Name**: Juan Miguel Jimenez R.
 
 **Contact information**: juamiji@gmail.com
 
 ## What is the project?
-This project investigates the relationship between political governance and deforestation patterns in Colombia. Using regression discontinuity design and satellite imagery analysis, we examine how political control and governance structures affect forest loss, environmental outcomes, and economic development. The analysis combines Google Earth Engine satellite data (Hansen Global Forest Change), administrative boundaries, and socioeconomic indicators to understand the long-term environmental and economic consequences of different governance regimes.
+We examine how political dynamics shape environmental outcomes in Colombia, focusing on the role of Regional Environmental Protection Agencies (REPAs). To identify causal effects, we implement a regression discontinuity design based on close mayoral elections. We find that when governors, who sit on the boards of REPAs, are politically aligned with local mayors, deforestation rises sharply—by about 60 percent. The problem is most pronounced in agencies where political actors dominate decision-making and around election years. Crucially, additional deforestation does not translate into local economic gains or higher public investment, suggesting that forests are being lost without broader social benefit. These findings highlight how institutional design can leave environmental governance vulnerable to political capture, and underscore the need for safeguards that protect natural resources from short-term political interests.
 
 ## Set-up
 To replicate this project, you will need to have Stata-16, R-studio, Python with Google Earth Engine access, Jupyter notebooks, GitHub, and access to Dropbox.
