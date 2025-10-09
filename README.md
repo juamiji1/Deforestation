@@ -1,5 +1,4 @@
-# Project: *Power Plays in the Jungle*  
-### Political Alignment and Environmental Degradation in Colombia  
+# **Project:** Power Plays in the Jungle - Political Alignment and Environmental Degradation in Colombia  
 
 **Author:** Juan Miguel Jimenez R.  
 **Contact:** [juamiji@gmail.com](mailto:juamiji@gmail.com)
@@ -7,11 +6,7 @@
 ---
 
 ## Overview
-This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs).  
-Using a regression discontinuity design (RDD) based on close mayoral elections, we find that when governors and mayors are politically aligned, **deforestation increases by about 60%**—especially where political actors dominate agency boards and around election years.  
-
-Despite higher forest loss, **no gains in local income or public investment** are observed, suggesting that forests are being lost without broader social benefits.  
-The findings highlight how institutional design can leave environmental governance vulnerable to **political capture**, underscoring the need for stronger safeguards.
+This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs). Using a regression discontinuity design (RDD) based on close mayoral elections, we find that when governors and mayors are politically aligned, *deforestation increases by about 60%*—especially where political actors dominate agency boards and around election years. Despite higher forest loss, *no gains in local income or public investment* are observed, suggesting that forests are being lost without broader social benefits. The findings highlight how institutional design can leave environmental governance vulnerable to political capture, underscoring the need for stronger safeguards.
 
 ---
 
@@ -20,13 +15,12 @@ To replicate results, ensure access to:
 
 | Tool | Notes |
 |------|-------|
-| **Stata 16+** | Main analysis and data processing |
-| **R-Studio** | Spatial and visualization tasks |
-| **Python 3.x** | Satellite and biodiversity data analysis |
-| **Google Earth Engine** | Remote sensing data access |
-| **Jupyter Notebooks** | Python execution environment |
-| **GitHub** | Version control |
-| **Dropbox** | Data and output storage |
+| *Stata 16+* | Main analysis and data processing |
+| *Google Earth Engine* | Remote sensing data access |
+| *Python 3.x* | Language used for GEE |
+| *Jupyter Notebooks* | Python execution environment |
+| *GitHub* | Version control |
+| *Dropbox* | Data and output storage |
 
 ### Key Python Packages
 `ee`, `geemap`, `pandas`, `jupyter`
@@ -38,18 +32,22 @@ To replicate results, ensure access to:
 | Location | Contents |
 |-----------|-----------|
 | `/Deforestation/data` | All raw and processed datasets |
-| `/Deforestation/code` | Stata, R, and Python scripts |
+| `/Deforestation/code` | Stata, and Python scripts |
 | `/Overleaf/tables` | Tables for manuscript |
 | `/Overleaf/plots` | Figures and plots |
 | `/Overleaf/Politicians_Deforestation` | Main manuscript |
 | `/Dropbox` | Shared data repository |
 
-**Overleaf project:** [View here](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56)
+*Overleaf project:* [View here](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56)
 
 ---
 
 ## Code Organization
-Each code file follows a consistent prefix convention:
+All scripts are stored within the `/code` directory:  
+- *Stata do-files:* located in `/code/do-files`  
+- *Python notebooks:* located in `/code/python-scripts`  
+
+Each file name begins with a numeric prefix indicating its role in the analysis pipeline:
 
 | Prefix | Purpose |
 |--------|----------|
@@ -57,11 +55,11 @@ Each code file follows a consistent prefix convention:
 | `1_` | Data preparation and cleaning |
 | `2_` | Descriptive analysis and RDD assumptions |
 | `3_` | Main estimations |
-| `4_` | Robustness and extensions |
+| `4_` | Robustness checks and extensions |
 
 ---
 
-## Key Files by Stage
+## Pipeline for replication
 
 ### 1. Data Preparation & Satellite Replication
 | File | Description |
@@ -115,8 +113,6 @@ Each code file follows a consistent prefix convention:
 4. Run the Jupyter notebooks to generate satellite indicators.  
 5. Execute Stata scripts starting from `0_JEEM_master.do`.  
 6. Export tables and plots for Overleaf.
-
-> **Tip:** The full pipeline is data-intensive. Avoid running all scripts sequentially; process by section as needed.
 
 ---
 
