@@ -103,6 +103,7 @@ The master file that coordinates the entire analysis pipeline is `0_JEEM_master.
 | `4_JEEM_RD_main_placebos.do` | Placebo tests |
 | `4_JEEM_RD_main_plotslargebw.do` | RD plots (wide bandwidth) |
 | `4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
+| `4_JEEM_RD_main_electerm.do` | Electoral term results |
 
 ---
 
