@@ -41,8 +41,10 @@ END
 *
 *-------------------------------------------------------------------------------
 do "${do}\1_JEEM_preparing_data.do"
+
 do "${do}\2_JEEM_descriptives.do"
 do "${do}\2_JEEM_RD_lc_assump.do"
+
 do "${do}\3_JEEM_RD_main.do"
 do "${do}\3_JEEM_RD_mechs.do"
 do "${do}\3_JEEM_RD_econchars.do"
@@ -52,6 +54,7 @@ do "${do}\4_JEEM_RD_main_lccontrols.do"
 do "${do}\4_JEEM_RD_main_placebos.do"
 do "${do}\4_JEEM_RD_main_plotslargebw.do"
 do "${do}\4_JEEM_RD_main_neighbors.do"
+do "${do}\4_JEEM_RD_main_electerm.do"
 
 do "${do}\3_JEEM_RD_bii.do"
 
