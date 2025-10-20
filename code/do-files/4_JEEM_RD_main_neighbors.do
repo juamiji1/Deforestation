@@ -8,8 +8,8 @@
 *-------------------------------------------------------------------------------
 use "${data}/Interim\defo_caralc.dta", clear 
 
-keep coddane year floss_prim_ideam_area_v2 floss_prim_legal_area_v2 floss_prim_ilegal_area_v2
-ren (coddane floss_prim_ideam_area_v2 floss_prim_legal_area_v2 floss_prim_ilegal_area_v2) (coddane_nbr floss_prim_ideam_area_v2_nbr floss_prim_legal_area_v2_nbr floss_prim_ilegal_area_v2_nbr)
+keep coddane year floss_prim_ideam_area_v2 floss_prim_legal_area_v2 floss_prim_ilegal_area_v2 mayorallied codepto
+ren (coddane floss_prim_ideam_area_v2 floss_prim_legal_area_v2 floss_prim_ilegal_area_v2 mayorallied codepto) (coddane_nbr floss_prim_ideam_area_v2_nbr floss_prim_legal_area_v2_nbr floss_prim_ilegal_area_v2_nbr mayorallied_nbr codepto_nbr)
 
 tempfile DEFONBR
 save `DEFONBR', replace 
@@ -27,7 +27,7 @@ forval y=2001/2019{
 	preserve
 		gen year=`y'
 		
-		merge m:1 coddane_nbr year using `DEFONBR', keep(1 3) nogen keepus(floss_prim_ideam_area_v2_nbr floss_prim_legal_area_v2_nbr floss_prim_ilegal_area_v2_nbr)
+		merge m:1 coddane_nbr year using `DEFONBR', keep(1 3) nogen keepus(floss_prim_ideam_area_v2_nbr floss_prim_legal_area_v2_nbr floss_prim_ilegal_area_v2_nbr mayorallied_nbr codepto_nbr)
 		
 		tempfile MUNINBR_`y'
 		save `MUNINBR_`y'', replace 
@@ -70,7 +70,7 @@ gl h = .065
 gl ht= round(${h}, .001)
 gl p = e(p)
 gl k = e(kernel)
-gl if "if abs(z_sh_votes_alc)<=${h}"
+gl if "if abs(z_sh_votes_alc)<=${h} & codepto_nbr!=codepto"
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
 gl fes "region year"
 
