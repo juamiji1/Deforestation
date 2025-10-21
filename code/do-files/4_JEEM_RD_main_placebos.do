@@ -5,15 +5,15 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Creating placebo running variables	
 *
 *-------------------------------------------------------------------------------
-gen z_sh_votes_alc_neg10=z_sh_votes_alc-.1
-gen z_sh_votes_alc_pos10=z_sh_votes_alc+.1
+gen z_sh_votes_alc_neg10=z_sh_votes_alc-.05
+gen z_sh_votes_alc_pos10=z_sh_votes_alc+.05
 
 gen d_won_neg10=(z_sh_votes_alc_neg10>=0) if z_sh_votes_alc_neg10!=.
 gen d_won_pos10=(z_sh_votes_alc_pos10>=0) if z_sh_votes_alc_pos10!=.
 
 
 *-------------------------------------------------------------------------------
-* Main Results for +10 Placebo
+* Main Results for +5 Placebo
 *
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc_pos10, d
@@ -48,7 +48,7 @@ gr export "${plots}\rdplot_main_results_placebo_pos10.pdf", as(pdf) replace
  
 
 *-------------------------------------------------------------------------------
-* Main Results for +10 Placebo
+* Main Results for +5 Placebo
 *
 *-------------------------------------------------------------------------------
 summ z_sh_votes_alc_neg10, d

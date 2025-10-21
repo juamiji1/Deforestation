@@ -1640,6 +1640,12 @@ replace floss_prim_ideam_area_v2 = . if floss_prim_ideam_area_v2>1 & floss_prim_
 summ floss_prim_ideam_area_v3 , d
 replace floss_prim_ideam_area_v3 = . if floss_prim_ideam_area_v3>1 & floss_prim_ideam_area_v3!=.
 
+summ floss_prim_legal_area_v2 , d
+replace floss_prim_legal_area_v2 = . if floss_prim_legal_area_v2>1 & floss_prim_legal_area_v2!=.
+
+summ floss_prim_ilegal_area_v2 , d
+replace floss_prim_ilegal_area_v2 = . if floss_prim_ilegal_area_v2>1 & floss_prim_ilegal_area_v2!=.
+
 *Preparing land use shares
 gen bare_area_floss=bare_area*100/floss_prim_ideam
 gen built_area_floss=built_area*100/floss_prim_ideam
