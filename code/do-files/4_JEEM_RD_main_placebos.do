@@ -5,26 +5,23 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Creating placebo running variables	
 *
 *-------------------------------------------------------------------------------
-gen z_sh_votes_alc_neg10=z_sh_votes_alc-.05
-gen z_sh_votes_alc_pos10=z_sh_votes_alc+.05
+gen z_sh_votes_alc_neg10=z_sh_votes_alc-.15
+gen z_sh_votes_alc_pos10=z_sh_votes_alc+.15
 
 gen d_won_neg10=(z_sh_votes_alc_neg10>=0) if z_sh_votes_alc_neg10!=.
 gen d_won_pos10=(z_sh_votes_alc_pos10>=0) if z_sh_votes_alc_pos10!=.
 
 
 *-------------------------------------------------------------------------------
-* Main Results for +5 Placebo
+* Main Results for +15 Placebo
 *
 *-------------------------------------------------------------------------------
-summ z_sh_votes_alc_pos10, d
-
-rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc_pos10, all kernel(triangular) 
-gl h = .065
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
-gl if "if abs(z_sh_votes_alc_pos10)<=${h}"
+gl fes "region year"
 gl controls "d_won_pos10 i.d_won_pos10#c.z_sh_votes_alc_pos10 z_sh_votes_alc_pos10"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl if "if abs(z_sh_votes_alc_pos10)<=${h}"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc_pos10/${h})) ${if}
@@ -48,18 +45,15 @@ gr export "${plots}\rdplot_main_results_placebo_pos10.pdf", as(pdf) replace
  
 
 *-------------------------------------------------------------------------------
-* Main Results for +5 Placebo
+* Main Results for +15 Placebo
 *
 *-------------------------------------------------------------------------------
-summ z_sh_votes_alc_neg10, d
-
-rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc_neg10, all kernel(triangular) 
-gl h = .065
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
-gl if "if abs(z_sh_votes_alc_neg10)<=${h}"
+gl fes "region year"
 gl controls "d_won_neg10 i.d_won_neg10#c.z_sh_votes_alc_neg10 z_sh_votes_alc_neg10"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl if "if abs(z_sh_votes_alc_neg10)<=${h}"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc_neg10/${h})) ${if}

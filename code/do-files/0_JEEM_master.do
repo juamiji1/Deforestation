@@ -13,7 +13,7 @@ clear all
 if c(username) == "juami" {
 	gl localpath "C:\Users/`c(username)'\Dropbox\My-Research\Deforestation"
 	gl overleafpath "C:\Users/`c(username)'\Dropbox\Overleaf\Politicians_Deforestation"
-	gl do "C:\Github\Deforestation\code"
+	gl code "C:\Github\Deforestation\code\do-files"
 	
 }
 else {
@@ -40,23 +40,23 @@ END
 * Work flow 
 *
 *-------------------------------------------------------------------------------
-do "${do}\1_JEEM_preparing_data.do"
+do "${code}\1_JEEM_preparing_data.do"
 
-do "${do}\2_JEEM_descriptives.do"
-do "${do}\2_JEEM_RD_lc_assump.do"
+do "${code}\2_JEEM_descriptives.do"
+do "${code}\2_JEEM_RD_lc_assump.do"
 
-do "${do}\3_JEEM_RD_main.do"
-do "${do}\3_JEEM_RD_mechs.do"
-do "${do}\3_JEEM_RD_econchars.do"
+do "${code}\3_JEEM_RD_main.do"
+do "${code}\3_JEEM_RD_mechs.do"
+do "${code}\3_JEEM_RD_econchars.do"
 
-do "${do}\4_JEEM_RD_main_robustness.do"
-do "${do}\4_JEEM_RD_main_lccontrols.do"
-do "${do}\4_JEEM_RD_main_placebos.do"
-do "${do}\4_JEEM_RD_main_plotslargebw.do"
-do "${do}\4_JEEM_RD_main_neighbors.do"
-do "${do}\4_JEEM_RD_main_electerm.do"
+do "${code}\4_JEEM_RD_main_robustness.do"
+do "${code}\4_JEEM_RD_main_lccontrols.do"
+do "${code}\4_JEEM_RD_main_placebos.do"
+do "${code}\4_JEEM_RD_main_plotslargebw.do"
+do "${code}\4_JEEM_RD_main_neighbors.do"
+do "${code}\4_JEEM_RD_main_electerm.do"
 
-do "${do}\3_JEEM_RD_bii.do"
+do "${code}\3_JEEM_RD_bii.do"
 
 
 

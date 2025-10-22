@@ -4,16 +4,13 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Local Continuity Assumption
 *
 *-------------------------------------------------------------------------------
-summ z_sh_votes_alc, d
+gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes "region year"
 
 rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
 gl h = e(h_l)
 gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
 gl if "if abs(z_sh_votes_alc)<=${h}"
-gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
-gl fes "region year"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
@@ -205,7 +202,7 @@ restore
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 
 cap drop rdplot_*
-rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<${h} & director_gob_law_v2==0, all kernel(triangular) h(${h}) p(1) ci(95) genvars covs(${X_lc} ${fes})
+rdplot floss_prim_ideam_area_v2 z_sh_votes_alc if abs(z_sh_votes_alc)<${h} & director_gob_law_v2==0 & floss_prim_ideam_area_v2!=., all kernel(triangular) h(${h}) p(1) ci(95) genvars covs(${X_lc} ${fes})
 
 preserve
 	collapse (mean) rdplot_mean_y rdplot_N, by(rdplot_mean_x)

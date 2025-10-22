@@ -132,48 +132,6 @@ ylabel(0 (20) 80)
 gr export "${plots}/desc_OLS_bii_plot_bygovhead.pdf", as(pdf) replace
 
 
-// *-------------------------------------------------------------------------------
-// * Partisan alignment trends
-// *-------------------------------------------------------------------------------
-// sort coddane year, stable
-//
-// * Sorting data set relative to when treatment happened (mayorallied)
-// by coddane: egen xt=max(mayorallied)
-// by coddane: gen dt=d.mayorallied
-//
-// *Creating fake time FE
-// gen t=1 if (mayorallied==1 & year==2001) |dt==1
-// by coddane: replace t=t[_n-1]+1 if t==. & mayorallied==1
-//
-// gsort coddane -year
-// gen t2=1 if t==1
-// by coddane: replace t2=t2[_n-1]+1 if t==. & mayorallied==0
-// replace t2=-(t2-2)
-//
-// replace t=t2 if t==. & mayorallied==0
-// drop t2 dt
-//
-// *Keeping the sample that I want so it is a fully saturated
-// drop if (t<-4 | t>3) 
-// drop if xt!=1
-// tab t, g(t_)
-//
-// *Governor is head 
-// reghdfe floss_prim_ideam_area_v2 t_1 t_2 t_3 t_5 t_6 t_7 t_8 if director_gob_law_v2==1 & carcode_master!=33 & carcode_master!=27, abs(${fes}) vce(robust)
-// mat bf1=e(b)[1,1..3],0,e(b)[1,4..7]
-// mat coln bf1= "-4" "-3" "-2" "-1" "0" "1" "2" "3"
-// coefplot (mat(bf1[1])), vert yline(0, lp(dash) lc(maroon)) noci recast(connected) xline(4, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Relative Time to Mayor-Governor Alignment", size(medium)) 
-//
-// gr export "${plots}/desc_relativetime_govhead.pdf", as(pdf) replace
-//
-// *Governor not head 
-// reghdfe floss_prim_ideam_area_v2 t_1 t_2 t_3 t_5 t_6 t_7 t_8 if director_gob_law_v2==0 & carcode_master!=33 & carcode_master!=27, abs(${fes}) vce(robust)
-//
-// mat bf1=e(b)[1,1..3],0,e(b)[1,4..7]
-// mat coln bf1= "-4" "-3" "-2" "-1" "0" "1" "2" "3"
-// coefplot (mat(bf1[1])), vert yline(0, lp(dash) lc(maroon)) noci recast(connected) xline(4, lp(dash)) l2title("Primary Forest Loss (%)", size(medium)) b2title("Relative Time to Mayor-Governor Alignment", size(medium)) 
-//
-// gr export "${plots}/desc_relativetime_govnothead.pdf", as(pdf) replace
 
 
 *END

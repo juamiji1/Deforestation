@@ -17,7 +17,9 @@ replace political_period=5 if year>=2016 & year<=2019
 bys coddane political_period: egen floss_prim_ideam_area_v2_pp=total(floss_prim_ideam_area_v2)
 replace floss_prim_ideam_area_v2_pp=. if floss_prim_ideam_area_v2==.
 
-collapse (mean) floss_prim_ideam_area_v2_pp mayorallied director_gob_law_v2 z_sh_votes_alc codigo_partido_alc region, by(coddane political_period)
+sort coddane political_period year
+
+collapse (mean) floss_prim_ideam_area_v2_pp mayorallied director_gob_law_v2 codigo_partido_alc region (first) z_sh_votes_alc, by(coddane political_period)
 
 drop if political_period==.
 rename (political_period floss_prim_ideam_area_v2_pp) (year floss_prim_ideam_area_v2)
@@ -31,15 +33,14 @@ rename (political_period floss_prim_ideam_area_v2_pp) (year floss_prim_ideam_are
 *-------------------------------------------------------------------------------
 * With optimal BW
 *-------------------------------------------------------------------------------
-*RD -Extract the bandwith
-rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
-gl h = e(h_l)
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
-gl if "if abs(z_sh_votes_alc)<=${h}"
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
 gl fes "region year"
+
+*RD -Extract the bandwith
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl ht= round(${h}, .001)
+gl if "if abs(z_sh_votes_alc)<=${h}"
 
 cap drop tweights
 
@@ -89,20 +90,15 @@ mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b
 gr export "${plots}\rdd_main_results_term.pdf", as(pdf) replace
 
 *-------------------------------------------------------------------------------
-* With BW=0.065
+* With BW=0.1
 *-------------------------------------------------------------------------------
 *RD -Extract the bandwith
-rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
-gl h = 0.065
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
+gl h = 0.098
 gl if "if abs(z_sh_votes_alc)<=${h}"
-gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
 
 cap drop tweights
-
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
+
 eststo clear
 
 *All municipalities 
@@ -167,14 +163,12 @@ drop if codigo_partido_alc_lead==.
 * With optimal BW
 *-------------------------------------------------------------------------------
 *RD -Extract the bandwith
-rdrobust incumbent_party_lead z_sh_votes_alc, all kernel(triangular)
+rdrobust incumbent_party_lead z_sh_votes_alc, all kernel(triangular) covs(${fes})
 gl h = e(h_l)
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
+gl if "if abs(z_sh_votes_alc)<=${h}"
 
 cap drop tweights
-gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
+gen tweights=1-(abs(z_sh_votes_alc/${h})) ${if}
 
 eststo clear
 
@@ -197,7 +191,8 @@ gr export "${plots}\rdplot_incumbency_term.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * With optimal BW
 *------------------------------------------------------------------------------- 
-gl h = .065
+gl h = .098
+gl if "if abs(z_sh_votes_alc)<=${h}"
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}

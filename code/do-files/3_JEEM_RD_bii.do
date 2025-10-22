@@ -10,16 +10,13 @@ use "${data}/Interim\defo_caralc.dta", clear
 * Main Results
 *
 *-------------------------------------------------------------------------------
-summ z_sh_votes_alc, d
-
-rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular)
-gl h = e(h_l)
-gl ht= round(${h}, .001)
-gl p = e(p)
-gl k = e(kernel)
-gl if "if abs(z_sh_votes_alc)<=${h} & floss_prim_ideam_area_v2!=."
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
 gl fes "region year"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl ht= round(${h}, .001)
+gl if "if abs(z_sh_votes_alc)<=${h} & floss_prim_ideam_area_v2!=."
 
 cap drop tweights
 gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
