@@ -133,11 +133,94 @@ mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b
 
 gr export "${plots}\rdplot_mechs_results_p2.pdf", as(pdf) replace 
 
+*-------------------------------------------------------------------------------
+* Illegal Deforestation
+*-------------------------------------------------------------------------------
+*All municipalities 
+eststo r1: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
+
+*Municipalities under a non-green governor 
+eststo r4: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust)
+
+*Municipalities under a green governor 
+eststo r5: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
+
+*Municipalities under governor as director in an election year
+eststo r6: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust)
+
+*Municipalities under other director in an election year
+eststo r7: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust)
+
+*Municipalities under a CAR with gov head by politicians minority vs moajority
+eststo r8: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==1, abs(${fes}) vce(robust)
+eststo r9: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==1, abs(${fes}) vce(robust)
+
+*Municipalities under a CAR with gov head by politicians minority vs moajority
+eststo r10: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==0, abs(${fes}) vce(robust)
+eststo r11: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==0, abs(${fes}) vce(robust)
+
+coefplot (r4, label("Governor is head + No green party")) ///
+(r5, label("Governor is head + Green party")) (r6, label("Governor is head + Election year")) ///
+(r7, label("Governor not head + Election year")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(small)) ///
+xtitle("Illegal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_illegal_p1.pdf", as(pdf) replace 
+
+coefplot (r8, label("Gov head + Pols Majority")) ///
+(r9, label("Gov head + Pols Minority")) (r10, label("Gov not head + Pols Majority")) ///
+(r11, label("Gov not head + Pols Minority")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(small)) ///
+xtitle("Illegal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_illegal_p2.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* Legal Deforestation
+*-------------------------------------------------------------------------------
+*All municipalities 
+eststo r1: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
+
+*Municipalities under a non-green governor 
+eststo r4: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust)
+
+*Municipalities under a green governor 
+eststo r5: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
+
+*Municipalities under governor as director in an election year
+eststo r6: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust)
+
+*Municipalities under other director in an election year
+eststo r7: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust)
+
+*Municipalities under a CAR with gov head by politicians minority vs moajority
+eststo r8: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==1, abs(${fes}) vce(robust)
+eststo r9: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==1, abs(${fes}) vce(robust)
+
+*Municipalities under a CAR with gov head by politicians minority vs moajority
+eststo r10: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & dmdn_politics2==1 & director_gob_law_v2==0, abs(${fes}) vce(robust)
+eststo r11: reghdfe floss_prim_legal_area_v2  ${controls} [aw=tweights] ${if} & dmdn_politics2==0 & director_gob_law_v2==0, abs(${fes}) vce(robust)
+
+coefplot (r4, label("Governor is head + No green party")) ///
+(r5, label("Governor is head + Green party")) (r6, label("Governor is head + Election year")) ///
+(r7, label("Governor not head + Election year")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(small)) ///
+xtitle("Legal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_legal_p1.pdf", as(pdf) replace 
+
+coefplot (r8, label("Gov head + Pols Majority")) ///
+(r9, label("Gov head + Pols Minority")) (r10, label("Gov not head + Pols Majority")) ///
+(r11, label("Gov not head + Pols Minority")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(small)) ///
+xtitle("Legal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_legal_p2.pdf", as(pdf) replace 
 
 
 
-
-
-
-
-
+*END
