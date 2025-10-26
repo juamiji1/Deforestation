@@ -1,4 +1,335 @@
-use "${data}/Interim\defo_caralc.dta", clear 
+use "${data}/Interim\defo_caralc.dta", clear
+
+
+*-------------------------------------------------------------------------------
+* McCrary test
+*
+*-------------------------------------------------------------------------------
+rddensity z_sh_votes_alc if floss_prim_ideam_area_v2!=., c(0) noplot
+gl pval = round(`e(pv_q)', .01)
+
+rddensity z_sh_votes_alc, c(0) plot h(${h}) plot_range(-.1 .1) ///
+    cirl_opt(acolor(gs6%30) alw(vvthin))  esll_opt(clc(gs2%90) clw(medthick)) ///
+    cirr_opt(acolor(gs6%30) alw(vvthin))  eslr_opt(clc(gs2%90) clw(medthick)) ///
+    nohist graph_opt(title("") xline(0, lc(maroon) lp(dash)) legend(off) ///
+    b2title("Vote Margin", size(medium)) xtitle("") ytitle("Frequency", size(medium)) ///
+    note("p-value=${pval}"))
+
+gr export "${plots}\mccraryplot_z_sh_votes_alc.pdf", as(pdf) replace
+
+
+*-------------------------------------------------------------------------------
+* Local Continuity Assumption
+*
+*-------------------------------------------------------------------------------
+gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes      "region year"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h  = e(h_l)
+gl ht = round(${h}, .001)
+gl if "if abs(z_sh_votes_alc)<=${h}"
+
+cap drop tweights
+gen tweights = (1-abs(z_sh_votes_alc/${h})) ${if}
+
+*-------------------------------------------------------------------------------
+* Preparing vars
+*-------------------------------------------------------------------------------
+* Coca share
+tab year if H_coca!=.
+replace H_coca = 0 if H_coca==.
+gen sh_area_coca = H_coca/area
+
+* Night lights (log)
+gen ln_nl = log(night_light)
+
+* GDP per capita (log)
+gen ln_pibpc = ln(pib_percapita)
+
+* Royalties (log)
+ren SRAingeominasanh_giros_totales giros_totales
+gen ln_regalias = ln(giros_totales)
+
+* Public investment shares
+summ inv_total,d
+*replace inv_total=. if inv_total>`r(p99)'
+
+gen inv_total2=inv_total/10000
+gen sh_invpib = inv_total2/pib_total
+gen sh_invenv = inv_ambiental/inv_total
+
+* Cattle
+gen sh_bovinos = bovinos/pobl_tot
+
+* Crimes (shares needed for demovars)
+gen sh_crimeenv    = crime_environment/total_procesos
+gen sh_crimeforest = crime_forest/crime_environment
+
+* Population (log, anchored to 2010 then averaged at coddane)
+gen ln_pobl_tot = ln(pobl_tot93)
+replace ln_pobl_tot = . if year!=2010
+bys coddane: egen ln_pobl_tot18 = mean(ln_pobl_tot)
+
+* Poverty MPI (rename to mpi)
+ren IPM mpi
+
+* --- Geovars used directly in coefplot of "geographic characteristics" ---
+gen ln_area = ln(area)
+bys carcode_master: egen cararea = sum(area)
+gen sh_area = area*100/cararea
+
+* Distance to markets (log)
+gen ln_dist_mcados = ln(dismdo)
+
+* Crop suitability (mean over chosen SUTs)
+egen mean_sut_crops = rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil)
+replace mean_sut_crops=mean_sut_crops /10000 //Normalizing by max
+
+* Forest cover share & PA share
+gen sh_area_forest = primary_forest01/area
+gen sh_paarea      = pa_area/area
+
+*-------------------------------------------------------------------------------
+* Sample for pre-treatment construction and merge back
+*-------------------------------------------------------------------------------
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., ///
+    abs(${fes}) vce(robust)
+gen regsample = e(sample)
+
+* Only keep variables that will become pre_* and are actually used in coefplots
+gl varst "ln_pibpc ln_nl ln_regalias sh_invpib sh_invenv sh_area_coca sh_bovinos ln_pobl_tot mpi indrural sh_votes_reg incumbent sh_crimeenv sh_crimeforest"
+
+preserve
+    bys coddane: egen always = max(regsample)
+    keep if mayorallied==0
+
+    sort coddane election year, stable
+    collapse (firstnm) ${varst} regsample always, by(coddane election)
+    sort coddane election
+
+    replace regsample = . if regsample==0
+    by coddane: carryforward regsample, gen(xt)
+    replace xt = 0 if xt==. & always==1
+
+    keep if always==1
+    collapse (mean) ${varst}, by(coddane xt)
+    keep if xt==0
+    drop xt
+
+    ren (${varst}) pre_=
+    tempfile NONCONSTANTVARS
+    save `NONCONSTANTVARS', replace
+restore
+
+merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen
+
+* Geovars
+la var ln_area        "Log(Area km²)"
+la var sh_area        "Area in REPA (sh)"
+la var sh_area_forest "Primary forest cover (sh)"
+la var sh_paarea      "Protected area (sh)"
+la var ln_dist_mcados "Log(Distance to market)"
+la var mean_sut_crops "Crop suitability"
+la var altura "Elevation (masl)"
+
+* Econ pre-treatment
+la var pre_ln_pibpc     "Log(GDP per capita)"
+la var pre_ln_nl        "Log(Night Light)"
+la var pre_ln_regalias  "Log(Royalties)"
+la var pre_sh_invpib    "Public Investment (sh)"
+la var pre_sh_invenv    "Environment Investment (sh)"
+la var pre_sh_area_coca "Coca area (sh)"
+la var pre_sh_bovinos   "Cattle per inhabitant"
+
+* Demo pre-treatment
+la var pre_ln_pobl_tot     "Log(Total population)"
+la var pre_mpi             "Poverty index (MPI)"
+la var pre_indrural        "Rurality index"
+la var pre_sh_votes_reg    "Registered voter (sh)"
+la var pre_incumbent       "Party incumbency"
+la var pre_sh_crimeenv     "Environment crimes (sh)"
+la var pre_sh_crimeforest  "Forestry crimes (sh)"
+
+*-------------------------------------------------------------------------------
+* LC Results — Plot 1: Physical / Land cover & Access (7 vars)
+*-------------------------------------------------------------------------------
+gl physvars "altura mean_sut_crops ln_area sh_area sh_area_forest sh_paarea ln_dist_mcados"
+
+mat C1 = J(4, 7, .)
+mat coln C1 = ${physvars}
+
+local i = 1
+foreach yvar of global physvars {
+    cap drop std_`yvar'
+    egen std_`yvar' = std(`yvar')
+	
+    reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+	
+    lincom mayorallied
+    mat C1[1,`i'] = r(estimate)
+    mat C1[2,`i'] = r(lb)
+    mat C1[3,`i'] = r(ub)
+    mat C1[4,`i'] = r(p)
+	
+	eststo p1_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+	summ `yvar' if e(sample)==1, d
+	gl mp1_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	
+    local i = `i' + 1
+
+}
+
+coefplot (mat(C1[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
+    b2title("Effect of Partisan Alignment (std)", size(medsmall)) ///
+    ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+    ytitle("Dependent Variable (Pre-treatment)", size(medium)) ///
+    mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
+    mlabposition(12) mlabgap(*2)
+		
+	gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
+	
+*-------------------------------------------------------------------------------
+* LC Results — Plot 2: Economic activity & Investment (7 vars)
+*-------------------------------------------------------------------------------
+gl econvars "pre_ln_pibpc pre_ln_regalias pre_sh_invpib pre_sh_invenv pre_ln_nl pre_sh_area_coca pre_sh_bovinos"
+
+mat C2 = J(4, 7, .)
+mat coln C2 = ${econvars}
+
+local i = 1
+foreach yvar of global econvars {
+    cap drop std_`yvar'
+    egen std_`yvar' = std(`yvar')
+	
+	reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+			
+    lincom mayorallied
+    mat C2[1,`i'] = r(estimate)
+    mat C2[2,`i'] = r(lb)
+    mat C2[3,`i'] = r(ub)
+    mat C2[4,`i'] = r(p)
+		
+	eststo p2_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+	summ `yvar' if e(sample)==1, d
+	gl mp2_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	
+    local i = `i' + 1
+	
+}
+
+coefplot (mat(C2[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
+    b2title("Effect of Partisan Alignment (std)", size(medsmall)) ///
+    ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+    ytitle("Dependent Variable (Pre-treatment)", size(medium)) ///
+    mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
+    mlabposition(12) mlabgap(*2)	
+	
+	gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* LC Results — Plot 3: Demographics, Politics & Security (7 vars)
+*-------------------------------------------------------------------------------
+gl demopolsec "pre_ln_pobl_tot pre_mpi pre_indrural pre_sh_votes_reg pre_incumbent pre_sh_crimeenv pre_sh_crimeforest"
+
+mat C3 = J(4, 7, .)
+mat coln C3 = ${demopolsec}
+
+local i = 1
+foreach yvar of global demopolsec {
+    cap drop std_`yvar'
+    egen std_`yvar' = std(`yvar')
+	
+    reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+	
+    lincom mayorallied
+    mat C3[1,`i'] = r(estimate)
+    mat C3[2,`i'] = r(lb)
+    mat C3[3,`i'] = r(ub)
+    mat C3[4,`i'] = r(p)
+	
+	eststo p3_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., abs(${fes}) vce(robust)
+	summ `yvar' if e(sample)==1, d
+	gl mp3_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	
+    local i = `i' + 1
+	
+}
+
+coefplot (mat(C3[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
+    b2title("Effect of Partisan Alignment (std)", size(medsmall)) ///
+    ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+    ytitle("Dependent Variable (Pre-treatment)", size(medium)) ///
+    mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
+    mlabposition(12) mlabgap(*2)
+			
+	gr export "${plots}\rdplot_lc_results_demovars.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* Table
+*-------------------------------------------------------------------------------
+* --- Plot 1: Physical / Land cover & Access ---
+esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 using "${tables}/rd_lc_results.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+    prehead(`"\begin{tabular}{@{}l*{7}{c}}"' ///
+            `"\hline \hline \toprule"' ///
+            `"\multicolumn{8}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
+			`"\midrule"' ///
+            `" & Elevation (masl) & Crop suitability & Log(Area km$^{2}$) & Ecological Area (sh) & Primary forest (sh) & Protected area (sh) & Log(Distance to market) \\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) \\"' ///
+            `"\midrule"') ///
+    postfoot(`" Dependent mean (lvl) & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} \\"' ///
+			`"\toprule"' ///
+            `" \multicolumn{8}{c}{\textit{Panel B: Economic Characteristics}} \\"' ///
+			`"\midrule"' ///
+            `" & Log(GDP pc) & Log(Royalties) & Public Inv. (sh) & Env. Inv. (sh) & Log(Night Light) & Coca area (sh) & Cattle per inhabitant \\"' ///
+            `" & (8) & (9) & (10) & (11) & (12) & (13) & (14) \\"' ///
+            `"\midrule"')
+
+* --- Plot 2: Economic activity & Investment ---
+esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 using "${tables}/rd_lc_results.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`" Dependent mean (lvl) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} \\"' ///
+			`"\toprule"' ///
+            `"\multicolumn{8}{c}{\textit{Panel C: Demographic and Politic Characteristics}} \\"' ///
+			`"\midrule"' ///
+            `" & Log(Population) & Poverty index & Rurality index & Registered voters (sh) & Party Incumbent & Env. crimes (sh) & Forestry crimes (sh) \\"' ///
+            `" & (15) & (16) & (17) & (18) & (19) & (20) & (21) \\"' ///
+            `"\midrule"')
+
+* --- Plot 3: Demographics, Politics & Security ---
+esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 using "${tables}/rd_lc_results.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`" Dependent mean (lvl) & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} \\"' ///
+			`"\bottomrule \end{tabular}"')
+			
+
+			
+			
+			
+			
+			
+			
+			
+
+*END
+
+
+
+
+
+
+
+/*use "${data}/Interim\defo_caralc.dta", clear 
 
 
 *-------------------------------------------------------------------------------

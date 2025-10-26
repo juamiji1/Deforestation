@@ -131,22 +131,50 @@ replace depto=subinstr(depto,"ü","u",.)
 replace depto=strlower(depto)
 replace mun=strlower(mun)
 
-*keep if depto=="amazonas" | depto=="caqueta" | depto=="putumayo" | depto=="boyaca" | depto=="cesar" | depto=="cundinamarca" | depto=="guainia" | depto=="guaviare" | depto=="valle del cauca" | depto=="vaupes" | depto=="antioquia"
 keep if year<2021
 
-merge m:1 depto mun using `DIVIPOLA', keep(3) nogen 
+*Fixin specific names 
+ren (depto mun) (Departamento_min Municipio_min)
+replace Municipio_min="puerto leguizamo" if  Municipio_min=="leguizamo" & Departamento_min=="putumayo"
+replace Municipio_min="bogota d.c." if Municipio_min=="bogota, d.c."
+replace Departamento_min="bogota d.c." if  Departamento_min=="bogota, d. c."
+replace Municipio_min="cartagena de indias" if  Municipio_min=="cartagena" & Departamento_min=="bolivar"
+replace Municipio_min="patia" if  Municipio_min=="el bordo" & Departamento_min=="cauca"/*https://es.wikipedia.org/wiki/El_Bordo_(Cauca)*/
+replace Municipio_min="santuario" if  Municipio_min=="el santuario" & Departamento_min=="antioquia"
+replace Municipio_min="since" if  Municipio_min=="san luis de since" & Departamento_min=="sucre"
+replace Municipio_min="san andres de tumaco" if  Municipio_min=="tumaco" & Departamento_min=="narino"
+replace Municipio_min="villa de san diego de ubate" if  Municipio_min=="ubate" & Departamento_min=="cundinamarca"
 
-*end
-*IMPROVE THIS MATCH !!!! <--
-*keep(1 3) 
-*nogen 
-duplicates drop coddane year, force
+cap drop dup
+duplicates tag Municipio_min Departamento_min year, gen(dup)
+tab Municipio_min if dup==1 // Se crean duplicados porque habian registros con diferentes formas de decir el nombre previo al ajuste de nombres-Se agregan*/
 
-*Calculating percentage changes 
-tsset coddane year
-gen pc_crime_env=D.crime_environment/L.crime_environment
-gen pc_crime_forest=D.crime_forest/L.crime_forest
-gen pc_crime_forest_cond=D.crime_forest_cond/L.crime_forest_cond
+collapse (sum) total_procesos crime_environment crime_forest crime_forest_cond crime_environment_cond, by(Municipio_min Departamento_min year)
+
+merge m:1 Municipio_min Departamento_min using "${data}\Temporary\Tabla-Códigos-Dane_LM.dta"
+
+egen llave=concat(Municipio_min Departamento_min), punct(_)
+tab llave if _merge==1
+drop if llave=="_" /*reporte sin info mcpios, depto*/
+rename codigo_mun_comp coddane
+/*2 Obs*/
+
+cap drop dup
+duplicates report Municipio_min Departamento_min year
+
+*Creating shares 
+gen sh_crime_env=crime_environment*100/total_procesos
+gen sh_crime_forest=crime_forest*100/crime_environment
+gen sh_crime_forest_v2=crime_forest*100/total_procesos
+gen sh_crime_forest_cond=crime_forest_cond*100/crime_environment
+gen sh_crime_forest_cond_v2=crime_forest_cond*100/crime_forest
+gen sh_crime_env_cond= crime_environment_cond*100/crime_environment
+
+ren ( Municipio_min Departamento_min ) (depto mun )
+keep year mun depto total_procesos crime_environment crime_forest crime_forest_cond crime_environment_cond coddane sh_* 
+order coddane year mun depto total_procesos crime_environment crime_forest crime_forest_cond crime_environment_cond sh_* 
+
+destring coddane, replace 
 
 tempfile ENVCRIME
 save `ENVCRIME', replace
@@ -872,7 +900,7 @@ foreach y in 2000 2003 2007 2011 2015 2019 {
 	*Fixing year var
 	replace year=year+1
 	
-	keep year codepto coddane codigo_partido_alc votos_alc curules position sh_votes_reg
+	keep year codepto coddane codigo_partido_alc votos_alc curules position sh_votes_reg votantes_muni votantes_depto
 	
 	tempfile `y'ALC
 	save ``y'ALC', replace
@@ -962,6 +990,16 @@ keep coddane primary_forest01_pa
 
 tempfile PRIMARYCOVERPA
 save `PRIMARYCOVERPA', replace 
+
+import delimited "${data}/Illegal Deforestation\muni_runapf_area.csv", encoding(UTF-8) clear 
+ren (municipios_iddane shape_area) (coddane pa_area)
+
+collapse (sum) pa_area, by(coddane)
+
+replace pa_area=pa_area/1000000
+
+tempfile PAAREA
+save `PAAREA', replace 
 
 *-------------------------------------------------------------------------------
 * Deforestation data
@@ -1452,7 +1490,192 @@ tempfile VAS
 save `VAS', replace
 
 *-------------------------------------------------------------------------------
+* Permisos forestales del IDEAM
+*-------------------------------------------------------------------------------
+use "${data}\Temporary\Tabla-Códigos-Dane.dta", clear
+
+* Cambios basados en: https://www.dane.gov.co/files/censo2005/provincias/subregiones.pdf
+duplicates tag Departamento Municipio, gen(dup1)
+drop if dup1==1
+duplicates report Departamento Municipio
+
+replace Departamento_min = "norte de santander" if Departamento_min == "n. de santander"
+replace Departamento_min = "bogota d.c."        if Departamento_min == "bogota"
+replace Municipio_min    = "bogota d.c."        if Municipio_min    == "bogota, d.c."
+replace Municipio_min    = "chachagui"          if Municipio_min    == "chachagsi" & Departamento_min == "narino"
+replace Municipio_min    = "guican"             if Municipio_min    == "gsican"    & Departamento_min == "boyaca"
+replace Municipio_min    = "guepsa"             if Municipio_min    == "gsepsa"    & Departamento_min == "santander"
+replace Municipio_min    = "penol"              if Municipio_min    == "peÐol"     & Departamento_min == "antioquia"
+replace Municipio_min    = "puerto leguizamo"   if Municipio_min    == "leguizamo" & Departamento_min == "putumayo"
+replace Municipio_min    = "san antonio del tequendama"      if Municipio_min == "san antonio del tequendam"       & Departamento_min == "cundinamarca"
+replace Municipio_min    = "san sebastian de buenavista"     if Municipio_min == "san sebastian de buenavis"       & Departamento_min == "magdalena"
+replace Municipio_min    = "santuario"          if Municipio_min    == "el santuario"                               & Departamento_min == "antioquia"
+replace Municipio_min    = "since"              if Municipio_min    == "san luis de since"                          & Departamento_min == "sucre"
+replace Municipio_min    = "togui"              if Municipio_min    == "togsi"                                      & Departamento_min == "boyaca"
+replace Municipio_min    = "villa de san diego de ubate"     if Municipio_min == "villa de san diego de ubat"      & Departamento_min == "cundinamarca"
+replace Municipio_min    = "cartagena de indias"             if Municipio_min == "cartagena"                        & Departamento_min == "bolivar"
+replace Departamento_min = "archipielago de san andres, providencia y santa catalina" if codigo_dept == "88"
+replace Municipio_min    = "magui"              if Municipio_min    == "magsi"                                      & Departamento_min == "narino"
+
+* Nuevos municipio
+set obs 1122
+replace codigo_dept      = "23"       in 1122
+replace codigo_mun       = "815"      in 1122
+replace Departamento_min = "cordoba"  in 1122
+replace Municipio_min    = "tuchin"   in 1122
+replace codigo_mun_comp  = "23815"    in 1122
+
+set obs 1123
+replace codigo_dept      = "27"           in 1123
+replace codigo_mun       = "086"          in 1123
+replace Departamento_min = "choco"        in 1123
+replace Municipio_min    = "belen de bajira" in 1123
+replace codigo_mun_comp  = "27086"        in 1123
+
+drop dup*
+
+tempfile CODDANE
+save `CODDANE', replace
+
+* Permisos forestales - Base IDEAM-RTA Derecho de peticion 17sept 2025 (filtro CARS)
+import excel "${data}\Licencias\RTA_IDEAM_17sept_permisos forestales_ANEXO.xlsx", ///
+    sheet("CARS") firstrow clear
+
+gen fpermit_year_beg = year(FechaExpedicióndelActoAdmini)
+gen fpermit_year_end = year(FechadeFinalizacióndelActoA)
+
+replace LATITUD  = . if LATITUD  == 0
+replace LONGITUD = . if LONGITUD == 0
+sum LATITUD
+
+gen id = _n
+
+* Licencias hasta en 8 municipios (separadas por coma)
+split Municipio, parse(",")
+rename Municipio Municipio_orig
+reshape long Municipio, i(id) j(Municipio_num)
+drop if Municipio == ""
+
+* Normalizar municipio (minúsculas y sin tildes)
+gen Municipio_min = lower(trim(Municipio))
+replace Municipio_min = subinstr(Municipio_min, "á", "a", .)
+replace Municipio_min = subinstr(Municipio_min, "é", "e", .)
+replace Municipio_min = subinstr(Municipio_min, "í", "i", .)
+replace Municipio_min = subinstr(Municipio_min, "ó", "o", .)
+replace Municipio_min = subinstr(Municipio_min, "ú", "u", .)
+replace Municipio_min = subinstr(Municipio_min, "ü", "u", .)
+replace Municipio_min = subinstr(Municipio_min, "ñ", "n", .)
+replace Municipio_min = subinstr(Municipio_min, "Á", "a", .)
+replace Municipio_min = subinstr(Municipio_min, "É", "e", .)
+replace Municipio_min = subinstr(Municipio_min, "Í", "i", .)
+replace Municipio_min = subinstr(Municipio_min, "Ó", "o", .)
+replace Municipio_min = subinstr(Municipio_min, "Ú", "u", .)
+replace Municipio_min = subinstr(Municipio_min, "Ñ", "n", .)
+
+* Normalizar departamento (minúsculas y sin tildes)
+gen Departamento_min = lower(trim(Departamento))
+replace Departamento_min = subinstr(Departamento_min, "á", "a", .)
+replace Departamento_min = subinstr(Departamento_min, "é", "e", .)
+replace Departamento_min = subinstr(Departamento_min, "í", "i", .)
+replace Departamento_min = subinstr(Departamento_min, "ó", "o", .)
+replace Departamento_min = subinstr(Departamento_min, "ú", "u", .)
+replace Departamento_min = subinstr(Departamento_min, "ü", "u", .)
+replace Departamento_min = subinstr(Departamento_min, "ñ", "n", .)
+replace Departamento_min = subinstr(Departamento_min, "Á", "a", .)
+replace Departamento_min = subinstr(Departamento_min, "É", "e", .)
+replace Departamento_min = subinstr(Departamento_min, "Í", "i", .)
+replace Departamento_min = subinstr(Departamento_min, "Ó", "o", .)
+replace Departamento_min = subinstr(Departamento_min, "Ú", "u", .)
+replace Departamento_min = subinstr(Departamento_min, "Ñ", "n", .)
+
+* Eliminar veredas entre paréntesis
+split Municipio_min, parse("(")
+rename Municipio_min2 vereda
+rename Municipio_min  Municipio_min_tot
+rename Municipio_min1 Municipio_min
+
+egen llave = concat(Municipio_min Departamento_min), punct(_)
+
+gen Municipio_minc     = trim(Municipio_min)
+gen Departamento_minc  = trim(Departamento_min)
+
+drop Municipio_min Departamento_min
+rename Municipio_minc     Municipio_min
+rename Departamento_minc  Departamento_min
+
+* Correcciones puntuales
+replace Municipio_min = "becerril"                 if Municipio_min == "becerrill"              & Departamento_min == "cesar"
+replace Municipio_min = "guadalajara de buga"      if Municipio_min == "buga"                   & Departamento_min == "valle del cauca"
+replace Municipio_min = "el carmen de viboral"     if Municipio_min == "carmen de viboral"      & Departamento_min == "antioquia"
+replace Municipio_min = "el carmen de chucuri"     if Municipio_min == "el carmen"              & Departamento_min == "santander"
+replace Municipio_min = "guepsa"                   if Municipio_min == "gÜepsa"                 & Departamento_min == "santander"
+replace Municipio_min = "san andres sotavento"     if Municipio_min == "itagÜi"                 & Departamento_min == "cordoba"
+replace Municipio_min = "itagui"                   if Municipio_min == "itagÜi"                 & Departamento_min == "antioquia"
+replace Municipio_min = "san andres sotavento"     if Municipio_min == "san andres de sotavento"& Departamento_min == "cordoba"
+replace Municipio_min = "san andres de cuerquia"   if Municipio_min == "san andres"             & Departamento_min == "antioquia"
+replace Municipio_min = "san antonio del tequendama" if Municipio_min == "san antonio de  tequendama" & Departamento_min == "cundinamarca"
+replace Municipio_min = "san juan de rio seco"     if Municipio_min == "san juan de rioseco"    & Departamento_min == "cundinamarca"
+replace Municipio_min = "san juan de rio seco"     if Municipio_min == "san sebastian de buenavista" & Departamento_min == "cundinamarca"
+replace Municipio_min = "santafe de antioquia"     if Municipio_min == "santa fe de antioquia"  & Departamento_min == "antioquia"
+replace Municipio_min = "togui"                    if Municipio_min == "togÜi"                  & Departamento_min == "boyaca"
+replace Municipio_min = "santiago de tolu"         if Municipio_min == "tolu"                   & Departamento_min == "sucre"
+replace Municipio_min = "tolu viejo"               if Municipio_min == "toluviejo"              & Departamento_min == "sucre"
+replace Municipio_min = "san andres de tumaco"     if Municipio_min == "tumaco"                 & Departamento_min == "narino"
+replace Municipio_min = "villa de san diego de ubate" if Municipio_min == "ubate"               & Departamento_min == "cundinamarca"
+replace Municipio_min = "villa de leyva"           if Municipio_min == "villa de leiva"         & Departamento_min == "boyaca"
+
+* Merge con tabla DANE
+merge m:1 Municipio_min Departamento_min using `CODDANE'
+
+drop if _merge==2
+rename codigo_mun_comp coddane
+rename codigo_dept     codepto
+rename Entidad         Entidad_pforest
+
+destring codepto coddane, replace
+
+keep  coddane codepto Entidad_pforest Municipio_min Departamento_min ///
+      AñoReportado FormaOtorgamiento fpermit_year_beg fpermit_year_end ///
+      LONGITUD LATITUD TratamientoSilvicultura UnidaddeMedida ///
+      VolumenBrutoOtorgadoMaderab
+
+order coddane codepto Entidad_pforest Municipio_min Departamento_min ///
+      AñoReportado FormaOtorgamiento fpermit_year_beg fpermit_year_end ///
+      LONGITUD LATITUD TratamientoSilvicultura UnidaddeMedida ///
+      VolumenBrutoOtorgadoMaderab
+
+* Categorización de herramientas/otorgamientos
+gen n = 1
+
+gen pforest_pub_n  = 1 if inlist(FormaOtorgamiento, "Asociación", "Concesión", "Permiso")
+// replace pforest_pub = 0 if pforest_pub == .
+// tab pforest_pub
+
+gen pforest_priv_n = 1 if inlist(FormaOtorgamiento, "Autorización")
+// replace pforest_priv = 0 if pforest_priv == .
+// tab pforest_priv
+
+// bys coddane fpermit_year_beg : egen pforest_pub_tot  = total(n) if pforest_pub  == 1
+// bys coddane fpermit_year_beg : egen pforest_priv_tot = total(n) if pforest_priv == 1
+//
+// bys coddane fpermit_year_beg : egen pforest_pub_n  = max(pforest_pub_tot)
+// bys coddane fpermit_year_beg : egen pforest_priv_n = max(pforest_priv_tot)
+//
+// drop pforest_pub_tot pforest_priv_tot
+
+rename fpermit_year_beg year 
+
+collapse (sum) pforest_n=n pforest_pub pforest_priv, by(coddane year)
+
+keep if year < 2020
+
+tempfile SIMFPERMS
+save `SIMFPERMS', replace
+
+
+*-------------------------------------------------------------------------------
 * Merging all together
+*
 *-------------------------------------------------------------------------------
 use "${data}/Gis\workinprogress\muniShp_defoinfo_sp.dta", clear
 
@@ -1478,8 +1701,8 @@ keep if year<2021
 
 *Merging other measures of deforestation
 *merge 1:1 coddane year using `FLOSS_PRIMARY_HANSEN', nogen
-merge 1:1 coddane year using `FLOSS_PRIMARY_IDEAM', nogen // it seems this is the same data
-merge 1:1 coddane year using `FLOSS_PRIMARY_ILLEGAL', nogen // it seems this is the same data
+merge 1:1 coddane year using `FLOSS_PRIMARY_IDEAM', nogen 
+merge 1:1 coddane year using `FLOSS_PRIMARY_ILLEGAL', nogen 
 merge m:1 coddane using `PRIMARYCOVER', keep(1 3) nogen
 merge m:1 coddane using `PRIMARYCOVERPA', keep(1 3) nogen
 
@@ -1546,11 +1769,12 @@ merge m:1 codepto year using `CARGOB', keep(1 3) nogen
 merge 1:1 coddane year using `PERM', keepus(perm_volume perm_n_resol perm_area) keep(1 3) nogen 
 merge 1:1 coddane year using `LICEN', keepus(n_licencia licencia_minero) keep(1 3) nogen 
 merge 1:1 coddane year using `LIVESTOCK', keepus(pc_bovinos bovinos) keep(1 3) nogen 
-merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 pc_crime_env pc_crime_forest pc_crime_forest_cond crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond total_procesos) keep(1 3) nogen 
+merge 1:1 coddane year using `ENVCRIME', keepus(sh_crime_env sh_crime_forest sh_crime_forest_cond sh_crime_forest_cond_v2 sh_crime_forest_v2 crime_environment crime_forest crime_forest_cond crime_forest crime_forest_cond crime_environment_cond sh_crime_env_cond total_procesos) keep(1 3) nogen 
 merge 1:1 coddane year using `FIRES', keep(1 3) nogen 
 merge 1:1 coddane year using `LOBBY1', keep(1 3) nogen 
 merge m:1 codepto year using `LOBBY2', keep(1 3) nogen 
 merge 1:1 coddane year using `LOBBY3', keep(1 3) nogen 
+merge 1:1 coddane year using `SIMFPERMS', keep(1 3) nogen 
 
 sort coddane year, stable
 bys coddane: carryforward sh_priv_gob sh_priv_valor_gob, replace 
@@ -1606,6 +1830,8 @@ merge 1:1 coddane year using `LANDUSE', keep(1 3) nogen
 merge 1:1 coddane year using `BII', keep(1 3) nogen 
 bys coddane: carryforward bii, replace 
 
+merge m:1 coddane using `PAAREA', keep(1 3) nogen
+
 *-------------------------------------------------------------------------------
 * Preparing vars of interest
 *-------------------------------------------------------------------------------
@@ -1659,6 +1885,18 @@ gen grass_shrub_area_floss=grass_shrub_area*100/floss_prim_ideam
 
 gen landuse_area=grass_area+shrub_area+bare_area+built_area+crop_area
 gen landuse_area_floss=landuse_area*100/floss_prim_ideam
+
+*Permits 
+gen mpforest_pub_n = pforest_pub_n
+gen mpforest_priv_n = pforest_priv_n
+gen mpforest_n = pforest_n
+   
+replace mpforest_pub_n  = 0 if mpforest_pub_n  == .
+replace mpforest_priv_n = 0 if mpforest_priv_n == .
+replace mpforest_n = 0 if mpforest_n == . 
+
+gen sh_pforest_pub=pforest_pub_n/pforest_n
+gen sh_pforest_priv=pforest_priv_n/pforest_n
 
 *Creating region var
 gen region=1*gamazonia +2*gandina +3*gcaribe +4*gorinoquia +5* gpacifica 

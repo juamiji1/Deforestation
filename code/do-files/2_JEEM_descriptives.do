@@ -131,7 +131,26 @@ ylabel(0 (20) 80)
 
 gr export "${plots}/desc_OLS_bii_plot_bygovhead.pdf", as(pdf) replace
 
+*-------------------------------------------------------------------------------
+* Forest Permits
+*-------------------------------------------------------------------------------
+eststo s2: reghdfe pforest_n if mayorallied==0 & director_gob_law_v2==0 & year>=2011,  abs(${fes})  vce(robust)
+eststo s3: reghdfe pforest_n if mayorallied==1 & director_gob_law_v2==0 & year>=2011,  abs(${fes})  vce(robust)
+eststo s4: reghdfe pforest_n if mayorallied==0 & director_gob_law_v2==1 & year>=2011,  abs(${fes})  vce(robust)
+eststo s5: reghdfe pforest_n if mayorallied==1 & director_gob_law_v2==1 & year>=2011,  abs(${fes})  vce(robust)
 
+coefplot (s4, color("gs9")) (s5, color("gs4")) ///
+(s2, color("gs9")) (s3, color("gs4")), ///
+vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
+mlabcolor("black") mlabsize(medium) coeflabels(_cons=" ") ///
+mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
+l2title("Granted Forestry Permits", size(medium)) ///
+legend(on order(1 "Mayor-Governor not Aligned" 3 "Mayor-Governor Aligned")) ///
+xline(1, lc(gray) lp(dash)) ///
+addplot(scatteri 60 .55 (3) "Governor as REPA Head" 60 1.05 (3) "Governor not REPA Head", mcolor(white) mlabsize(medium)) ///
+ylabel(0 (10) 60)
+
+gr export "${plots}\desc_forestpermits.pdf", as(pdf) replace 
 
 
 *END
