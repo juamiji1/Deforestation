@@ -66,8 +66,8 @@ mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
 l2title("Yearly Primary Forest Loss (%)", size(medium)) ///
 legend(on order(1 "Mayor-Governor not Aligned" 3 "Mayor-Governor Aligned")) ///
 xline(1, lc(gray) lp(dash)) ///
-addplot(scatteri .15 .55 (3) "Governor as REPA Head" .15 1.05 (3) "Governor not REPA Head", mcolor(white) mlabsize(medium)) ///
-ylabel(0 (.05).15)
+addplot(scatteri .17 .55 (3) "Governor as REPA Head" .17 1.05 (3) "Governor not REPA Head", mcolor(white) mlabsize(medium)) ///
+ylabel(0 (.05).17)
 
 
 gr export "${plots}/desc_OLS_plot_bygovhead.pdf", as(pdf) replace
