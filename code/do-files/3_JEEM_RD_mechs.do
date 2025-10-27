@@ -177,6 +177,16 @@ mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b
 
 gr export "${plots}\rdplot_mechs_results_illegal_p2.pdf", as(pdf) replace 
 
+*For presentation
+coefplot (r8, label("Gov head + Pols Majority")) ///
+(r9, label("Gov head + Pols Minority")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(medsmall)) ///
+xtitle("Illegal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_illegal_dpols.pdf", as(pdf) replace 
+
+
 *-------------------------------------------------------------------------------
 * Legal Deforestation
 *-------------------------------------------------------------------------------
@@ -220,6 +230,15 @@ xtitle("Legal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment
 mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
 
 gr export "${plots}\rdplot_mechs_results_legal_p2.pdf", as(pdf) replace 
+
+*For presentation
+coefplot (r8, label("Gov head + Pols Majority")) ///
+(r9, label("Gov head + Pols Minority")), keep(mayorallied) ///
+coeflabels(mayorallied = " ") ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(cols(2) size(medsmall)) ///
+xtitle("Legal Primary Forest Loss (%)", size(medium)) ytitle("Partisan Alignment Between Mayor and Governor", size(medsmall)) ///
+mlabel(cond(@pval<=.01, string(@b, "%9.3fc") + "***", cond(@pval<=.05, string(@b, "%9.3fc") + "**", cond(@pval<=.1, string(@b, "%9.3fc") + "*", cond(@pval<=.15, string(@b, "%9.3fc") + "†", string(@b, "%9.3fc")))))) mlabposition(12) mlabgap(*2)
+
+gr export "${plots}\rdplot_mechs_results_legal_dpols.pdf", as(pdf) replace 
 
 
 
