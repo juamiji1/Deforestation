@@ -878,8 +878,8 @@ append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
 
 preserve
 	sort codepto year 
-	bys codepto: gen incumbent_gob=1 if codigo_partido_gob[_n]==codigo_partido_gob[_n-1]
-	replace incumbent_gob=0 if incumbent_gob==.
+	bys codepto: gen incumbent_gob=1 if codigo_partido_gob[_n]==codigo_partido_gob[_n-1] & codigo_partido_gob!=.
+	replace incumbent_gob=0 if incumbent_gob==. & codigo_partido_gob!=. & year>2001
 	
 	replace year=year-1
 	ren year election
@@ -927,8 +927,8 @@ append using `2003ALC' `2007ALC' `2011ALC' `2015ALC' `2019ALC'
 preserve
 	keep if curules==1
 	sort coddane year 
-	bys coddane: gen incumbent=1 if codigo_partido_alc[_n]==codigo_partido_alc[_n-1]
-	replace incumbent=0 if incumbent==.
+	bys codepto: gen incumbent=1 if codigo_partido_alc[_n]==codigo_partido_alc[_n-1] & codigo_partido_alc!=.
+	replace incumbent=0 if incumbent==. & codigo_partido_alc!=. & year>2001
 	
 	replace year=year-1
 	ren year election

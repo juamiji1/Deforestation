@@ -118,7 +118,7 @@ reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_
 gen regsample=e(sample)
 
 *Asigning the pre-treatment var value
-gl varst "ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural sh_votes_reg incumbent_gob ln_va ln_va_prim ln_va_sec ln_va_terc night_light bii sh_invenv ln_nl votantes_muni ln_votantes_muni"
+gl varst "ln_pibagro ln_pibtot pobl_rur crime_rate crime_env_rate crime_forest_rate ln_pibpc desemp_fisc_index ln_regalias ln_inv_total ln_inv_ambiental sh_area_coca sh_area_siembra ln_prod_crops sh_area_bovino floss_prim_ideam_area sh_area_agro nbi mpi indrural sh_votes_reg incumbent_gob incumbent ln_va ln_va_prim ln_va_sec ln_va_terc night_light bii sh_invenv ln_nl votantes_muni ln_votantes_muni sh_votes_alc"
 
 preserve 
 	bys coddane: egen always=max(regsample)
@@ -168,8 +168,8 @@ la var pre_crime_rate "Crime rate"
 la var pre_crime_env_rate "Env. crime rate"
 la var pre_crime_forest_rate "Forest crime rate"
 la var pre_indrural "Rurality index"
-la var pre_sh_votes_reg "Registered voter (sh)"
-la var pre_incumbent "Incumbent (prob)"
+la var pre_sh_votes_alc "Registered voter (sh)"
+la var pre_incumbent_gob "Incumbent (prob)"
 
 la var ln_pibtot "Log(Total GDP)"
 la var pre_ln_va "Log(Total GDP)"
@@ -215,9 +215,9 @@ foreach yvar of global geovars {
 }
 
 *Demographic characteristics
-gl demovars "ln_pobl_tot93 pobl_tot93_dens pobreza93 pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_reg pre_incumbent pre_ln_votantes_muni"
+gl demovars "ln_pobl_tot93 pobl_tot93_dens pobreza93 pre_indrural mean_gini pre_crime_rate pre_crime_env_rate pre_crime_forest_rate pre_sh_votes_alc pre_incumbent_gob"
 
-mat CD=J(4,11,.)
+mat CD=J(4,12,.)
 mat coln CD=${demovars}
 
 local i=1
