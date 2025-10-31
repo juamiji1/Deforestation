@@ -876,16 +876,30 @@ foreach y in 2000 2003 2007 2011 2015 2019 {
 use `2000GOB', clear 
 append using `2003GOB' `2007GOB' `2011GOB' `2015GOB' `2019GOB'
 
+preserve
+	sort codepto year 
+	bys codepto: gen incumbent_gob=1 if codigo_partido_gob[_n]==codigo_partido_gob[_n-1]
+	replace incumbent_gob=0 if incumbent_gob==.
+	
+	replace year=year-1
+	ren year election
+	
+	tempfile INCUMBGOB
+	save `INCUMBGOB', replace
+restore
+
+
 tempfile GOBALL
 save `GOBALL'
 
 foreach y in 2000 2003 2007 2011 2015 2019 {
     
 	use "${data}/Elections\raw\Alcaldias/`y'_alcaldia.dta", clear
-	drop if codigo_lista==997 | codigo_lista==998 
-
-	bys codmpio: egen votantes_muni=total(votos)
+	
 	bys coddpto: egen votantes_depto=total(votos)
+	bys codmpio: egen votantes_muni=total(votos)
+	
+	drop if codigo_lista==997 | codigo_lista==998 
 
 	gen sh_votes_reg=votantes_muni/votantes_depto
 
@@ -1814,6 +1828,7 @@ ren (partido_votogreen green_party green_party_v2) (partido_votogreen_alc green_
 merge 1:1 coddane year using `CEDE', keep(1 3) nogen
 
 merge m:1 election coddane using `INCUMB', keep(1 3) keepus(sh_votes_reg incumbent) nogen
+merge m:1 election codepto using `INCUMBGOB', keep(1 3) keepus(incumbent_gob) nogen
 
 merge m:1 coddane using `ALC90', keep(1 3) nogen
 merge m:1 codepto using `DEPTOEVA90', keep(1 3) nogen
@@ -1855,7 +1870,7 @@ gen dmdn_politics_law = (sh_politics_law>=.5) if sh_politics_law!=.
 gen dmdn_politics2=(sh_politics2_law>.5) if sh_politics2_law!=.
 
 *Green party assumption
-*replace green_party_v2=1 if green_party_v2==.
+replace green_party_v2_gov=1 if green_party_v2_gov==.
 
 la var floss_prim_ideam_area "Primary Forest Loss (%)"
 la var mayorallied "Partisan Alignment"

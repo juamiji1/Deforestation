@@ -48,6 +48,44 @@ gl mean_y5=round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
 eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust)
+eststo r12: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust)
+
+
+*Municipalities under a non-green governor 
+eststo r4: reghdfe floss_prim_ideam_area_v2 green_party_v2_gov i1.green_party_v2_gov#c.z_sh_votes_alc z_sh_votes_alc [aw=tweights] ${if} & director_gob_law_v2==1 & mayorallied==1, abs(${fes}) vce(robust)
+
+reghdfe floss_prim_ideam_area_v2 ${controls} i1.mayorallied#i1.green_party_v2_gov green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust)
+
+reghdfe floss_prim_ideam_area_v2 ${controls} i1.mayorallied#i1.dmdn_politics2 dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(robust)
+
+
+
+reghdfe floss_prim_ideam_area_v2 ${controls} i1.mayorallied#i1.green_party_v2_gov green_party_v2_gov if director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} i1.mayorallied#i1.dmdn_politics2 dmdn_politics2 if director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
+
+
+reghdfe floss_prim_ideam_area_v2 ${controls} i1.mayorallied#i1.dmdn_politics2 dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
+
+
+*XXXX
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1 & dmdn_politics2==1, abs(${fes}) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0 & dmdn_politics2==1, abs(${fes}) vce(robust)
+
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust)
+
+*YYYY
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1 & dmdn_politics2==1, abs(${fes}) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1 & dmdn_politics2==0, abs(${fes}) vce(robust)
+
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust)
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust)
+
+
+
+
+END
+
 
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y6=round(r(mean), .01)
