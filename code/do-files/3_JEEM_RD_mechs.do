@@ -34,29 +34,29 @@ eststo clear
 * Governor is board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r1 = round(r(mean), .01)
 
-eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r2 = round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
-eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r3 = round(r(mean), .01)
 
-eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r4 = round(r(mean), .01)
 
 *Election year split
-eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r5 = round(r(mean), .01)
 
-eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r6 = round(r(mean), .01)
 
@@ -84,29 +84,29 @@ gr export "${plots}\rdplot_mechs_results_alldefo.pdf", as(pdf) replace
 * Governor is NOT board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r7 = round(r(mean), .01)
 
-eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r8 = round(r(mean), .01)
 
 *Election politics split
-eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r9 = round(r(mean), .01)
 
-eststo r10: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r10: reghdfe floss_prim_ideam_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r10 = round(r(mean), .01)
 
 *Election year split
-eststo r11: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r11: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r11 = round(r(mean), .01)
 
-eststo r12: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r12: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r12 = round(r(mean), .01)
 
@@ -153,29 +153,29 @@ eststo clear
 * Governor is board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r1: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r1: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r1 = round(r(mean), .01)
 
-eststo r2: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r2: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r2 = round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
-eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r3 = round(r(mean), .01)
 
-eststo r4: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r4: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r4 = round(r(mean), .01)
 
 *Election year split
-eststo r5: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r5: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r5 = round(r(mean), .01)
 
-eststo r6: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r6: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r6 = round(r(mean), .01)
 
@@ -203,29 +203,29 @@ gr export "${plots}\rdplot_mechs_results_illdefo.pdf", as(pdf) replace
 * Governor is NOT board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r7: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r7: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r7 = round(r(mean), .01)
 
-eststo r8: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r8: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r8 = round(r(mean), .01)
 
 *Election politics split
-eststo r9: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r9: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r9 = round(r(mean), .01)
 
-eststo r10: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r10: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r10 = round(r(mean), .01)
 
 *Election year split
-eststo r11: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r11: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r11 = round(r(mean), .01)
 
-eststo r12: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r12: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ilegal_area_v2 if e(sample)==1, d
 gl mean_r12 = round(r(mean), .01)
 
@@ -273,29 +273,29 @@ eststo clear
 * Governor is board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r1: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r1: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r1 = round(r(mean), .01)
 
-eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r2 = round(r(mean), .01)
 
 *Municipalities under governor as director in an election year
-eststo r3: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r3: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r3 = round(r(mean), .01)
 
-eststo r4: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r4: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r4 = round(r(mean), .01)
 
 *Election year split
-eststo r5: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r5: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r5 = round(r(mean), .01)
 
-eststo r6: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r6: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r6 = round(r(mean), .01)
 
@@ -323,29 +323,29 @@ gr export "${plots}\rdplot_mechs_results_legdefo.pdf", as(pdf) replace
 * Governor is NOT board head
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
-eststo r7: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+eststo r7: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r7 = round(r(mean), .01)
 
-eststo r8: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+eststo r8: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r8 = round(r(mean), .01)
 
 *Election politics split
-eststo r9: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+eststo r9: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r9 = round(r(mean), .01)
 
-eststo r10: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+eststo r10: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r10 = round(r(mean), .01)
 
 *Election year split
-eststo r11: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+eststo r11: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r11 = round(r(mean), .01)
 
-eststo r12: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+eststo r12: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r12 = round(r(mean), .01)
 
