@@ -1686,6 +1686,43 @@ keep if year < 2020
 tempfile SIMFPERMS
 save `SIMFPERMS', replace
 
+*-------------------------------------------------------------------------------
+* Elevation data
+*-------------------------------------------------------------------------------
+import delimited "${data}/Elevation\Elevation.csv", encoding(UTF-8) clear 
+
+ren (codmpio mean_dem) (coddane elevation)
+
+tempfile DEM
+save `DEM', replace 
+
+import delimited "${data}/Elevation\Ruggedness.csv", encoding(UTF-8) clear 
+
+ren (codmpio mean_ruggedness) (coddane ruggedness)
+
+merge 1:1 coddane using `DEM', keep(1 3)
+
+tempfile DEM
+save `DEM', replace 
+
+*-------------------------------------------------------------------------------
+* Precipitation data
+*-------------------------------------------------------------------------------
+import delimited "${data}/Lluvia\sensor_muni.csv", encoding(UTF-8) clear
+
+tempfile SENSOR
+save `SENSOR', replace
+
+import delimited "${data}/Lluvia\ideam_TS_70_22.csv", encoding(UTF-8) clear 
+
+keep if year >=2000
+
+merge m:1 codigo using `SENSOR', keep(3) keepus(codmpio) nogen 
+ren (codmpio tot_ppm_year) (coddane tot_ppm) 
+collapse (mean) tot_ppm, by(coddane year)
+
+tempfile PRECIP
+save `PRECIP', replace
 
 *-------------------------------------------------------------------------------
 * Merging all together
@@ -1846,6 +1883,8 @@ merge 1:1 coddane year using `BII', keep(1 3) nogen
 bys coddane: carryforward bii, replace 
 
 merge m:1 coddane using `PAAREA', keep(1 3) nogen
+merge m:1 coddane using `DEM', keep(1 3) nogen
+merge 1:1 coddane year using `PRECIP', keep(1 3) nogen
 
 *-------------------------------------------------------------------------------
 * Preparing vars of interest

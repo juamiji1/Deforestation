@@ -53,7 +53,8 @@ ren SRAingeominasanh_giros_totales giros_totales
 egen dist_mcados=rowmean(dismdo)
 gen ln_dist_mcados=ln(dist_mcados)
 
-egen mean_sut_crops=rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil)
+egen mean_sut_crops=rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil) 
+replace mean_sut_crops=mean_sut_crops/10000
 
 gen ln_area=ln(area)
 gen sh_area_agro=areamuniagro/area
@@ -62,9 +63,9 @@ replace total_procesos=0 if total_procesos==.
 replace crime_environment=0 if crime_environment==.
 replace crime_forest=0 if crime_forest==.
 
-gen crime_rate=(total_procesos/pobl_tot)*10000
-gen crime_env_rate=(crime_environment/pobl_tot)*10000
-gen crime_forest_rate=(crime_forest/pobl_tot)*10000
+gen crime_rate=(total_procesos/pobl_tot)*1000
+gen crime_env_rate=(crime_environment/pobl_tot)*1000
+gen crime_forest_rate=(crime_forest/pobl_tot)*1000
 
 bys coddane: egen mean_gini=mean(gini)
 
@@ -156,7 +157,7 @@ la var pre_sh_area_coca "Coca area (sh)"
 la var pre_sh_area_bovino "Cattle per Km2"
 la var pre_floss_prim_ideam_area "Primary Forest loss (sh)"
 
-la var pre_bii "Biodiversity Index"
+la var ruggedness "Ruggedness (mts)"
 
 *-------------------------------------------------------------------------------
 * LC Results
@@ -164,7 +165,7 @@ la var pre_bii "Biodiversity Index"
 eststo clear
 
 *Geographic characteristics
-gl geovars "ln_area sh_area pre_sh_area_agro sh_area_forest sh_paarea altura mean_sut_crops ln_dist_mcados pre_bii"
+gl geovars "ln_area sh_area pre_sh_area_agro sh_area_forest sh_paarea altura ruggedness mean_sut_crops ln_dist_mcados"
 
 mat CG=J(4,9,.)
 mat coln CG=${geovars}
@@ -268,7 +269,6 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 
 gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
 
-END
 *-------------------------------------------------------------------------------
 * Table
 *-------------------------------------------------------------------------------
@@ -280,16 +280,16 @@ esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_resul
             `"\hline \hline \toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(Area km2) & Area in REPA (sh) & Agricultural area (sh) & Primary forest & Protected area & Altitude (masl) & Crop suitability & Log(Distance to & Biodiversity \\"' ///
-			`" & & & & cover (sh) & in REPA (sh) &  &  & market Km2) & index \\"' ///
+            `" & Log(Area km2) & Area in REPA (sh) & Agricultural area (sh) & Primary forest & Protected area & Altitude (masl) & Ruggedness (mts) & Crop suitability & Log(Distance to \\"' ///
+			`" & & & & cover (sh) & in REPA (sh) &  &  &  & market km2) \\"' ///
             `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
             `"\midrule"') ///
-    postfoot(`" Dependent mean (lvl) & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
+    postfoot(`" Dependent mean & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
             `"\midrule"' ///
             `" & Log(Population-'93) & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
-			`" &  & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
+			`" &  & density-'93 & index & index & (per 1k inh) & (per 1k inh) & (per 1k inh) & voters (sh) & (prob) \\"' ///
             `" & (10) & (11) & (12) & (13) & (14) & (15) & (16) & (17) & (18) \\"' ///
             `"\midrule"')
 
@@ -310,5 +310,7 @@ esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_resul
 esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p3_9 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
-    postfoot(`" Dependent mean (lvl) & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
+    postfoot(`" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
+	        `"\midrule"' ///
+			`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
             `"\bottomrule \end{tabular}"')
