@@ -40,24 +40,24 @@ gen tweights = (1-abs(z_sh_votes_alc/${h})) ${if}
 tab year if H_coca!=.
 replace H_coca = 0 if H_coca==.
 gen sh_area_coca = H_coca/area
+gen sh_area_agro=areamuniagro/area
 
 * Night lights (log)
 gen ln_nl = log(night_light)
 
 * GDP per capita (log)
 gen ln_pibpc = ln(pib_percapita)
+gen ln_va=ln(va)
+replace ln_va=log(pib_cons) if ln_va==.
 
 * Royalties (log)
 ren SRAingeominasanh_giros_totales giros_totales
 gen ln_regalias = ln(giros_totales)
 
 * Public investment shares
-summ inv_total,d
-*replace inv_total=. if inv_total>`r(p99)'
-
-gen inv_total2=inv_total/10000
-gen sh_invpib = inv_total2/pib_total
+gen desemp_fisc_index=DF_desemp_fisc if DF_desemp_fisc>0
 gen sh_invenv = inv_ambiental/inv_total
+gen ln_inv_total=ln(inv_total)
 
 * Cattle
 gen sh_bovinos = bovinos/pobl_tot
@@ -65,6 +65,8 @@ gen sh_bovinos = bovinos/pobl_tot
 * Crimes (shares needed for demovars)
 gen sh_crimeenv    = crime_environment/total_procesos
 gen sh_crimeforest = crime_forest/crime_environment
+gen crime_env_rate=(crime_environment/pobl_tot)*10000
+gen crime_forest_rate=(crime_forest/pobl_tot)*10000
 
 * Population (log, anchored to 2010 then averaged at coddane)
 gen ln_pobl_tot = ln(pobl_tot93)
@@ -98,11 +100,10 @@ reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_
 gen regsample = e(sample)
 
 * Only keep variables that will become pre_* and are actually used in coefplots
-gl varst "ln_pibpc ln_nl ln_regalias sh_invpib sh_invenv sh_area_coca sh_bovinos ln_pobl_tot mpi indrural sh_votes_reg incumbent sh_crimeenv sh_crimeforest"
+gl varst "ln_pibpc ln_nl ln_regalias sh_invenv sh_area_coca sh_bovinos ln_pobl_tot mpi indrural sh_votes_reg incumbent sh_crimeenv sh_crimeforest sh_votes_alc incumbent_gob sh_area_agro bii ln_va desemp_fisc_index ln_inv_total floss_prim_ideam_area_v2"
 
 preserve
     bys coddane: egen always = max(regsample)
-    keep if mayorallied==0
 
     sort coddane election year, stable
     collapse (firstnm) ${varst} regsample always, by(coddane election)
@@ -128,7 +129,6 @@ merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen
 la var ln_area        "Log(Area km²)"
 la var sh_area        "Area in REPA (sh)"
 la var sh_area_forest "Primary forest cover (sh)"
-la var sh_paarea      "Protected area (sh)"
 la var ln_dist_mcados "Log(Distance to market)"
 la var mean_sut_crops "Crop suitability"
 la var altura "Elevation (masl)"
@@ -137,7 +137,6 @@ la var altura "Elevation (masl)"
 la var pre_ln_pibpc     "Log(GDP per capita)"
 la var pre_ln_nl        "Log(Night Light)"
 la var pre_ln_regalias  "Log(Royalties)"
-la var pre_sh_invpib    "Public Investment (sh)"
 la var pre_sh_invenv    "Environment Investment (sh)"
 la var pre_sh_area_coca "Coca area (sh)"
 la var pre_sh_bovinos   "Cattle per inhabitant"
@@ -154,49 +153,51 @@ la var pre_sh_crimeforest  "Forestry crimes (sh)"
 *-------------------------------------------------------------------------------
 * LC Results — Plot 1: Physical / Land cover & Access (7 vars)
 *-------------------------------------------------------------------------------
-gl physvars "altura mean_sut_crops ln_area sh_area sh_area_forest sh_paarea ln_dist_mcados"
-
-mat C1 = J(4, 7, .)
-mat coln C1 = ${physvars}
-
-local i = 1
-foreach yvar of global physvars {
-    cap drop std_`yvar'
-    egen std_`yvar' = std(`yvar')
-	
-    reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & ///
-        director_gob_law_v2!=., abs(${fes}) vce(robust)
-	
-    lincom mayorallied
-    mat C1[1,`i'] = r(estimate)
-    mat C1[2,`i'] = r(lb)
-    mat C1[3,`i'] = r(ub)
-    mat C1[4,`i'] = r(p)
-	
-	eststo p1_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
-        director_gob_law_v2!=., abs(${fes}) vce(robust)
-	summ `yvar' if e(sample)==1, d
-	gl mp1_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
-	
-    local i = `i' + 1
-
-}
-
-coefplot (mat(C1[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
-    b2title("Effect of Partisan Alignment (std)", size(medsmall)) ///
-    ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
-    ytitle("Dependent Variable (Pre-treatment)", size(medium)) ///
-    mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
-    mlabposition(12) mlabgap(*2)
-		
-	gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
+// *gl physvars "altura mean_sut_crops ln_area sh_area sh_area_forest sh_paarea ln_dist_mcados"
+// gl physvars "ln_area sh_area pre_sh_area_agro sh_area_forest altura mean_sut_crops ln_dist_mcados pre_bii"
+//
+// mat C1 = J(4, 8, .)
+// mat coln C1 = ${physvars}
+//
+// local i = 1
+// foreach yvar of global physvars {
+//     cap drop std_`yvar'
+//     egen std_`yvar' = std(`yvar')
+//	
+//     reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & ///
+//         director_gob_law_v2!=., abs(${fes}) vce(robust)
+//	
+//     lincom mayorallied
+//     mat C1[1,`i'] = r(estimate)
+//     mat C1[2,`i'] = r(lb)
+//     mat C1[3,`i'] = r(ub)
+//     mat C1[4,`i'] = r(p)
+//	
+// 	eststo p1_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+//         director_gob_law_v2!=., abs(${fes}) vce(robust)
+// 	summ `yvar' if e(sample)==1, d
+// 	gl mp1_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+//	
+//     local i = `i' + 1
+//
+// }
+//
+// coefplot (mat(C1[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
+//     b2title("Effect of Partisan Alignment (std)", size(medsmall)) ///
+//     ciopts(recast(rcap)) ylab(, labsize(medsmall)) ///
+//     ytitle("Dependent Variable (Pre-treatment)", size(medium)) ///
+//     mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
+//     mlabposition(12) mlabgap(*2)
+//
+// 	gr export "${plots}\rdplot_lc_results_geovars.pdf", as(pdf) replace 
 	
 *-------------------------------------------------------------------------------
 * LC Results — Plot 2: Economic activity & Investment (7 vars)
 *-------------------------------------------------------------------------------
-gl econvars "pre_ln_pibpc pre_ln_regalias pre_sh_invpib pre_sh_invenv pre_ln_nl pre_sh_area_coca pre_sh_bovinos"
+*gl econvars "pre_ln_pibpc pre_ln_regalias pre_sh_invpib pre_sh_invenv pre_ln_nl pre_sh_area_coca pre_sh_bovinos"
+gl econvars "pre_ln_va pre_ln_nl pre_desemp_fisc_index pre_ln_regalias pre_ln_inv_total pre_sh_invenv pre_sh_area_coca pre_sh_bovinos pre_floss_prim_ideam_area_v2 sh_paarea"
 
-mat C2 = J(4, 7, .)
+mat C2 = J(4, 10, .)
 mat coln C2 = ${econvars}
 
 local i = 1
@@ -229,6 +230,7 @@ coefplot (mat(C2[1]), ci((2 3)) aux(4)), xline(0, lp(dash) lc("maroon")) ///
     mlabel(cond(@aux1<=.01,"***",cond(@aux1<=.05,"**",cond(@aux1<=.1,"*","")))) ///
     mlabposition(12) mlabgap(*2)	
 	
+END
 	gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
 
 *-------------------------------------------------------------------------------
