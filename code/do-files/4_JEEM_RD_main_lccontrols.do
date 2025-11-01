@@ -1,14 +1,129 @@
 use "${data}/Interim\defo_caralc.dta", clear
 
+*-------------------------------------------------------------------------------
+* Local Continuity Assumption
+*
+*-------------------------------------------------------------------------------
+gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes "region year"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl ht= round(${h}, .001)
+gl if "if abs(z_sh_votes_alc)<=${h}"
+
+cap drop tweights
+gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
+
+*-------------------------------------------------------------------------------
+* Preparing vars
+*-------------------------------------------------------------------------------
+tab year if H_coca!=.
+replace H_coca=0 if H_coca==.
+gen sh_area_coca=H_coca/area
+
+egen area_siembra=rowtotal(as_arrozr as_arrozsm as_arrozsme as_palmaa as_palmaam as_palmar as_soya), m
+gen sh_area_siembra=area_siembra/area
+replace sh_area_siembra=0 if sh_area_siembra==.
+
+egen producto_siembra=rowtotal(p_arrozr p_arrozsm p_arrozsme p_palmaa p_palmaam p_palmar p_soya), m
+replace producto_siembra=0 if producto_siembra==.
+gen ln_prod_crops=ln(producto_siembra)
+
+gen primary_forest01_nopa=primary_forest01 - primary_forest01_pa
+
+gen sh_area_forest=primary_forest01/area
+
+replace sh_area_forest=0 if primary_forest01_nopa<0
+
+ren SRAingeominasanh_giros_totales giros_totales
+
+egen dist_mcados=rowmean(dismdo)
+gen ln_dist_mcados=ln(dist_mcados)
+
+egen mean_sut_crops=rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil) 
+replace mean_sut_crops=mean_sut_crops/10000
+
+gen ln_area=ln(area)
+gen sh_area_agro=areamuniagro/area
+
+replace total_procesos=0 if total_procesos==.
+replace crime_environment=0 if crime_environment==.
+replace crime_forest=0 if crime_forest==.
+
+gen crime_rate=(total_procesos/pobl_tot)*1000
+gen crime_env_rate=(crime_environment/pobl_tot)*1000
+gen crime_forest_rate=(crime_forest/pobl_tot)*1000
+
+bys coddane: egen mean_gini=mean(gini)
+
+ren IPM mpi
+bys coddane: egen mean_ipm=mean(mpi)
+
+gen ln_pibpc=ln(pib_percapita)
+gen ln_regalias=ln(giros_totales)
+gen ln_inv_total=ln(inv_total)
+
+gen sh_invenv = inv_ambiental/inv_total
+
+gen desemp_fisc_index=DF_desemp_fisc
+
+gen sh_area_bovino=bovinos/area
+gen ln_pobl_tot93=ln(pobl_tot93)
+
+gen pobl_tot93_dens=pobl_tot93/area
+
+gen ln_va=ln(va)
+replace ln_va=log(pib_cons) if ln_va==.
+
+summ night_light, d
+gen ln_nl=log(night_light)
+
+bys carcode_master: egen cararea = sum(area)
+bys carcode_master: egen carpaarea = sum(pa_area)
+gen sh_area = area*100/cararea
+gen sh_paarea = pa_area*100/carpaarea
+
+*Sample var
+reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
+gen regsample=e(sample)
+
+*Asigning the pre-treatment var value
+gl varst "ln_va ln_nl ln_regalias ln_inv_total sh_invenv sh_area_coca sh_area_bovino floss_prim_ideam_area sh_area_agro indrural crime_rate crime_env_rate crime_forest_rate sh_votes_alc incumbent_gob bii desemp_fisc_index"
+
+preserve 
+	bys coddane: egen always=max(regsample)
+	
+	sort coddane election year, stable
+	collapse (mean) ${varst} regsample always, by(election coddane)
+	sort coddane election
+
+	replace regsample=. if regsample==0
+	by coddane: carryforward regsample, gen(xt)
+	replace xt=0 if xt==. & always==1
+
+	keep if always==1
+	collapse (mean) ${varst}, by(coddane xt)
+	keep if xt==0
+	drop xt
+	
+	ren (${varst}) pre_=
+	
+	tempfile NONCONSTANTVARS
+	save `NONCONSTANTVARS', replace 
+restore
+
+merge m:1 coddane using `NONCONSTANTVARS', keep(1 3) nogen 
+
+summ pre_desemp_fisc_index, d
+replace pre_desemp_fisc_index=`r(mean)' if pre_desemp_fisc_index==.
+summ pre_ln_inv_total, d
+replace pre_ln_inv_total=`r(mean)' if pre_ln_inv_total==.
 
 *-------------------------------------------------------------------------------
 * Main Results with Controls
 *
 *-------------------------------------------------------------------------------
-egen mean_sut_crops = rowmean(sut_cof sut_banana sut_cocoa sut_rice sut_oil)
-replace mean_sut_crops=mean_sut_crops /10000 //Normalizing by max
-gen sh_paarea      = pa_area/area
-
 gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
 gl fes      "region year"
 
@@ -20,7 +135,7 @@ gl if "if abs(z_sh_votes_alc)<=${h}"
 cap drop tweights
 gen tweights = (1-abs(z_sh_votes_alc/${h})) ${if}
 
-gl X_lc "altura mean_sut_crops sh_paarea pobl_tot93"
+gl X_lc "altura mean_sut_crops ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total"
    
 eststo clear
 

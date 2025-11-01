@@ -14,6 +14,407 @@ la var mayorallied "Partisan Alignment"
 
 
 *-------------------------------------------------------------------------------
+* Mechanisms Results on all deforestation
+*
+*-------------------------------------------------------------------------------
+gl controls "mayorallied i.mayorallied#c.z_sh_votes_alc z_sh_votes_alc"
+gl fes "region year"
+
+rdrobust floss_prim_ideam_area_v2 z_sh_votes_alc, all kernel(triangular) covs(${fes})
+gl h = e(h_l)
+gl ht= round(${h}, .001)
+gl if "if abs(z_sh_votes_alc)<=${h} & floss_prim_ideam_area_v2!=. & floss_prim_legal_area_v2!=. & floss_prim_ilegal_area_v2!=."
+
+cap drop tweights
+gen tweights=(1-abs(z_sh_votes_alc/${h})) ${if}
+
+eststo clear
+
+*-------------------------------------------------------------------------------
+* Governor is board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r1 = round(r(mean), .01)
+
+eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r2 = round(r(mean), .01)
+
+*Municipalities under governor as director in an election year
+eststo r3: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r3 = round(r(mean), .01)
+
+eststo r4: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r4 = round(r(mean), .01)
+
+*Election year split
+eststo r5: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r5 = round(r(mean), .01)
+
+eststo r6: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r6 = round(r(mean), .01)
+
+coefplot ///
+    (r1, keep(mayorallied) rename(mayorallied = gparty)) ///
+    (r2, keep(mayorallied) rename(mayorallied = nogreen) offset(.3)) ///
+    (r3, keep(mayorallied) rename(mayorallied = polsmaj)) ///
+    (r4, keep(mayorallied) rename(mayorallied = polsmin) offset(.3)) ///
+    (r5, keep(mayorallied) rename(mayorallied = elect)) ///
+    (r6, keep(mayorallied) rename(mayorallied = nonelect) offset(.3)), ///
+    keep(*) ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(off) ///
+    order(gparty nogreen polsmaj polsmin elect nonelect) ///
+    xtitle("Primary Forest Loss (%)", size(medium)) ///
+    ytitle("Partisan Alignment Between Mayor and Governor", size(medium)) ///
+	ylabel(1 `""Green" "party""' 1.7 `""No green" "party""' 3 `""Politicians" "majority""' 3.7 `""Politicians" "minority""' 5 `""Electoral" "year""' 5.7 `""Non-electoral" "year""', labsize(small)) ///
+    mlabel(cond(@pval<=.01, string(@b, "%9.3fc")+"***", ///
+           cond(@pval<=.05, string(@b, "%9.3fc")+"**", ///
+           cond(@pval<=.1,  string(@b, "%9.3fc")+"*",  ///
+           cond(@pval<=.15, string(@b, "%9.3fc")+"†", string(@b, "%9.3fc")))))) ///
+    mlabposition(12) mlabgap(*2) 
+	
+gr export "${plots}\rdplot_mechs_results_alldefo.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* Governor is NOT board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r7: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r7 = round(r(mean), .01)
+
+eststo r8: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r8 = round(r(mean), .01)
+
+*Election politics split
+eststo r9: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r9 = round(r(mean), .01)
+
+eststo r10: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r10 = round(r(mean), .01)
+
+*Election year split
+eststo r11: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r11 = round(r(mean), .01)
+
+eststo r12: reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r12 = round(r(mean), .01)
+
+*-------------------------------------------------------------------------------
+* Table and coefplot
+*-------------------------------------------------------------------------------
+* Panel A table
+esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_alldefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///
+            `"\multicolumn{7}{l}{\textit{Panel A: Governor is head of REPA}} \\ \midrule"' ///			
+            `" & \multicolumn{6}{c}{Primary Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+            `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+            `" & party & party & majority & minority & year & year\\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"' ///
+            `" \midrule"')  ///
+postfoot(`" Dependent mean & ${mean_r1} & ${mean_r2} & ${mean_r3} & ${mean_r4} & ${mean_r5} & ${mean_r6} \\"' ///
+         `"\toprule"' ///
+         `"\multicolumn{7}{l}{\textit{Panel B: Governor is not head of REPA}} \\ \midrule"' ///			
+         `" & \multicolumn{6}{c}{Primary Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+         `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+         `" & party & party & majority & minority & year & year\\"' ///
+         `" & (7) & (8) & (9) & (10) & (11) & (12) \\"' ///
+         `" \midrule"')
+
+* Panel B table
+esttab r7 r8 r9 r10 r11 r12 using "${tables}/rdd_mechs_results_alldefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
+postfoot(`" Dependent mean & ${mean_r7} & ${mean_r8} & ${mean_r9} & ${mean_r10} & ${mean_r11} & ${mean_r12} \\ \midrule"' ///
+         `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+         `"\bottomrule \end{tabular}"')
+
+
+*-------------------------------------------------------------------------------
+* Mechanisms Results on illegal deforestation
+*
+*-------------------------------------------------------------------------------
+eststo clear
+
+*-------------------------------------------------------------------------------
+* Governor is board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r1: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r1 = round(r(mean), .01)
+
+eststo r2: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r2 = round(r(mean), .01)
+
+*Municipalities under governor as director in an election year
+eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r3 = round(r(mean), .01)
+
+eststo r4: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r4 = round(r(mean), .01)
+
+*Election year split
+eststo r5: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r5 = round(r(mean), .01)
+
+eststo r6: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r6 = round(r(mean), .01)
+
+coefplot ///
+    (r1, keep(mayorallied) rename(mayorallied = gparty)) ///
+    (r2, keep(mayorallied) rename(mayorallied = nogreen) offset(.3)) ///
+    (r3, keep(mayorallied) rename(mayorallied = polsmaj)) ///
+    (r4, keep(mayorallied) rename(mayorallied = polsmin) offset(.3)) ///
+    (r5, keep(mayorallied) rename(mayorallied = elect)) ///
+    (r6, keep(mayorallied) rename(mayorallied = nonelect) offset(.3)), ///
+    keep(*) ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(off) ///
+    order(gparty nogreen polsmaj polsmin elect nonelect) ///
+    xtitle("Illegal Primary Forest Loss (%)", size(medium)) ///
+    ytitle("Partisan Alignment Between Mayor and Governor", size(medium)) ///
+	ylabel(1 `""Green" "party""' 1.7 `""No green" "party""' 3 `""Politicians" "majority""' 3.7 `""Politicians" "minority""' 5 `""Electoral" "year""' 5.7 `""Non-electoral" "year""', labsize(small)) ///
+    mlabel(cond(@pval<=.01, string(@b, "%9.3fc")+"***", ///
+           cond(@pval<=.05, string(@b, "%9.3fc")+"**", ///
+           cond(@pval<=.1,  string(@b, "%9.3fc")+"*",  ///
+           cond(@pval<=.15, string(@b, "%9.3fc")+"†", string(@b, "%9.3fc")))))) ///
+    mlabposition(12) mlabgap(*2) 
+	
+gr export "${plots}\rdplot_mechs_results_illdefo.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* Governor is NOT board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r7: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r7 = round(r(mean), .01)
+
+eststo r8: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r8 = round(r(mean), .01)
+
+*Election politics split
+eststo r9: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r9 = round(r(mean), .01)
+
+eststo r10: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r10 = round(r(mean), .01)
+
+*Election year split
+eststo r11: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r11 = round(r(mean), .01)
+
+eststo r12: reghdfe floss_prim_ilegal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r12 = round(r(mean), .01)
+
+*-------------------------------------------------------------------------------
+* Table and coefplot
+*-------------------------------------------------------------------------------
+* Panel A table
+esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_illdefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///
+            `"\multicolumn{7}{l}{\textit{Panel A: Governor is head of REPA}} \\ \midrule"' ///			
+            `" & \multicolumn{6}{c}{Illegal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+            `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+            `" & party & party & majority & minority & year & year\\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"' ///
+            `" \midrule"')  ///
+postfoot(`" Dependent mean & ${mean_r1} & ${mean_r2} & ${mean_r3} & ${mean_r4} & ${mean_r5} & ${mean_r6} \\"' ///
+         `"\toprule"' ///
+         `"\multicolumn{7}{l}{\textit{Panel B: Governor is not head of REPA}} \\ \midrule"' ///			
+         `" & \multicolumn{6}{c}{Illegal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+         `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+         `" & party & party & majority & minority & year & year\\"' ///
+         `" & (7) & (8) & (9) & (10) & (11) & (12) \\"' ///
+         `" \midrule"')
+
+* Panel B table
+esttab r7 r8 r9 r10 r11 r12 using "${tables}/rdd_mechs_results_illdefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
+postfoot(`" Dependent mean & ${mean_r7} & ${mean_r8} & ${mean_r9} & ${mean_r10} & ${mean_r11} & ${mean_r12} \\ \midrule"' ///
+         `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+         `"\bottomrule \end{tabular}"')
+
+
+
+*-------------------------------------------------------------------------------
+* Mechanisms Results on legal deforestation
+*
+*-------------------------------------------------------------------------------
+eststo clear
+
+*-------------------------------------------------------------------------------
+* Governor is board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r1: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r1 = round(r(mean), .01)
+
+eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r2 = round(r(mean), .01)
+
+*Municipalities under governor as director in an election year
+eststo r3: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r3 = round(r(mean), .01)
+
+eststo r4: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r4 = round(r(mean), .01)
+
+*Election year split
+eststo r5: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r5 = round(r(mean), .01)
+
+eststo r6: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==1 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r6 = round(r(mean), .01)
+
+coefplot ///
+    (r1, keep(mayorallied) rename(mayorallied = gparty)) ///
+    (r2, keep(mayorallied) rename(mayorallied = nogreen) offset(.3)) ///
+    (r3, keep(mayorallied) rename(mayorallied = polsmaj)) ///
+    (r4, keep(mayorallied) rename(mayorallied = polsmin) offset(.3)) ///
+    (r5, keep(mayorallied) rename(mayorallied = elect)) ///
+    (r6, keep(mayorallied) rename(mayorallied = nonelect) offset(.3)), ///
+    keep(*) ciopts(recast(rcap)) xline(0, lc(maroon) lp(dash)) legend(off) ///
+    order(gparty nogreen polsmaj polsmin elect nonelect) ///
+    xtitle("Legal Primary Forest Loss (%)", size(medium)) ///
+    ytitle("Partisan Alignment Between Mayor and Governor", size(medium)) ///
+	ylabel(1 `""Green" "party""' 1.7 `""No green" "party""' 3 `""Politicians" "majority""' 3.7 `""Politicians" "minority""' 5 `""Electoral" "year""' 5.7 `""Non-electoral" "year""', labsize(small)) ///
+    mlabel(cond(@pval<=.01, string(@b, "%9.3fc")+"***", ///
+           cond(@pval<=.05, string(@b, "%9.3fc")+"**", ///
+           cond(@pval<=.1,  string(@b, "%9.3fc")+"*",  ///
+           cond(@pval<=.15, string(@b, "%9.3fc")+"†", string(@b, "%9.3fc")))))) ///
+    mlabposition(12) mlabgap(*2) 
+	
+gr export "${plots}\rdplot_mechs_results_legdefo.pdf", as(pdf) replace 
+
+*-------------------------------------------------------------------------------
+* Governor is NOT board head
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo r7: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r7 = round(r(mean), .01)
+
+eststo r8: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r8 = round(r(mean), .01)
+
+*Election politics split
+eststo r9: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r9 = round(r(mean), .01)
+
+eststo r10: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r10 = round(r(mean), .01)
+
+*Election year split
+eststo r11: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r11 = round(r(mean), .01)
+
+eststo r12: reghdfe floss_prim_legal_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2==0 & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r12 = round(r(mean), .01)
+
+*-------------------------------------------------------------------------------
+* Table and coefplot
+*-------------------------------------------------------------------------------
+* Panel A table
+esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_legdefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///
+            `"\multicolumn{7}{l}{\textit{Panel A: Governor is head of REPA}} \\ \midrule"' ///			
+            `" & \multicolumn{6}{c}{Legal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+            `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+            `" & party & party & majority & minority & year & year\\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"' ///
+            `" \midrule"')  ///
+postfoot(`" Dependent mean & ${mean_r1} & ${mean_r2} & ${mean_r3} & ${mean_r4} & ${mean_r5} & ${mean_r6} \\"' ///
+         `"\toprule"' ///
+         `"\multicolumn{7}{l}{\textit{Panel B: Governor is not head of REPA}} \\ \midrule"' ///			
+         `" & \multicolumn{6}{c}{Legal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+         `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+         `" & party & party & majority & minority & year & year\\"' ///
+         `" & (7) & (8) & (9) & (10) & (11) & (12) \\"' ///
+         `" \midrule"')
+
+* Panel B table
+esttab r7 r8 r9 r10 r11 r12 using "${tables}/rdd_mechs_results_legdefo.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
+postfoot(`" Dependent mean & ${mean_r7} & ${mean_r8} & ${mean_r9} & ${mean_r10} & ${mean_r11} & ${mean_r12} \\ \midrule"' ///
+         `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+         `"\bottomrule \end{tabular}"')
+
+	
+
+
+	
+/*END
+
+
+
+
+
+
+
+
+
+
+
+
+
+use "${data}/Interim\defo_caralc.dta", clear 
+
+
+*-------------------------------------------------------------------------------
+* Labels
+*
+*-------------------------------------------------------------------------------
+*replace floss_prim_ideam_area_v2 = floss_prim_ideam_area_v2*100
+gen election_year=1 if year==2000 | year==2003 | year==2007 | year==2011 | year==2015 | year==2019
+replace election_year=0 if election_year==.
+
+la var floss_prim_ideam_area_v2 "Primary Forest Loss"
+la var mayorallied "Partisan Alignment"
+
+
+*-------------------------------------------------------------------------------
 * Mechanisms Results
 *
 *-------------------------------------------------------------------------------
