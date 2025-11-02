@@ -63,9 +63,9 @@ replace total_procesos=0 if total_procesos==.
 replace crime_environment=0 if crime_environment==.
 replace crime_forest=0 if crime_forest==.
 
-gen crime_rate=(total_procesos/pobl_tot)*1000
-gen crime_env_rate=(crime_environment/pobl_tot)*1000
-gen crime_forest_rate=(crime_forest/pobl_tot)*1000
+gen crime_rate=(total_procesos/pobl_tot)*100000
+gen crime_env_rate=(crime_environment/pobl_tot)*100000
+gen crime_forest_rate=(crime_forest/pobl_tot)*100000
 
 bys coddane: egen mean_gini=mean(gini)
 
@@ -99,6 +99,7 @@ gen sh_paarea = pa_area*100/carpaarea
 *Sample var
 reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 gen regsample=e(sample)
+gl N=e(N)
 
 *Asigning the pre-treatment var value
 gl varst "ln_va ln_nl ln_regalias ln_inv_total sh_invenv sh_area_coca sh_area_bovino floss_prim_ideam_area sh_area_agro indrural crime_rate crime_env_rate crime_forest_rate sh_votes_alc incumbent_gob bii desemp_fisc_index"
@@ -275,7 +276,7 @@ gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace
 * --- Panel A: Geographical Characteristics (9 vars, order = geovars) ---
 esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
-    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) replace ///
     prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \hline \toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
@@ -284,20 +285,22 @@ esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_resul
 			`" & & & & cover (sh) & in REPA (sh) &  &  &  & market km2) \\"' ///
             `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
             `"\midrule"') ///
-    postfoot(`" Dependent mean & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
+    postfoot(`"\\"' ///
+			`" Dependent mean & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
             `"\midrule"' ///
             `" & Log(Population-'93) & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
-			`" &  & density-'93 & index & index & (per 1k inh) & (per 1k inh) & (per 1k inh) & voters (sh) & (prob) \\"' ///
+			`" &  & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
             `" & (10) & (11) & (12) & (13) & (14) & (15) & (16) & (17) & (18) \\"' ///
             `"\midrule"')
 
 * --- Panel B: Demographic and Politic Characteristics (9 vars, order = demovars) ---
 esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
-    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
-    postfoot(`" Dependent mean (lvl) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`"\\"' ///
+			`" Dependent mean (lvl) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel C: Economic Characteristics}} \\"' ///
             `"\midrule"' ///
@@ -309,9 +312,11 @@ esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_resul
 * --- Panel C: Economic Characteristics (9 vars, order = econvars) ---
 esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p3_9 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
-    label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
-    postfoot(`" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`"\\"' ///
+			`" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
 	        `"\midrule"' ///
+			`" Observations & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} \\"' ///
 			`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
             `"\bottomrule \end{tabular}"')
 
