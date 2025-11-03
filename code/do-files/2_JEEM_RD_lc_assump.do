@@ -4,7 +4,7 @@ use "${data}/Interim\defo_caralc.dta", clear
 * McCrary test
 *
 *-------------------------------------------------------------------------------
-rddensity z_sh_votes_alc if floss_prim_ideam_area_v2!=., c(0) noplot
+rddensity z_sh_votes_alc, c(0) noplot h(0.098)
 gl pval=round(`e(pv_q)', .01)
 
 rddensity z_sh_votes_alc, c(0) plot h(${h}) plot_range(-.1 .1) cirl_opt(acolor(gs6%30) alw(vvthin)) esll_opt(clc(gs2%90) clw(medthick)) cirr_opt(acolor(gs6%30) alw(vvthin)) eslr_opt(clc(gs2%90) clw(medthick)) nohist graph_opt(title("") xline(0, lc(maroon) lp(dash)) legend(off) b2title("Vote Margin", size(medium)) xtitle("") ytitle("Frequency", size(medium)) note("p-value=${pval}"))
