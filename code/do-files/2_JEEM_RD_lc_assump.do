@@ -270,6 +270,7 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 
 gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
 
+END
 *-------------------------------------------------------------------------------
 * Table
 *-------------------------------------------------------------------------------
@@ -278,11 +279,11 @@ esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_resul
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) replace ///
     prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
-            `"\hline \hline \toprule"' ///
+            `"\hline \toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(Area km2) & Area in REPA (sh) & Agricultural area (sh) & Primary forest & Protected area & Altitude (masl) & Ruggedness (mts) & Crop suitability & Log(Distance to \\"' ///
-			`" & & & & cover (sh) & in REPA (sh) &  &  &  & market km2) \\"' ///
+            `" & Log(Area km2) & Area in & Agricultural  & Primary forest & Protected area & Altitude  & Ruggedness  & Crop  & Log(Distance to \\"' ///
+			`" & &  REPA (sh) & area (sh) & cover (sh) & in REPA (sh) & (masl) & (mts) & suitability & market km2) \\"' ///
             `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
             `"\midrule"') ///
     postfoot(`"\\"' ///
@@ -290,8 +291,8 @@ esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_resul
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(Population-'93) & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
-			`" &  & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
+            `" & Log(Population & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
+			`" & -'93) & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
             `" & (10) & (11) & (12) & (13) & (14) & (15) & (16) & (17) & (18) \\"' ///
             `"\midrule"')
 
@@ -304,8 +305,8 @@ esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_resul
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel C: Economic Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(Total GDP) & Log(Night Light) & Fiscal performance  & Log(Royalties) & Log(Public & Enviromental & Coca area (sh) & Cattle head & Primary forest \\"' ///
-			`" & &  & index  &  & investment) & investment (Sh) &  & per Km2 & loss (sh) \\"' ///
+            `" & Log(GDP) & Log(Night  & Fiscal & Log(Royalties) & Log(Public & Enviromental & Coca  & Cattle head & Primary forest \\"' ///
+			`" & & Light) & performance  &  & investment) & investment (Sh) & area (sh) & per Km2 & loss (sh) \\"' ///
             `" & (19) & (20) & (21) & (22) & (23) & (24) & (25) & (26) & (27) \\"' ///
             `"\midrule"')
 
