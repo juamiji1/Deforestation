@@ -1446,7 +1446,6 @@ gen green_party_v2=(partido_votogreen>=`r(p50)') if partido_votogreen!=.
 
 replace green_party_v2=1 if partido_id_cede==194 | partido_id_cede==645
 replace green_party_v2=0 if partido_id_cede==14  | partido_id_cede==1
-
 ren codigo_partido codigo_partido_gob
 
 tempfile GREENPARTY
@@ -1909,8 +1908,6 @@ gen dmdn_politics_law = (sh_politics_law>=.5) if sh_politics_law!=.
 gen dmdn_politics2=(sh_politics2_law>.5) if sh_politics2_law!=.
 
 *Green party assumption
-replace green_party_v2_gov=1 if green_party_v2_gov==. // CORRECT given party manifestos
-replace green_party_v2_alc=0 if green_party_v2_alc==. // DOUBLE CHECK
 
 la var floss_prim_ideam_area "Primary Forest Loss (%)"
 la var mayorallied "Partisan Alignment"
