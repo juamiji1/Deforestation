@@ -281,7 +281,7 @@ eststo r2: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweig
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r2 = round(r(mean), .01)
 
-*Municipalities under governor as director in an election year
+*Municipalities under governor an board composition
 eststo r3: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & director_gob_law_v2==1 & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_legal_area_v2 if e(sample)==1, d
 gl mean_r3 = round(r(mean), .01)
