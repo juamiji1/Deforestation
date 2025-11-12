@@ -33,6 +33,7 @@ label variable sh_harv_area              "Harvested area (sh)"
 label variable built_area_floss          "Built on forest lost (%)"
 label variable grass_shrub_area_floss    "Grass/shrub on forest lost (%)"
 label variable crop_area_floss           "Crops on forest lost (%)"
+label variable sh_crime_forest			 "Forest crimes (sh)"	
 
 *-------------------------------------------------------------------------------
 * Main Results
@@ -53,7 +54,7 @@ eststo clear
 *-------------------------------------------------------------------------------
 * Economic characteristics (set actually-used outcomes)
 *-------------------------------------------------------------------------------
-global Yvars "sh_bovinos grass_shrub_area_floss crop_area_floss built_area_floss sh_sown_area ln_va ln_va_prim ln_va_sec ln_va_terc"
+global Yvars "sh_bovinos grass_shrub_area_floss crop_area_floss built_area_floss sh_sown_area sh_crime_forest ln_va ln_va_prim ln_va_sec ln_va_terc"
 
 mat C = J(4, 10, .)
 mat coln C = ${Yvars}
@@ -62,7 +63,7 @@ local i = 1
 foreach yvar of global Yvars {
     cap drop std_`yvar'
     bys year: egen std_`yvar' = std(`yvar')
-
+	
     reghdfe std_`yvar' ${controls} [aw=tweights] ${if} & year>=2014, abs(${fes}) vce(robust)
     lincom mayorallied
     mat C[1,`i'] = r(estimate)
@@ -91,7 +92,7 @@ gr export "${plots}/coefplot_rd_econchars.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * Economic characteristics by Gov. Head
 *-------------------------------------------------------------------------------
-global Yvars "sh_bovinos grass_shrub_area_floss crop_area_floss built_area_floss sh_sown_area ln_va ln_va_prim ln_va_sec ln_va_terc"
+global Yvars "sh_bovinos grass_shrub_area_floss crop_area_floss built_area_floss sh_sown_area sh_crime_forest ln_va ln_va_prim ln_va_sec ln_va_terc"
 
 mat C = J(4, 10, .)
 mat coln C = ${Yvars}
@@ -129,37 +130,35 @@ gr export "${plots}/coefplot_rd_econchars_govhead.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * Table
 *-------------------------------------------------------------------------------
-*-------------------------------------------------------------------------------
-* Table: Economic Characteristics — Full sample (A) vs Gov. Head aligned (B)
-*-------------------------------------------------------------------------------
-* Panel A (open table and write full-sample results; 9 cols = Yvars order)
-esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_econchars_results.tex", ///
+* Panel A (open table and write full-sample results; 10 cols = Yvars order)
+esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 p1_10 using "${tables}/rd_econchars_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
-    prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
-            `"\hline \hline \toprule"' ///
-            `"\multicolumn{10}{c}{\textit{Panel A: Sample of all REPAs}} \\"' ///
+    prehead(`"\begin{tabular}{@{}l*{10}{c}}"' ///
+            `"\toprule"' ///
+            `"\multicolumn{11}{c}{\textit{Panel A: Sample of all REPAs}} \\"' ///
             `"\midrule"' ///
-            `" & Cattle per  & Grass/shrub on & Crops sown on & Built on & Sown  & Log(GDP) & Log(GDP & Log(GDP  & Log(GDP  \\"' ///
-            `" & capita & forest loss (\%) & forest loss (\%) & forest loss (\%) & area (sh) &  & primary) & manufacture) & services) \\"' ///
-            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
+            `" & Cattle per & Grass/shrub on & Crops on & Built on & Sown & Forest & Log(GDP) & Log(GDP & Log(GDP  & Log(GDP  \\"' ///
+            `" & capita & forest loss (\%) & forest loss (\%) & forest loss (\%) & area (sh) & crimes (sh) &  & primary) & manufacture) & services) \\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) & (10) \\"' ///
             `"\midrule"') ///
-    postfoot(`"Dep. mean (level) & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
+    postfoot(`"Dep. mean (level) & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} & ${mp1_10} \\"' ///
              `"\toprule"' ///
-             `"\multicolumn{10}{c}{\textit{Panel B: Sample of REPAs with governor as head}} \\"' ///
-			 `"\midrule"' ///
-            `" & Cattle per & Grass/shrub on & Crops sown on & Built on & Sown & Log(GDP) & Log(GDP & Log(GDP  & Log(GDP  \\"' ///
-            `" & capita & forest loss (\%) & forest loss (\%) & forest loss (\%) & area (sh) &  & primary) & manufacture) & services) \\"' ///
-			 `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
+             `"\multicolumn{11}{c}{\textit{Panel B: Sample of REPAs with governor as head}} \\"' ///
+             `"\midrule"' ///
+             `" & Cattle per & Grass/shrub on & Crops on & Built on & Sown & Forest & Log(GDP) & Log(GDP & Log(GDP  & Log(GDP  \\"' ///
+             `" & capita & forest loss (\%) & forest loss (\%) & forest loss (\%) & area (sh) & crimes (sh) &  & primary) & manufacture) & services) \\"' ///
+             `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) & (10) \\"' ///
              `"\midrule"' )
 
 * Panel B (append gov-head subsample into the same tabular; then close it)
-esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_econchars_results.tex", ///
+esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 p2_10 using "${tables}/rd_econchars_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) append ///
-    postfoot(`"Dep. mean (level) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
+    postfoot(`"Dep. mean (level) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} & ${mp2_10} \\"' ///
              `"\bottomrule \end{tabular}"')
 
+			 
 
 
 

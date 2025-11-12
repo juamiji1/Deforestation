@@ -95,8 +95,7 @@ mat C=e(b)
 mat coln C =  11 12 13 14 15 16 17 18 19
 
 coefplot (mat(A[1]), mcolor("gs2") label("National")) ///
-(mat(B[1]), mcolor("gs6") label("Amazon")) ///
-(mat(C[1]), mcolor("gs11") label("Area per 1K Permits")), ///
+(mat(B[1]), mcolor("gs6") label("Amazon")), ///
 vert noci recast(connected) xline(4, lp(dash)) xline(8, lp(dash)) xline(12, lp(dash)) xline(16, lp(dash)) l2title("Yearly Primary Forest Loss (%)", size(medium)) b2title("Years", size(medium)) addplot(scatteri .2 12 .2 13 .2 14 .2 15 .2 16, recast(area) color(gs5%15) lcolor(white) base(0.02)) plotregion(margin(zero)) legend(cols(3))
 
 gr export "${plots}/desc_all_yearly_trend.pdf", as(pdf) replace

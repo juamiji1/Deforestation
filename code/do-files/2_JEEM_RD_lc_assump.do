@@ -191,6 +191,7 @@ foreach yvar of global geovars {
         director_gob_law_v2!=., abs(${fes}) vce(robust)
 	summ `yvar' if e(sample)==1, d
 	gl mp1_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	gl sp1_`i'= "`=string(round(r(sd), .01), "%9.2f")'"
 	
 	local i=`i'+1
 }
@@ -226,6 +227,7 @@ foreach yvar of global demovars {
         director_gob_law_v2!=., abs(${fes}) vce(robust)
 	summ `yvar' if e(sample)==1, d
 	gl mp2_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	gl sp2_`i'= "`=string(round(r(sd), .01), "%9.2f")'"
 	
 	local i=`i'+1
 }
@@ -261,6 +263,7 @@ foreach yvar of global econvars {
 	director_gob_law_v2!=., abs(${fes}) vce(robust)
 	summ `yvar' if e(sample)==1, d
 	gl mp3_`i'= "`=string(round(r(mean), .01), "%9.2f")'"
+	gl sp3_`i'= "`=string(round(r(sd), .01), "%9.2f")'"
 	
 	local i=`i'+1
 }
@@ -270,7 +273,6 @@ mlabel(cond(@aux1<=.01, "***", cond(@aux1<=.05, "**", cond(@aux1<=.1, "*", """")
 
 gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace 
 
-END
 *-------------------------------------------------------------------------------
 * Table
 *-------------------------------------------------------------------------------
@@ -288,6 +290,7 @@ esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_resul
             `"\midrule"') ///
     postfoot(`"\\"' ///
 			`" Dependent mean & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
+			`" Dependent std. dev. & ${sp1_1} & ${sp1_2} & ${sp1_3} & ${sp1_4} & ${sp1_5} & ${sp1_6} & ${sp1_7} & ${sp1_8} & ${sp1_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
             `"\midrule"' ///
@@ -301,7 +304,8 @@ esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_resul
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
     postfoot(`"\\"' ///
-			`" Dependent mean (lvl) & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
+			`" Dependent mean & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
+			`" Dependent std. dev. & ${sp2_1} & ${sp2_2} & ${sp2_3} & ${sp2_4} & ${sp2_5} & ${sp2_6} & ${sp2_7} & ${sp2_8} & ${sp2_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel C: Economic Characteristics}} \\"' ///
             `"\midrule"' ///
@@ -316,6 +320,7 @@ esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p3_9 using "${tables}/rd_lc_resul
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
     postfoot(`"\\"' ///
 			`" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
+			`" Dependent std. dev. & ${sp3_1} & ${sp3_2} & ${sp3_3} & ${sp3_4} & ${sp3_5} & ${sp3_6} & ${sp3_7} & ${sp3_8} & ${sp3_9} \\"' ///
 	        `"\midrule"' ///
 			`" Observations & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} \\"' ///
 			`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
