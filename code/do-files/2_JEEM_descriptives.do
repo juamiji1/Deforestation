@@ -116,17 +116,34 @@ gr export "${plots}/desc_all_yearly_trend_bygovhead.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * BII
 *-------------------------------------------------------------------------------
-eststo s6: reghdfe bii if director_gob_law_v2==0 & floss_prim_ideam_area_v2!=. & inlist(year, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
-eststo s7: reghdfe bii if director_gob_law_v2==1 & floss_prim_ideam_area_v2!=. & inlist(year, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+eststo s0: reghdfe bii if mayorallied==0 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+eststo s1: reghdfe bii if mayorallied==1 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
 
-coefplot (s7, color("gs9")) (s6, color("gs4")), ///
+coefplot (s0, color("gs9")) (s1, color("gs4")), ///
+vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
+mlabcolor("black") mlabsize(medsmall) coeflabels(_cons=" ") ///
+mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
+l2title("Yearly Primary Forest Loss (%)", size(medium)) ///
+legend(on order(1 "Mayor-Governor not Aligned" 3 "Mayor-Governor Aligned")) ///
+ylabel(0 (10) 70)
+
+gr export "${plots}/desc_OLS_bii_plot.pdf", as(pdf) replace
+
+eststo s2: reghdfe bii if mayorallied==0 & director_gob_law_v2==0 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+eststo s3: reghdfe bii if mayorallied==1 & director_gob_law_v2==0 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+eststo s4: reghdfe bii if mayorallied==0 & director_gob_law_v2==1 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+eststo s5: reghdfe bii if mayorallied==1 & director_gob_law_v2==1 & floss_prim_ideam_area_v2!=. & inlist(year, 2000, 2005, 2010, 2015, 2020), abs(${fes}) vce(robust)
+
+coefplot (s4, color("gs9")) (s5, color("gs4")) ///
+(s2, color("gs9")) (s3, color("gs4")), ///
 vert recast(bar) barwidth(0.12) ciopts(recast(rcap) lcolor("black")) citop ///
 mlabcolor("black") mlabsize(medium) coeflabels(_cons=" ") ///
 mlabel(string(@b, "%9.2fc")) mlabposition(11) mlabgap(*2) ///
-l2title("Biodiversity Intactness Index (%)", size(medium)) ///
-ytitle("Every Five Years", size(medsmall)) ///
-legend(on order(1 "Governor as REPA Head" 3 "Governor not REPA Head")) ///
-ylabel(0 (20) 80)
+l2title("Yearly Primary Forest Loss (%)", size(medium)) ///
+legend(on order(1 "Mayor-Governor not Aligned" 3 "Mayor-Governor Aligned")) ///
+xline(1, lc(gray) lp(dash)) ///
+addplot(scatteri 95 .55 (3) "Governor as REPA Head" 95 1.05 (3) "Governor not REPA Head", mcolor(white) mlabsize(medium)) ///
+ylabel(0 (10) 95)
 
 gr export "${plots}/desc_OLS_bii_plot_bygovhead.pdf", as(pdf) replace
 

@@ -276,26 +276,26 @@ gr export "${plots}\rdplot_lc_results_econvars.pdf", as(pdf) replace
 *-------------------------------------------------------------------------------
 * Table
 *-------------------------------------------------------------------------------
-* --- Panel A: Geographical Characteristics (9 vars, order = geovars) ---
-esttab p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_8 p1_9 using "${tables}/rd_lc_results.tex", ///
+* --- Panel A: Geographical Characteristics (9 vars, order = geovars, but with p3_9 first) ---
+esttab p3_9 p1_1 p1_2 p1_3 p1_4 p1_5 p1_6 p1_7 p1_9 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) replace ///
     prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
             `"\hline \toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(Area km2) & Area in & Agricultural  & Primary forest & Protected area & Altitude  & Ruggedness  & Crop  & Log(Distance to \\"' ///
-			`" & &  REPA (sh) & area (sh) & cover (sh) & in REPA (sh) & (masl) & (mts) & suitability & market km2) \\"' ///
+            `" & Primary forest & Log(Area km2) & Area in & Agricultural  & Primary forest & Protected area & Altitude  & Ruggedness  & Log(Distance to \\"' ///
+            `" & loss (sh) &  &  REPA (sh) & area (sh) & cover (sh) & in REPA (sh) & (masl) & (mts) & market km2) \\"' ///
             `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
             `"\midrule"') ///
     postfoot(`"\\"' ///
-			`" Dependent mean & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_8} & ${mp1_9} \\"' ///
-			`" Dependent std. dev. & ${sp1_1} & ${sp1_2} & ${sp1_3} & ${sp1_4} & ${sp1_5} & ${sp1_6} & ${sp1_7} & ${sp1_8} & ${sp1_9} \\"' ///
+            `" Dependent mean & ${mp3_9} & ${mp1_1} & ${mp1_2} & ${mp1_3} & ${mp1_4} & ${mp1_5} & ${mp1_6} & ${mp1_7} & ${mp1_9} \\"' ///
+            `" Dependent std. dev. & ${sp3_9} & ${sp1_1} & ${sp1_2} & ${sp1_3} & ${sp1_4} & ${sp1_5} & ${sp1_6} & ${sp1_7} & ${sp1_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
             `"\midrule"' ///
             `" & Log(Population & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
-			`" & -'93) & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
+            `" & -'93) & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
             `" & (10) & (11) & (12) & (13) & (14) & (15) & (16) & (17) & (18) \\"' ///
             `"\midrule"')
 
@@ -304,27 +304,28 @@ esttab p2_1 p2_2 p2_3 p2_4 p2_5 p2_6 p2_7 p2_8 p2_9 using "${tables}/rd_lc_resul
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
     postfoot(`"\\"' ///
-			`" Dependent mean & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
-			`" Dependent std. dev. & ${sp2_1} & ${sp2_2} & ${sp2_3} & ${sp2_4} & ${sp2_5} & ${sp2_6} & ${sp2_7} & ${sp2_8} & ${sp2_9} \\"' ///
+            `" Dependent mean & ${mp2_1} & ${mp2_2} & ${mp2_3} & ${mp2_4} & ${mp2_5} & ${mp2_6} & ${mp2_7} & ${mp2_8} & ${mp2_9} \\"' ///
+            `" Dependent std. dev. & ${sp2_1} & ${sp2_2} & ${sp2_3} & ${sp2_4} & ${sp2_5} & ${sp2_6} & ${sp2_7} & ${sp2_8} & ${sp2_9} \\"' ///
             `"\toprule"' ///
             `"\multicolumn{10}{c}{\textit{Panel C: Economic Characteristics}} \\"' ///
             `"\midrule"' ///
-            `" & Log(GDP) & Log(Night  & Fiscal & Log(Royalties) & Log(Public & Enviromental & Coca  & Cattle head & Primary forest \\"' ///
-			`" & & Light) & performance  &  & investment) & investment (Sh) & area (sh) & per Km2 & loss (sh) \\"' ///
+            `" & Log(GDP) & Log(Night  & Fiscal & Log(Royalties) & Log(Public & Enviromental & Coca  & Cattle head & Crop \\"' ///
+            `" &  & Light) & performance  &  & investment) & investment (Sh) & area (sh) & per Km2 & suitability \\"' ///
             `" & (19) & (20) & (21) & (22) & (23) & (24) & (25) & (26) & (27) \\"' ///
             `"\midrule"')
 
-* --- Panel C: Economic Characteristics (9 vars, order = econvars) ---
-esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p3_9 using "${tables}/rd_lc_results.tex", ///
+* --- Panel C: Economic Characteristics (8 econ vars + Crop suitability last) ---
+esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p1_8 using "${tables}/rd_lc_results.tex", ///
     keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
     label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
     postfoot(`"\\"' ///
-			`" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp3_9} \\"' ///
-			`" Dependent std. dev. & ${sp3_1} & ${sp3_2} & ${sp3_3} & ${sp3_4} & ${sp3_5} & ${sp3_6} & ${sp3_7} & ${sp3_8} & ${sp3_9} \\"' ///
-	        `"\midrule"' ///
-			`" Observations & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} \\"' ///
-			`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+            `" Dependent mean & ${mp3_1} & ${mp3_2} & ${mp3_3} & ${mp3_4} & ${mp3_5} & ${mp3_6} & ${mp3_7} & ${mp3_8} & ${mp1_8} \\"' ///
+            `" Dependent std. dev. & ${sp3_1} & ${sp3_2} & ${sp3_3} & ${sp3_4} & ${sp3_5} & ${sp3_6} & ${sp3_7} & ${sp3_8} & ${sp1_8} \\"' ///
+            `"\midrule"' ///
+            `" Observations & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} & ${N} \\"' ///
+            `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
             `"\bottomrule \end{tabular}"')
+
 
 			
 			
