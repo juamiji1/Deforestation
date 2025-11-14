@@ -65,8 +65,7 @@ esttab x1 x2 x3 x4 x5 x6 using "${tables}/rdd_mechs_results_alldefo_combined.tex
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
 prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
-            `"\hline \toprule"'                     ///
-            `"\multicolumn{7}{l}{\textit{Panel A: All municipalities}} \\ \midrule"' ///			
+            `"\hline \toprule"'                     ///		
             `" & \multicolumn{6}{c}{Primary Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
             `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
             `" & governor & governor & majority & minority & year & year\\"' ///
@@ -473,11 +472,102 @@ prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
 	`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
 	`"\bottomrule \end{tabular}"') 
 
+*-------------------------------------------------------------------------------
+* All - ILLEGAL
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo x1: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x1 = round(r(mean), .01)
+
+eststo x2: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x2 = round(r(mean), .01)
+
+*Municipalities under governor as director in an election year
+eststo x3: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x3 = round(r(mean), .01)
+
+eststo x4: reghdfe floss_prim_ilegal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x4 = round(r(mean), .01)
+
+*Election year split
+eststo x5: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x5 = round(r(mean), .01)
+
+eststo x6: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_x6 = round(r(mean), .01)
+
+* Table
+esttab x1 x2 x3 x4 x5 x6 using "${tables}/rdd_mechs_results_illdefo_combined.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///		
+            `" & \multicolumn{6}{c}{Illegal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+            `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+            `" & governor & governor & majority & minority & year & year\\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"' ///
+            `" \midrule"')  ///
+postfoot(`" Dependent mean & ${mean_x1} & ${mean_x2} & ${mean_x3} & ${mean_x4} & ${mean_x5} & ${mean_x6} \\"' ///
+         `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+         `"\bottomrule \end{tabular}"')
+		 
+*-------------------------------------------------------------------------------
+* All - LEGAL
+*-------------------------------------------------------------------------------
+*Municipalities under a green vs non-green governor 
+eststo x1: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x1 = round(r(mean), .01)
+
+eststo x2: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x2 = round(r(mean), .01)
+
+*Municipalities under governor as director in an election year
+eststo x3: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & dmdn_politics2==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x3 = round(r(mean), .01)
+
+eststo x4: reghdfe floss_prim_legal_area_v2 ${controls} green_party_v2_gov [aw=tweights] ${if} & dmdn_politics2==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x4 = round(r(mean), .01)
+
+*Election year split
+eststo x5: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & election_year==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x5 = round(r(mean), .01)
+
+eststo x6: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 green_party_v2_gov [aw=tweights] ${if} & election_year==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_x6 = round(r(mean), .01)
+
+* Table
+esttab x1 x2 x3 x4 x5 x6 using "${tables}/rdd_mechs_results_legdefo_combined.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///		
+            `" & \multicolumn{6}{c}{Legal Forest Loss (\%)} \\ \cmidrule(l){2-7}"' ///
+            `" & Green & Non-green & Politicians & Politicians & Election & Non-election \\"' ///
+            `" & governor & governor & majority & minority & year & year\\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"' ///
+            `" \midrule"')  ///
+postfoot(`" Dependent mean & ${mean_x1} & ${mean_x2} & ${mean_x3} & ${mean_x4} & ${mean_x5} & ${mean_x6} \\"' ///
+         `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+         `"\bottomrule \end{tabular}"')
+		 
 
 
-	
+		 
+		 
 
-
+		
 	
 /*END
 

@@ -142,13 +142,13 @@ eststo clear
 *All municipalities 
 eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} ${X_lc} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y1=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is mandated as director 
 eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} ${X_lc} [aw=tweights] ${if} & director_gob_law_v2==1, abs(${fes}) vce(robust)
 
-summ floss_prim_ideam_area if e(sample)==1, d
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_y2=round(r(mean), .01)
 
 *Municipalities under a CAR in which Gobernor is NOT mandated as director 

@@ -168,5 +168,98 @@ ylabel(0 (10) 60)
 
 gr export "${plots}\desc_forestpermits.pdf", as(pdf) replace 
 
+*-------------------------------------------------------------------------------
+* Stats for states by governor head
+*-------------------------------------------------------------------------------
+*My ttest program
+cap program drop my_ttest
+program my_ttest, eclass
+	version 15
+	syntax varlist(fv) [if] [in], by(varlist fv)
+	cap mat drop T S
+	
+	scalar n=wordcount("`varlist'")
+	dis n
+	
+	mat T = J(n,9,.)
+	local final=0
+	foreach var of local varlist{
+		ttest `var' `if', by(`by')
+		local inicial = 1 + `final'
+		mat T[`inicial',1] = r(mu_1)
+		mat T[`inicial',2] = r(sd_1) 
+		mat T[`inicial',3] = r(mu_2)
+		mat T[`inicial',4] = r(sd_2) 
+		mat T[`inicial',5] = r(mu_1) - r(mu_2)
+		mat T[`inicial',6] = r(se)
+		mat T[`inicial',7] = r(N_1)
+		mat T[`inicial',8] = r(N_2)
+		mat T[`inicial',9] = r(p)
+		local final = `inicial'
+	}	
+
+	mata: stars_MATA(st_matrix("T"),st_numscalar("n"))
+
+	mat T=T[.,1..6]
+	mat rown T= `varlist'
+	
+	ereturn mat est=T 
+	ereturn mat stars=S
+	
+end
+
+mata 
+	function stars_MATA(T,n){
+		numeric matrix S
+		S=(T[.,9]:<=0.1)+(T[.,9]:<=0.05)+(T[.,9]:<=0.01)
+		S=(J(n,4,0),S,J(n,1,0))
+		st_matrix("T",T)
+		st_matrix("S",S)
+	}
+end mata 
+
+*Ttest table 
+use "${data}/Interim\Desc_vars90.dta", clear 
+
+la var depto_ln_pobl_tot93 "Log(Total population) - 1993"
+la var depto_sh_displaced93_lc90 "Log(Displaced population) - 1993"
+la var depto_gini93_lc90 "Gini index - 1993"
+la var depto_nbi93_lc90 "Unsatisfied basic needs - 1993"
+la var depto_sh_forestcov90 "Forest cover share (\%) - 1990"
+la var depto_forest_change_90_00 "Forest change - 1990 to 2000"
+la var depto_ln_crop_prod90 "Log(Crop production) - 1990"
+la var depto_crop_yield1990 "Crop yield - 1990"
+la var depto_ln_pib90 "Log(Total GDP) - 1990"
+la var depto_ln_agg_va90 "Log(Agriculture value) - 1990"
+la var depto_ln_min_va90 "Log(Mining value) - 1990"
+
+gl popvars "depto_ln_pobl_tot93 depto_sh_displaced93_lc90 depto_gini93_lc90 depto_nbi93_lc90"
+gl geovars "depto_sh_forestcov90 depto_forest_change_90_00  depto_ln_crop_prod90 depto_crop_yield1990"
+gl prodvars "depto_ln_pib90  depto_ln_agg_va90 depto_ln_min_va90"
+
+gen d_director_gob_law_v2=(m_director_gob_law_v2>0) 
+
+drop if codepto==11 // Dropping Bogota
+my_ttest ${popvars} ${geovars} ${prodvars}, by(d_director_gob_law_v2)
+mat T=e(est)
+mat S=e(stars)
+mat N = J(2,3,.)
+mat N[2,1]=8
+mat N[2,2]=23
+mat N[2,3]=31
+
+*Nice results
+tempfile X X0 X1 
+frmttable, statmat(T) varlabels replace substat(1) annotate(S) asymbol(*,**,***) ///
+ctitle("Variables", "Governor not REPA head", "Governor is REPA head", , "Difference" \ "", "Mean", "Mean", "of means" \ ///
+" ", "(SD)", "(SD)", "(SE)") fragment tex nocenter
+frmttable using `X', statmat(N) varlabels append ///
+rtitle("" \ "State observations") fragment tex nocenter sdec(0)
+
+filefilter `X' `X0', from("r}\BS\BS") to("r}") replace 
+filefilter `X0' `X1', from("\BSbegin{footnotesize}") to("") replace 
+filefilter `X1' "${tables}\ttest_states.tex", from("\BSend{footnotesize}") to("") replace 
+
+
 
 *END
