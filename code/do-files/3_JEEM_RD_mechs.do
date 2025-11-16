@@ -430,6 +430,49 @@ postfoot(`" Dependent mean & ${mean_r7} & ${mean_r8} & ${mean_r9} & ${mean_r10} 
 * Private gains test (fixing also mayors parties)
 *-------------------------------------------------------------------------------
 *Municipalities under a green vs non-green governor 
+eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==1 & green_party_v2_alc==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r1 = round(r(mean), .01)
+
+eststo r2: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==0 & green_party_v2_alc==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ideam_area_v2 if e(sample)==1, d
+gl mean_r2 = round(r(mean), .01)
+
+eststo r3: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==1 & green_party_v2_alc==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r3 = round(r(mean), .01)
+
+eststo r4: reghdfe floss_prim_ilegal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==0 & green_party_v2_alc==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_ilegal_area_v2 if e(sample)==1, d
+gl mean_r4 = round(r(mean), .01)
+
+eststo r5: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==1 & green_party_v2_alc==1, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r5 = round(r(mean), .01)
+
+eststo r6: reghdfe floss_prim_legal_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & green_party_v2_gov==0 & green_party_v2_alc==0, abs(${fes}) vce(robust) keepsing
+summ floss_prim_legal_area_v2 if e(sample)==1, d
+gl mean_r6 = round(r(mean), .01)
+
+*-------------------------------------------------------------------------------
+* Table and coefplot
+*-------------------------------------------------------------------------------
+*Exporting results 
+esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_privgains.tex", keep(mayorallied) ///
+se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
+prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
+            `"\hline \toprule"'                     ///
+            `" & \multicolumn{2}{c}{Primary Forest Loss (\%)} & \multicolumn{2}{c}{Illegal Forest Loss (\%)} & \multicolumn{2}{c}{Legal Forest Loss (\%)} \\ \cmidrule(l){2-3} \cmidrule(l){4-5} \cmidrule(l){6-7}"' ///
+            `" & Only green & Only non-green & Only green & Only non-green & Only green & Only non-green \\"' ///
+            `" & parties & parties & parties & parties & parties & parties \\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) \\"'                       ///
+            `" \toprule"')  ///
+    postfoot(`" Dependent mean & ${mean_r1} & ${mean_r2} & ${mean_r3} & ${mean_r4} & ${mean_r5} & ${mean_r6} \\\\"' ///
+	`" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+	`"\bottomrule \end{tabular}"') 
+	
+*Municipalities under a green vs non-green governor 
 eststo r1: reghdfe floss_prim_ideam_area_v2 ${controls} dmdn_politics2 [aw=tweights] ${if} & director_gob_law_v2==1 & green_party_v2_gov==1 & green_party_v2_alc==1, abs(${fes}) vce(robust) keepsing
 summ floss_prim_ideam_area_v2 if e(sample)==1, d
 gl mean_r1 = round(r(mean), .01)
@@ -458,11 +501,12 @@ gl mean_r6 = round(r(mean), .01)
 * Table and coefplot
 *-------------------------------------------------------------------------------
 *Exporting results 
-esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_privgains.tex", keep(mayorallied) ///
+esttab r1 r2 r3 r4 r5 r6 using "${tables}/rdd_mechs_results_privgains_govhead.tex", keep(mayorallied) ///
 se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 label nolines fragment nomtitle nonumbers obs nodep collabels(none) booktabs b(3) replace ///
 prehead(`"\begin{tabular}{@{}l*{6}{c}}"' ///
-            `"\hline \toprule"'                     ///
+            `"\hline \toprule"'                     ///			
+            `"\multicolumn{7}{l}{\textit{Panel A: Governor is head of REPA}} \\ \midrule"' ///	
             `" & \multicolumn{2}{c}{Primary Forest Loss (\%)} & \multicolumn{2}{c}{Illegal Forest Loss (\%)} & \multicolumn{2}{c}{Legal Forest Loss (\%)} \\ \cmidrule(l){2-3} \cmidrule(l){4-5} \cmidrule(l){6-7}"' ///
             `" & Only green & Only non-green & Only green & Only non-green & Only green & Only non-green \\"' ///
             `" & parties & parties & parties & parties & parties & parties \\"' ///
