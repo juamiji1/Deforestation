@@ -326,12 +326,41 @@ esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p1_8 using "${tables}/rd_lc_resul
             `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
             `"\bottomrule \end{tabular}"')
 
-
 			
-			
+*-------------------------------------------------------------------------------
+* Test on predictors of alignment 
+*
+*-------------------------------------------------------------------------------	
+*Treatment predictors labels
+la var altura "Altitude (masl)"
+la var pre_ln_inv_total "Log(Public Investment)"
+
+gl xvars "ln_area altura ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total mean_sut_crops"
+
+eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., abs(${fes}) vce(robust)
+
+testparm ${xvars}
+local F=round(r(F), .01) 
+estadd scalar Fstat = r(F)
+
+esttab r using "${tables}/rd_lc_treatment_imbalanced.tex", ///
+    keep(${xvars}) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+	label nolines fragment nomtitle nonumbers nodep collabels(none) booktabs b(3) replace ///
+	prehead(`"\begin{tabular}{@{}l*{1}{c}}"' ///
+	        `"\hline \toprule"' ///
+	        `" & Partisan Alignment \\"' ///
+	        `" & (1) \\"' ///
+	        `"\midrule"') ///
+	stats(Fstat r2, fmt(2 3 0) labels("F-stat (joint)" "R-squared")) ///
+	postfoot(`" Observations & ${N} \\"' ///
+			`" Bandwidth & ${ht} \\"' ///
+	         `"\bottomrule \end{tabular}"')
+	
 
 
-			
+
+	   
 *END
 
 
