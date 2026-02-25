@@ -338,11 +338,31 @@ la var pre_ln_inv_total "Log(Public Investment)"
 gl xvars "ln_area altura ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total mean_sut_crops"
 
 eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., noabs vce(robust)
+	   
+eststo r: reghdfe mayorallied ${xvars} ${if} & ///
        director_gob_law_v2!=., abs(${fes}) vce(robust)
 
 testparm ${xvars}
 local F=round(r(F), .01) 
 estadd scalar Fstat = r(F)
+
+collapse (mean) ln_area altura ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total mean_sut_crops region z_sh_votes_alc mayorallied director_gob_law_v2, by(coddane election)
+
+eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., noabs vce(robust)
+	   
+eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., abs(election region) vce(robust)
+
+	   
+	   
+
+
+	   
+
+eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., noabs vce(robust)
 
 esttab r using "${tables}/rd_lc_treatment_imbalanced.tex", ///
     keep(${xvars}) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
