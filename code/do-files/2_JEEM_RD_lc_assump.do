@@ -100,6 +100,7 @@ gen sh_paarea = pa_area*100/carpaarea
 reghdfe floss_prim_ideam_area_v2 ${controls} [aw=tweights] ${if} & director_gob_law_v2!=., abs(${fes}) vce(robust)
 gen regsample=e(sample)
 gl N=e(N)
+unique coddane if e(sample)==1
 
 *Asigning the pre-treatment var value
 gl varst "ln_va ln_nl ln_regalias ln_inv_total sh_invenv sh_area_coca sh_area_bovino floss_prim_ideam_area sh_area_agro indrural crime_rate crime_env_rate crime_forest_rate sh_votes_alc incumbent_gob bii desemp_fisc_index"
@@ -159,6 +160,8 @@ la var pre_sh_area_bovino "Cattle per Km2"
 la var pre_floss_prim_ideam_area "Primary Forest loss (sh)"
 
 la var ruggedness "Ruggedness (mts)"
+
+END 
 
 *-------------------------------------------------------------------------------
 * LC Results
@@ -335,46 +338,147 @@ esttab p3_1 p3_2 p3_3 p3_4 p3_5 p3_6 p3_7 p3_8 p1_8 using "${tables}/rd_lc_resul
 la var altura "Altitude (masl)"
 la var pre_ln_inv_total "Log(Public Investment)"
 
+collapse (mean) ${geovars} ${econvars} ${demovars} floss_prim_ideam_area_v2 region z_sh_votes_alc mayorallied director_gob_law_v2, by(coddane election)
+
+eststo r: reghdfe floss_prim_ideam_area_v2 mayorallied ${if} & ///
+       director_gob_law_v2!=., noabs vce(robust)
+gl N=e(N)
+unique coddane if e(sample)==1
+
+*-------------------------------------------------------------------------------
+* Collapsed LC table 
+*-------------------------------------------------------------------------------
+* Recalculate triangular weights for collapsed data
+cap drop tweights
+gen tweights = (1 - abs(z_sh_votes_alc/${h})) ${if}
+
+gl cN = ${N}
+
+eststo clear
+
+*Geographic characteristics
+local i = 1
+foreach yvar of global geovars {
+    eststo cp1_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., noabs vce(robust)
+    summ `yvar' if e(sample)==1, d
+    gl cmp1_`i' = "`=string(round(r(mean), .01), "%9.2f")'"
+    gl csp1_`i' = "`=string(round(r(sd), .01), "%9.2f")'"
+    local i = `i' + 1
+}
+
+*Demographic characteristics
+local i = 1
+foreach yvar of global demovars {
+    eststo cp2_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., noabs vce(robust)
+    summ `yvar' if e(sample)==1, d
+    gl cmp2_`i' = "`=string(round(r(mean), .01), "%9.2f")'"
+    gl csp2_`i' = "`=string(round(r(sd), .01), "%9.2f")'"
+    local i = `i' + 1
+}
+
+*Economic characteristics
+local i = 1
+foreach yvar of global econvars {
+    eststo cp3_`i': reghdfe `yvar' ${controls} [aw=tweights] ${if} & ///
+        director_gob_law_v2!=., noabs vce(robust)
+    summ `yvar' if e(sample)==1, d
+    gl cmp3_`i' = "`=string(round(r(mean), .01), "%9.2f")'"
+    gl csp3_`i' = "`=string(round(r(sd), .01), "%9.2f")'"
+    local i = `i' + 1
+}
+
+* --- Panel A: Geographical Characteristics ---
+esttab cp3_9 cp1_1 cp1_2 cp1_3 cp1_4 cp1_5 cp1_6 cp1_7 cp1_9 using "${tables}/rd_lc_results_collapsed.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) replace ///
+    prehead(`"\begin{tabular}{@{}l*{9}{c}}"' ///
+            `"\hline \toprule"' ///
+            `"\multicolumn{10}{c}{\textit{Panel A: Geographical Characteristics}} \\"' ///
+            `"\midrule"' ///
+            `" & Primary forest & Log(Area km2) & Area in & Agricultural  & Primary forest & Protected area & Altitude  & Ruggedness  & Log(Distance to \\"' ///
+            `" & loss (sh) &  &  REPA (sh) & area (sh) & cover (sh) & in REPA (sh) & (masl) & (mts) & market km2) \\"' ///
+            `" & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8) & (9) \\"' ///
+            `"\midrule"') ///
+    postfoot(`"\\"' ///
+            `" Dependent mean & ${cmp3_9} & ${cmp1_1} & ${cmp1_2} & ${cmp1_3} & ${cmp1_4} & ${cmp1_5} & ${cmp1_6} & ${cmp1_7} & ${cmp1_9} \\"' ///
+            `" Dependent std. dev. & ${csp3_9} & ${csp1_1} & ${csp1_2} & ${csp1_3} & ${csp1_4} & ${csp1_5} & ${csp1_6} & ${csp1_7} & ${csp1_9} \\"' ///
+            `"\toprule"' ///
+            `"\multicolumn{10}{c}{\textit{Panel B: Demographic and Politic Characteristics}} \\"' ///
+            `"\midrule"' ///
+            `" & Log(Population & Population & Rurality & Gini & Crime rate & Env. crime rate & Forest crime rate & Registered & Party incumbency \\"' ///
+            `" & -'93) & density-'93 & index & index & (per 100k inh) & (per 100k inh) & (per 100k inh) & voters (sh) & (prob) \\"' ///
+            `" & (10) & (11) & (12) & (13) & (14) & (15) & (16) & (17) & (18) \\"' ///
+            `"\midrule"')
+
+* --- Panel B: Demographic and Politic Characteristics ---
+esttab cp2_1 cp2_2 cp2_3 cp2_4 cp2_5 cp2_6 cp2_7 cp2_8 cp2_9 using "${tables}/rd_lc_results_collapsed.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`"\\"' ///
+            `" Dependent mean & ${cmp2_1} & ${cmp2_2} & ${cmp2_3} & ${cmp2_4} & ${cmp2_5} & ${cmp2_6} & ${cmp2_7} & ${cmp2_8} & ${cmp2_9} \\"' ///
+            `" Dependent std. dev. & ${csp2_1} & ${csp2_2} & ${csp2_3} & ${csp2_4} & ${csp2_5} & ${csp2_6} & ${csp2_7} & ${csp2_8} & ${csp2_9} \\"' ///
+            `"\toprule"' ///
+            `"\multicolumn{10}{c}{\textit{Panel C: Economic Characteristics}} \\"' ///
+            `"\midrule"' ///
+            `" & Log(GDP) & Log(Night  & Fiscal & Log(Royalties) & Log(Public & Enviromental & Coca  & Cattle head & Crop \\"' ///
+            `" &  & Light) & performance  &  & investment) & investment (Sh) & area (sh) & per Km2 & suitability \\"' ///
+            `" & (19) & (20) & (21) & (22) & (23) & (24) & (25) & (26) & (27) \\"' ///
+            `"\midrule"')
+
+* --- Panel C: Economic Characteristics ---
+esttab cp3_1 cp3_2 cp3_3 cp3_4 cp3_5 cp3_6 cp3_7 cp3_8 cp1_8 using "${tables}/rd_lc_results_collapsed.tex", ///
+    keep(mayorallied) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
+    label nolines fragment nomtitle nonumbers noobs nodep collabels(none) booktabs b(3) append ///
+    postfoot(`"\\"' ///
+            `" Dependent mean & ${cmp3_1} & ${cmp3_2} & ${cmp3_3} & ${cmp3_4} & ${cmp3_5} & ${cmp3_6} & ${cmp3_7} & ${cmp3_8} & ${cmp1_8} \\"' ///
+            `" Dependent std. dev. & ${csp3_1} & ${csp3_2} & ${csp3_3} & ${csp3_4} & ${csp3_5} & ${csp3_6} & ${csp3_7} & ${csp3_8} & ${csp1_8} \\"' ///
+            `"\midrule"' ///
+            `" Observations & ${cN} & ${cN} & ${cN} & ${cN} & ${cN} & ${cN} & ${cN} & ${cN} & ${cN} \\"' ///
+            `" Bandwidth & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} & ${ht} \\"' ///
+            `"\bottomrule \end{tabular}"')
+
+
+*-------------------------------------------------------------------------------
+*Prediction of treatment
+*-------------------------------------------------------------------------------
 gl xvars "ln_area altura ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total mean_sut_crops"
 
-eststo r: reghdfe mayorallied ${xvars} ${if} & ///
-       director_gob_law_v2!=., noabs vce(robust)
+la var mayorallied      "Partisan Alignment"
+la var ln_area          "Log(Area km2)"
+la var altura           "Altitude (masl)"
+la var ln_pobl_tot93    "Log(Population-'93)"
+la var pre_desemp_fisc_index "Fiscal Performance Index"
+la var pre_ln_inv_total "Log(Public Investment)"
+la var mean_sut_crops   "Crop Suitability"
 	   
-eststo r: reghdfe mayorallied ${xvars} ${if} & ///
-       director_gob_law_v2!=., abs(${fes}) vce(robust)
+eststo r1: reghdfe mayorallied ${xvars} ${if} & ///
+       director_gob_law_v2!=., noabs vce(robust)
 
 testparm ${xvars}
-local F=round(r(F), .01) 
 estadd scalar Fstat = r(F)
-
-collapse (mean) ln_area altura ln_pobl_tot93 pre_desemp_fisc_index pre_ln_inv_total mean_sut_crops region z_sh_votes_alc mayorallied director_gob_law_v2, by(coddane election)
-
-eststo r: reghdfe mayorallied ${xvars} ${if} & ///
-       director_gob_law_v2!=., noabs vce(robust)
+estadd scalar Fpval = r(p)
 	   
-eststo r: reghdfe mayorallied ${xvars} ${if} & ///
+eststo r2: reghdfe mayorallied ${xvars} ${if} & ///
        director_gob_law_v2!=., abs(election region) vce(robust)
 
+testparm ${xvars}
+estadd scalar Fstat = r(F)
+estadd scalar Fpval = r(p)
 	   
-	   
-
-
-	   
-
-eststo r: reghdfe mayorallied ${xvars} ${if} & ///
-       director_gob_law_v2!=., noabs vce(robust)
-
-esttab r using "${tables}/rd_lc_treatment_imbalanced.tex", ///
+esttab r1 r2 using "${tables}/rd_lc_treatment_imbalanced.tex", ///
     keep(${xvars}) se nocons star(* 0.10 ** 0.05 *** 0.01) ///
 	label nolines fragment nomtitle nonumbers nodep collabels(none) booktabs b(3) replace ///
-	prehead(`"\begin{tabular}{@{}l*{1}{c}}"' ///
+	prehead(`"\begin{tabular}{@{}l*{2}{c}}"' ///
 	        `"\hline \toprule"' ///
-	        `" & Partisan Alignment \\"' ///
-	        `" & (1) \\"' ///
+	        `" & \multicolumn{2}{c}{Partisan Alignment} \\"' ///
+	        `" & (1) & (2) \\"' ///
 	        `"\midrule"') ///
-	stats(Fstat r2, fmt(2 3 0) labels("F-stat (joint)" "R-squared")) ///
-	postfoot(`" Observations & ${N} \\"' ///
-			`" Bandwidth & ${ht} \\"' ///
+	stats(Fstat Fpval r2_a, fmt(2 3 3) labels("F-stat (joint)" "F-stat p-value" "Adj. R-squared")) ///
+	postfoot(`" Election \& Region FE & No & Yes \\"' ///
+	         `" Observations & ${cN} & ${cN} \\"' ///
+			 `" Bandwidth & ${ht} & ${ht} \\"' ///
 	         `"\bottomrule \end{tabular}"')
 	
 
