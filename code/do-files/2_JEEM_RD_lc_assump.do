@@ -345,6 +345,8 @@ eststo r: reghdfe floss_prim_ideam_area_v2 mayorallied ${if} & ///
 gl N=e(N)
 unique coddane if e(sample)==1
 
+la var mayorallied      "Partisan Alignment"
+
 *-------------------------------------------------------------------------------
 * Collapsed LC table 
 *-------------------------------------------------------------------------------
@@ -478,7 +480,6 @@ esttab r1 r2 using "${tables}/rd_lc_treatment_imbalanced.tex", ///
 	stats(Fstat Fpval r2_a, fmt(2 3 3) labels("F-stat (joint)" "F-stat p-value" "Adj. R-squared")) ///
 	postfoot(`" Election \& Region FE & No & Yes \\"' ///
 	         `" Observations & ${cN} & ${cN} \\"' ///
-			 `" Bandwidth & ${ht} & ${ht} \\"' ///
 	         `"\bottomrule \end{tabular}"')
 	
 
