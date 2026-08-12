@@ -3,6 +3,8 @@
 **Paper:** *Power Plays in the Jungle — Political Alignment and Environmental Degradation in Colombia*
 **Authors:** Juan Miguel Jimenez, Lizeth Molina, Santiago Saavedra
 
+Published in the *Journal of Environmental Economics and Management* **138** (2026), 103335 — [doi:10.1016/j.jeem.2026.103335](https://doi.org/10.1016/j.jeem.2026.103335)
+
 ---
 
 ## Scope

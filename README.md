@@ -1,121 +1,109 @@
-# **Project:** Power Plays in the Jungle - Political Alignment and Environmental Degradation in Colombia  
+# Power Plays in the Jungle
+### Political Alignment and Environmental Degradation in Colombia
 
-**Author:** Juan Miguel Jimenez R.  
-**Contact:** [juamiji@gmail.com](mailto:juamiji@gmail.com)
+**Juan Miguel Jimenez** · **Lizeth Melissa Molina Alvarez** · **Santiago Saavedra**
+
+---
+
+## Publication
+
+> Jimenez, J.M., Molina Alvarez, L.M., & Saavedra, S. (2026). Power plays in the jungle: Political alignment and environmental degradation in Colombia. *Journal of Environmental Economics and Management*, **138**, 103335.
+
+[**DOI: 10.1016/j.jeem.2026.103335**](https://doi.org/10.1016/j.jeem.2026.103335) · [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0095069626000550) · Open access
 
 ---
 
 ## Overview
-This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs). Using a regression discontinuity design (RDD) based on close mayoral elections, we find that when governors and mayors are politically aligned, *deforestation increases by about 60%*—especially where political actors dominate agency boards and around election years. Despite higher forest loss, *no gains in local income or public investment* are observed, suggesting that forests are being lost without broader social benefits. The findings highlight how institutional design can leave environmental governance vulnerable to political capture, underscoring the need for stronger safeguards.
+
+This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs) — the *Corporaciones Autónomas Regionales* that hold environmental authority at the regional level and are governed by boards on which governors and mayors sit.
+
+Using a regression discontinuity design based on close mayoral elections, we find that when a mayor is politically aligned with the governor, annual deforestation rises by **0.044 percentage points — roughly 40 percent relative to the mean**. The effect is concentrated in REPAs where the governor legally heads the board, where political actors dominate decision-making, and around election years. It is driven almost entirely by *illegal* forest loss, and it comes with **no measurable gains in local income, public investment, or economic activity**.
+
+Forests are being lost without broader social benefits. Institutional design, not just enforcement capacity, leaves environmental governance open to political capture.
 
 ---
 
-## Environment Setup
-To replicate results, ensure access to:
+## Replicating the paper
 
-| Tool | Notes |
-|------|-------|
-| *Stata 19* | Main analysis and data processing |
-| *Google Earth Engine* | Remote sensing data access |
-| *Python 3.x* | Language used for GEE |
-| *Jupyter Notebooks* | Python execution environment |
-| *GitHub* | Version control |
-| *Dropbox* | Data and output storage |
+**→ Everything you need is in [`code/replication/`](code/replication/).**
 
-### Key Python Packages
-`ee`, `geemap`, `pandas`, `jupyter`
+That folder is a self-contained package that reproduces every table and figure in the published paper from the analysis dataset. It ships with its own master do-file, the required data, a package installer, and a manifest mapping each exhibit to the script and line that produces it.
 
----
+Start with [`code/replication/README.md`](code/replication/README.md). In short: set one path in `0_JEEM_master_replication.do` and run it. Output lands in `code/replication/output/`.
 
-## Directory Structure
+| | |
+|---|---|
+| **Software** | Stata 19 |
+| **Runtime** | one pass over 14 scripts |
+| **Data** | included in the package (`defo_caralc.dta`, 57 MB, not versioned in git) |
+| **Scope** | results only — see below for data construction |
 
-| Location | Contents |
-|-----------|-----------|
-| `/Deforestation/data` | All raw and processed datasets |
-| `/Deforestation/code` | Stata, and Python scripts |
-| `/Overleaf/tables` | Tables for manuscript |
-| `/Overleaf/plots` | Figures and plots |
-| `/Overleaf/Politicians_Deforestation` | Main manuscript |
-| `/Dropbox/Deforestation` | Shared data repository |
-
-*Overleaf project:* [View here](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56)
+The replication package deliberately excludes data construction, the satellite-measure notebooks, and the maps. Those are documented below for anyone who wants to rebuild the analysis dataset from raw sources.
 
 ---
 
-## Code Organization
-All scripts are stored within the `/code` directory:  
-- *Stata do-files:* located in `/code/do-files`  
-- *Python notebooks:* located in `/code/python-scripts`  
+## Repository structure
 
-Each file name begins with a numeric prefix indicating its role in the analysis pipeline:
+```
+code/
+├── replication/        ← self-contained replication package (start here)
+├── do-files/           working Stata code, including data construction
+├── python-scripts/     Google Earth Engine notebooks
+└── zold/               archived earlier approaches (DiD, IV, event study)
 
-| Prefix | Purpose |
-|--------|----------|
-| `0_` | Master pipeline coordination |
-| `1_` | Data preparation and cleaning |
-| `2_` | Descriptive analysis and RDD assumptions |
-| `3_` | Main estimations |
-| `4_` | Robustness checks and extensions |
+do/                     pre-2022 generation of the project, superseded
+material/               reference notes and sources
+```
+
+Data lives outside the repository, in Dropbox (`My-Research/Deforestation/data`); the manuscript lives in a separate Overleaf project. The repository holds code only.
 
 ---
 
-## Pipeline for replication
-The master file that coordinates the entire analysis pipeline is `0_JEEM_master.do`.
+## Rebuilding the analysis dataset
 
-### 1. Data Preparation & Satellite Replication
-| File | Description |
-|------|--------------|
+Not required for replication — the finished dataset ships with the package. This is for extending the project or auditing the construction.
+
+**1 · Satellite measures** (`code/python-scripts/`, Python + Google Earth Engine)
+
+| Notebook | Measure |
+|---|---|
 | `1_forestloss_measures_replication.ipynb` | Forest loss (Hansen GFC) |
 | `1_forestloss_IDEAM_measures_replication.ipynb` | Forest loss (IDEAM) |
 | `1_forestloss_illegal_measures_replication.ipynb` | Illegal deforestation |
 | `1_primary_forest_measures_replication.ipynb` | Primary forest cover |
-| `1_primary_forest_protected_measures_replication.ipynb` | Protected primary forests |
+| `1_primary_forest_pretected_measures_replication.ipynb` | Protected primary forests |
 | `1_bii_measures_replication.ipynb` | Biodiversity Intactness Index |
 | `1_land_change_replication.ipynb` | Land use change |
-| `1_nl_measures_replication.ipynb` | Night lights analysis |
-| `1_JEEM_preparing_data.do` | Data cleaning and merging |
+| `1_nl_measures_replication.ipynb` | Night lights |
+| `fires_measures_replication.ipynb` | Fires and hotspots |
+
+Requires GEE authentication and substantial compute. Key packages: `ee`, `geemap`, `pandas`, `jupyter`.
+
+**2 · Merge** (`code/do-files/1_JEEM_preparing_data.do`)
+
+Combines the satellite measures with roughly 25 administrative sources — electoral records, REPA board composition, Fiscalía environmental crimes, the ICA livestock census, IDEAM forest permits, CEDE municipal characteristics, and 1990s baselines — into `defo_caralc.dta`, the municipality-year analysis panel.
+
+**3 · Analysis** — the scripts in `code/replication/do-files/`.
+
+Maps are drawn in external GIS software from `map_inputs.csv` and are not reproducible from this repository.
 
 ---
 
-### 2. Descriptives & RDD Assumptions
-| File | Description |
-|------|--------------|
-| `2_JEEM_descriptives.do` | Descriptive statistics |
-| `2_JEEM_RD_lc_assump.do` | RDD validity checks |
+## Identification at a glance
+
+| Element | Variable | Definition |
+|---|---|---|
+| Outcome | `floss_prim_ideam_area_v2` | primary forest lost, % of 2000 baseline cover |
+| Treatment | `mayorallied` | mayor's party = governor's party |
+| Running variable | `z_sh_votes_alc` | aligned candidate's vote share − 0.5 |
+| Moderator | `director_gob_law_v2` | law mandates the governor as REPA board head |
+
+Sample: municipality-years where the mayoral winner or runner-up was aligned with the governor. Local linear RD, triangular kernel, region and year fixed effects, CCT optimal bandwidth of 9.8 percentage points — 1,293 observations inside the window.
 
 ---
 
-### 3. Main Analysis (RDD)
-| File | Description |
-|------|--------------|
-| `3_JEEM_RD_main.do` | Main results |
-| `3_JEEM_RD_mechs.do` | Mechanisms |
-| `3_JEEM_RD_econchars.do` | Economic characteristics |
-| `3_JEEM_RD_bii.do` | Biodiversity effects |
+## Contact
 
----
+Juan Miguel Jimenez R. — [juamiji@gmail.com](mailto:juamiji@gmail.com)
 
-### 4. Robustness & Additional Analyses
-| File | Description |
-|------|--------------|
-| `4_JEEM_RD_main_robustness.do` | Robustness checks |
-| `4_JEEM_RD_main_lccontrols.do` | Land cover controls |
-| `4_JEEM_RD_main_placebos.do` | Placebo tests |
-| `4_JEEM_RD_main_plotslargebw.do` | RD plots (wide bandwidth) |
-| `4_JEEM_RD_main_neighbors.do` | Neighbor-based analysis |
-| `4_JEEM_RD_main_electerm.do` | Electoral term results |
-
----
-
-## Reproduction Guide
-1. Clone the repository and pull the latest version.  
-2. Mirror the Dropbox structure shown above.  
-3. Authenticate with Google Earth Engine.  
-4. Run the Jupyter notebooks to generate satellite indicators.  
-5. Execute Stata scripts starting from `0_JEEM_master.do`.  
-6. Export tables and plots for Overleaf.
-
----
-
-For questions or issues, please contact the authors.
-
+*Maintainer note:* the manuscript source is in the private Overleaf project [6535e4744c49b4c847ec1f56](https://www.overleaf.com/project/6535e4744c49b4c847ec1f56).
