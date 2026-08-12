@@ -1,7 +1,6 @@
 # Power plays in the jungle: Political alignment and environmental degradation in Colombia
-## Jimenez, J.M., Molina Alvarez, L.M., & Saavedra, S. (2026). . *Journal of Environmental Economics and Management*, **138**, 103335.
-
-[**DOI: 10.1016/j.jeem.2026.103335**](https://doi.org/10.1016/j.jeem.2026.103335) · [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0095069626000550) · Open access
+## Authors: Jimenez, J.M., Molina Alvarez, L.M., & Saavedra, S. 
+## Publication: *Journal of Environmental Economics and Management*, 2026, **138**, 103335. [**DOI: 10.1016/j.jeem.2026.103335**](https://doi.org/10.1016/j.jeem.2026.103335) · [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0095069626000550) · Open access
 
 ---
 
