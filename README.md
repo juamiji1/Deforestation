@@ -15,11 +15,11 @@ We examine how political dynamics shape environmental outcomes in Colombia, focu
 
 ## Replicating the paper
 
-**→ Everything you need is in [`code/replication/`](code/replication/).**
+**→ Everything you need is in [`code/JEEM-replication/`](code/JEEM-replication/).**
 
 That folder is a self-contained package that reproduces every table and figure in the published paper from the analysis dataset. It ships with its own master do-file, the required data, a package installer, and a manifest mapping each exhibit to the script and line that produces it.
 
-Start with [`code/replication/README.md`](code/replication/README.md). In short: set one path in `0_JEEM_master_replication.do` and run it. Output lands in `code/replication/output/`.
+Start with [`code/JEEM-replication/README.md`](code/JEEM-replication/README.md). In short: set one path in `0_JEEM_master_replication.do` and run it. Output lands in `code/JEEM-replication/output/`.
 
 | | |
 |---|---|
@@ -36,7 +36,7 @@ The replication package deliberately excludes data construction, the satellite-m
 
 ```
 code/
-├── replication/        ← self-contained replication package (start here)
+├── JEEM-replication/   ← self-contained replication package (start here)
 ├── do-files/           working Stata code, including data construction
 ├── python-scripts/     Google Earth Engine notebooks
 └── zold/               archived earlier approaches (DiD, IV, event study)
@@ -73,7 +73,7 @@ Requires GEE authentication and substantial compute. Key packages: `ee`, `geemap
 
 Combines the satellite measures with roughly 25 administrative sources — electoral records, REPA board composition, Fiscalía environmental crimes, the ICA livestock census, IDEAM forest permits, CEDE municipal characteristics, and 1990s baselines — into `defo_caralc.dta`, the municipality-year analysis panel.
 
-**3 · Analysis** — the scripts in `code/replication/do-files/`.
+**3 · Analysis** — the scripts in `code/JEEM-replication/do-files/`.
 
 Maps are drawn in external GIS software from `map_inputs.csv` and are not reproducible from this repository.
 

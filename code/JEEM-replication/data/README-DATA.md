@@ -11,7 +11,7 @@ data/
     └── muni_neighbors.xls    530 KB   municipal adjacency pairs
 ```
 
-They are **excluded from git** by `../.gitignore` — the repository stores code, not data. Ship them with the package when distributing it (zip the whole `replication/` folder), or re-copy from the project data directory (`Dropbox/My-Research/Deforestation/data`) if they go missing.
+They are **excluded from git** by `../.gitignore` — the repository stores code, not data. Ship them with the package when distributing it (zip the whole `JEEM-replication/` folder), or re-copy from the project data directory (`Dropbox/My-Research/Deforestation/data`) if they go missing.
 
 | File | Used by | Notes |
 |---|---|---|

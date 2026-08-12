@@ -26,7 +26,7 @@ The analysis dataset is taken as given. See [Known gaps](#known-gaps) for the fo
 ## Contents
 
 ```
-replication/
+JEEM-replication/
 ├── 0_JEEM_master_replication.do   run this
 ├── _install_packages.do           Stata packages, run once
 ├── MANIFEST.md                    every exhibit → script that makes it
@@ -43,12 +43,12 @@ replication/
 
 1. **Install packages.** Uncomment the `_install_packages.do` line in the master, run once, re-comment. Requires internet.
 
-2. **Check the data.** All three input files are already in `data/` — see [data/README-DATA.md](data/README-DATA.md). They are excluded from git, so zip the whole `replication/` folder when distributing the package.
+2. **Check the data.** All three input files are already in `data/` — see [data/README-DATA.md](data/README-DATA.md). They are excluded from git, so zip the whole `JEEM-replication/` folder when distributing the package.
 
 3. **Set the path.** Edit one line at the top of `0_JEEM_master_replication.do`:
 
    ```stata
-   gl repl "C:/Github/Deforestation/code/replication"
+   gl repl "C:/Github/Deforestation/code/JEEM-replication"
    ```
 
    Everything else derives from it. The master aborts with a clear message if the data isn't found.

@@ -21,7 +21,7 @@ set more off
 *-------------------------------------------------------------------------------
 * USER INPUT - set this to the folder containing this do-file
 *-------------------------------------------------------------------------------
-gl repl "C:/Github/Deforestation/code/replication"
+gl repl "C:/Github/Deforestation/code/JEEM-replication"
 
 *-------------------------------------------------------------------------------
 * Derived paths - do not edit
