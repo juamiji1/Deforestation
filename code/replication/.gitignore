@@ -1,0 +1,16 @@
+# Data inputs are not versioned (defo_caralc.dta alone is 60 MB).
+# See data/README-DATA.md for what to place here.
+data/Interim/*.dta
+data/muniCAR/*.xls
+data/**/*.csv
+
+# Generated output
+output/tables/*.tex
+output/tables/*.txt
+output/plots/*.pdf
+output/plots/*.png
+
+# Stata artifacts
+*.log
+*.smcl
+!.gitkeep

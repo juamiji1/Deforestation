@@ -34,8 +34,6 @@ grstyle color background white
 grstyle color major_grid white
 
 
-END
-
 *-------------------------------------------------------------------------------
 * Work flow 
 *
@@ -44,6 +42,7 @@ do "${code}\1_JEEM_preparing_data.do"
 
 do "${code}\2_JEEM_descriptives.do"
 do "${code}\2_JEEM_RD_lc_assump.do"
+do "${code}\2_JEEM_RD_lc_assump_rdplots.do"
 
 do "${code}\3_JEEM_RD_main.do"
 do "${code}\3_JEEM_RD_mechs.do"
@@ -54,6 +53,7 @@ do "${code}\4_JEEM_RD_main_lccontrols.do"
 do "${code}\4_JEEM_RD_main_placebos.do"
 do "${code}\4_JEEM_RD_main_plotslargebw.do"
 do "${code}\4_JEEM_RD_main_neighbors.do"
+do "${code}\4_JEEM_RD_main_sutva.do"
 do "${code}\4_JEEM_RD_main_electerm.do"
 
 do "${code}\3_JEEM_RD_bii.do"
