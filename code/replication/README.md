@@ -80,38 +80,6 @@ Each script is self-contained: it loads the analysis dataset itself and re-deriv
 
 **Specification.** All estimates follow equation (1): local linear RD with a triangular kernel, region and year fixed effects, at the CCT optimal bandwidth (0.098). Implemented by calling `rdrobust` to select the bandwidth, constructing triangular weights `1-|z/h|`, then estimating via `reghdfe` so that fixed effects and `esttab` export are available.
 
----
-
-## Differences from the working code
-
-The scripts are copies of `code/do-files/`, with two edits, both marked `REPLICATION PACKAGE:` in the source:
-
-1. **`2_JEEM_descriptives.do`** — the *Maps* block, which writes `map_inputs.csv` for external GIS, is commented out. It produces no paper exhibit, and disabling it keeps the package from writing into `data/`.
-
-2. **`2_JEEM_RD_lc_assump_rdplots.do`** — the optimal bandwidth is now derived at the top of the file. In the working version `${h}` was used on line 10 but not defined until line 22; it resolved only because the preceding script left the global behind in the same Stata session. Same `rdrobust` call, same bandwidth, but the file now runs standalone.
-
-No estimation code, sample restriction, or specification was changed.
-
----
-
-## Known gaps
-
-Four exhibits in the submitted manuscript cannot be produced by this package.
-
-**No code exists anywhere in the project** — not in the do-files, not in `zold/`, and `git log -S` finds them in no commit in the repository's history. They were produced in interactive Stata sessions whose code was never saved:
-
-| Exhibit | Last written |
-|---|---|
-| `rdd_placebo_post.tex` | 30 Mar |
-| `rdd_placebo_join.tex` | 19 Mar |
-| `rdplot_main_results_90controls.pdf` | 13 Nov |
-
-**Out of scope by design:** the maps (`map_muni_floss_prim_ideam_area_v2.pdf`, `map_muni_primary_forest_01.pdf`, `CARs_deptos.pdf`) and `floss_macarena.png`, the last of which comes from `code/python-scripts/1_floss_macarena.ipynb`.
-
-One further caveat on inputs: **`Desc_vars90.dta` is itself an orphan.** It is required here and ships as an input, but no code in the project creates it. Its predecessor `lcvars90.dta` was built by `code/zold/NEW_placebo_polmajority.do`; `Desc_vars90.dta` is a later regeneration whose script was never committed. It feeds `ttest_states.tex` only.
-
----
-
 ## Verification
 
 The `.tex` table fragments produced by this code were checked byte-for-byte against the frozen copies inside the submitted manuscript archive (`YJEEM_103335.zip`, 1 April 2026). `rdd_main_results`, `rdd_bii_results`, `rdd_mechs_results_alldefo_combined`, `rd_econchars_results`, and `rd_lc_results` are identical.
