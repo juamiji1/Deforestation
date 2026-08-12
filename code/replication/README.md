@@ -1,7 +1,7 @@
 # Replication Package — Results
 
 **Paper:** *Power Plays in the Jungle — Political Alignment and Environmental Degradation in Colombia*
-**Author:** Juan Miguel Jimenez R. ([juamiji@gmail.com](mailto:juamiji@gmail.com))
+**Authors:** Juan Miguel Jimenez, Lizeth Molina, Santiago Saavedra
 
 ---
 
