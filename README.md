@@ -1,16 +1,15 @@
 # Power plays in the jungle: Political alignment and environmental degradation in Colombia
-## Authors: Jimenez, J.M., Molina Alvarez, L.M., & Saavedra, S. 
-## Publication: *Journal of Environmental Economics and Management*, 2026, **138**, 103335. [**DOI: 10.1016/j.jeem.2026.103335**](https://doi.org/10.1016/j.jeem.2026.103335) · [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0095069626000550) · Open access
+### Authors: Jimenez, J.M., Molina Alvarez, L.M., & Saavedra, S. 
+### Publication: *Journal of Environmental Economics and Management*, 2026, **138**, 103335. [**DOI: 10.1016/j.jeem.2026.103335**](https://doi.org/10.1016/j.jeem.2026.103335) · [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0095069626000550) · Open access
 
 ---
 
-## Overview
+## Abstract
 
-This project examines how political dynamics shape environmental outcomes in Colombia, focusing on Regional Environmental Protection Agencies (REPAs) — the *Corporaciones Autónomas Regionales* that hold environmental authority at the regional level and are governed by boards on which governors and mayors sit.
+We examine how political dynamics shape environmental outcomes in Colombia, focusing on the role of Regional Environmental Protection Agencies (REPAs). To identify causal effects, we implement a regression discontinuity design based on close mayoral elections. Our results show that when governors—who sit on REPA boards—are politically aligned with local mayors, annual deforestation increases by 0.044 percentage points, or about 40 percent relative to the mean. The problem is most pronounced in agencies where political actors dominate decision-making. Crucially, additional deforestation does not translate into local economic gains, suggesting that forests are being lost without broader social benefit. These findings highlight how decentralized institutional design can leave environmental governance vulnerable to political capture, underscoring the need for safeguards in the governance structure of environmental authorities to protect natural resources from short-term political interests.
 
-Using a regression discontinuity design based on close mayoral elections, we find that when a mayor is politically aligned with the governor, annual deforestation rises by **0.044 percentage points — roughly 40 percent relative to the mean**. The effect is concentrated in REPAs where the governor legally heads the board, where political actors dominate decision-making, and around election years. It is driven almost entirely by *illegal* forest loss, and it comes with **no measurable gains in local income, public investment, or economic activity**.
-
-Forests are being lost without broader social benefits. Institutional design, not just enforcement capacity, leaves environmental governance open to political capture.
+**Keywords:** Deforestation, Political Economy, Colombia
+**JEL Classification:** P48, Q23
 
 ---
 
